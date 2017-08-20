@@ -12,6 +12,8 @@ namespace PoGo.DiscordBot.Modules
 {
     public class RaidModule : ModuleBase
     {
+        const ulong DefaultRaidChannelId = 348844165741936641;
+
         internal static ConcurrentDictionary<ulong, RaidInfoDto> Raids { get; } // <messageId, RaidInfo>
         static readonly RequestOptions retryOptions;
         static IMessageChannel raidChannel;
@@ -27,7 +29,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task Restore()
         {
             if (raidChannel == null)
-                raidChannel = await Context.Guild.GetTextChannelAsync(348844165741936641, options: retryOptions);
+                raidChannel = await Context.Guild.GetTextChannelAsync(DefaultRaidChannelId, options: retryOptions);
             await UpdateRaidMessages(raidChannel);
         }
 
@@ -36,7 +38,7 @@ namespace PoGo.DiscordBot.Modules
         {
             if (raidChannel == null)
             {
-                raidChannel = await Context.Guild.GetTextChannelAsync(348844165741936641, options: retryOptions);
+                raidChannel = await Context.Guild.GetTextChannelAsync(DefaultRaidChannelId, options: retryOptions);
                 await UpdateRaidMessages(raidChannel);
             }
 
@@ -134,7 +136,7 @@ namespace PoGo.DiscordBot.Modules
                     raidInfo.Users.Add(reaction.UserId, reaction.User.GetValueOrDefault());
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
-                else // if (reaction.Emote.Name != Emojis.ThumbsDown)
+                else if (reaction.Emote.Name != Emojis.ThumbsDown)
                 {
                     var user = reaction.User.GetValueOrDefault();
                     await raidMessage.RemoveReactionAsync(reaction.Emote, user, retryOptions);
