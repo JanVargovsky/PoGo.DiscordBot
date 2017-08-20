@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using PoGo.DiscordBot.Commands;
+using PoGo.DiscordBot.Modules;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +24,7 @@ namespace PoGo.DiscordBot
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity,
+                MessageCacheSize = 100,
             });
             commands = new CommandService(new CommandServiceConfig
             {
@@ -33,8 +34,8 @@ namespace PoGo.DiscordBot
             client.Log += Log;
             client.LoggedIn += LoggedIn;
             client.MessageReceived += HandleCommand;
-            client.ReactionAdded += RaidCommand.OnReactionAdded;
-            client.ReactionRemoved += RaidCommand.OnReactionRemoved;
+            client.ReactionAdded += RaidModule.OnReactionAdded;
+            client.ReactionRemoved += RaidModule.OnReactionRemoved;
         }
 
         public void Dispose()
@@ -54,8 +55,10 @@ namespace PoGo.DiscordBot
         async Task InitCommands()
         {
             var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await Log("Loading modules");
             foreach (var module in modules)
-                Console.WriteLine($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
+                await Log($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
+            await Log("Modules loaded");
         }
 
         async Task HandleCommand(SocketMessage messageParam)
@@ -79,7 +82,7 @@ namespace PoGo.DiscordBot
 
         async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel socketMessageChannel, SocketReaction socket)
         {
-            if (RaidCommand.ActiveRaids.TryGetValue(message.Id, out var raidInfo))
+            if (RaidModule.Raids.TryGetValue(message.Id, out var raidInfo))
             {
                 IUserMessage raidMessage = await message.GetOrDownloadAsync();
                 if (socket.Emote.Name == Emojis.ThumbsUp)
@@ -92,10 +95,14 @@ namespace PoGo.DiscordBot
             }
         }
 
-        Task LoggedIn()
+        async Task LoggedIn()
         {
-            Console.WriteLine("Logged in");
-            return Task.CompletedTask;
+            await Log("Logged in");
+        }
+
+        Task Log(string message)
+        {
+            return Log(new LogMessage(LogSeverity.Debug, "Code", message));
         }
 
         Task Log(LogMessage message)
@@ -120,17 +127,6 @@ namespace PoGo.DiscordBot
             }
             Console.WriteLine($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}");
             Console.ForegroundColor = cc;
-            return Task.CompletedTask;
-        }
-
-        Task MessageReceived(SocketMessage arg)
-        {
-            var message = arg as SocketUserMessage;
-            if (message == null) return Task.CompletedTask;
-            if (message.Content.StartsWith("!hovno"))
-                message.AddReactionAsync(new Emoji("💩"));
-
-            Console.WriteLine($"Received: {arg}");
             return Task.CompletedTask;
         }
     }
