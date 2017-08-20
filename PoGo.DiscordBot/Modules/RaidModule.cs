@@ -5,7 +5,6 @@ using MoreLinq;
 using PoGo.DiscordBot.Dto;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,7 +28,7 @@ namespace PoGo.DiscordBot.Modules
         {
             if (raidChannel == null)
                 raidChannel = await Context.Guild.GetTextChannelAsync(348844165741936641, options: retryOptions);
-            await FixRaidMessages(raidChannel);
+            await UpdateRaidMessages(raidChannel);
         }
 
         [Command("raid", RunMode = RunMode.Async)]
@@ -38,7 +37,7 @@ namespace PoGo.DiscordBot.Modules
             if (raidChannel == null)
             {
                 raidChannel = await Context.Guild.GetTextChannelAsync(348844165741936641, options: retryOptions);
-                await FixRaidMessages(raidChannel);
+                await UpdateRaidMessages(raidChannel);
             }
 
             var raidInfo = new RaidInfoDto
@@ -70,7 +69,7 @@ namespace PoGo.DiscordBot.Modules
             await message.AddReactionAsync(new Emoji(Emojis.ThumbsDown), retryOptions);
         }
 
-        async Task FixRaidMessages(IMessageChannel channel, int count = 10)
+        async Task UpdateRaidMessages(IMessageChannel channel, int count = 10)
         {
             var batchMessages = AsyncEnumerable.ToEnumerable(channel.GetMessagesAsync(count, options: retryOptions));
             foreach (var messages in batchMessages)
@@ -93,7 +92,8 @@ namespace PoGo.DiscordBot.Modules
             while (!Raids.TryAdd(message.Id, raidInfo)) ;
             // Adjust user count
             var usersWithThumbsUp = await message.GetReactionUsersAsync(Emojis.ThumbsUp);
-            raidInfo.Users = new HashSet<IUser>(usersWithThumbsUp.Where(t => !t.IsBot));
+            raidInfo.Users = usersWithThumbsUp.Where(t => !t.IsBot)
+                .ToDictionary(t => t.Id, t => t);
             await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
             var allReactions = message.Reactions;
@@ -115,7 +115,7 @@ namespace PoGo.DiscordBot.Modules
             {
                 if (reaction.Emote.Name == Emojis.ThumbsUp)
                 {
-                    if (raidInfo.Users.Remove(reaction.User.Value))
+                    if (raidInfo.Users.Remove(reaction.UserId))
                     {
                         IUserMessage raidMessage = await message.GetOrDownloadAsync();
                         await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
@@ -131,7 +131,7 @@ namespace PoGo.DiscordBot.Modules
                 IUserMessage raidMessage = await message.GetOrDownloadAsync();
                 if (reaction.Emote.Name == Emojis.ThumbsUp)
                 {
-                    raidInfo.Users.Add(reaction.User.Value);
+                    raidInfo.Users.Add(reaction.UserId, reaction.User.GetValueOrDefault());
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
                 else // if (reaction.Emote.Name != Emojis.ThumbsDown)

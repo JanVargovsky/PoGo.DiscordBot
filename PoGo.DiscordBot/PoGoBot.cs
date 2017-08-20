@@ -20,7 +20,7 @@ namespace PoGo.DiscordBot
 
         public PoGoBot()
         {
-            LogSeverity = LogSeverity.Debug;
+            LogSeverity = LogSeverity.Info;
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity,
@@ -87,7 +87,7 @@ namespace PoGo.DiscordBot
                 IUserMessage raidMessage = await message.GetOrDownloadAsync();
                 if (socket.Emote.Name == Emojis.ThumbsUp)
                 {
-                    raidInfo.Users.Add(socket.User.Value);
+                    raidInfo.Users.Add(socket.UserId, socket.User.GetValueOrDefault());
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
                 else

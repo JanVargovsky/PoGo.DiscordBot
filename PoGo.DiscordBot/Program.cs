@@ -12,14 +12,5 @@ namespace PoGo.DiscordBot
                 await Task.Delay(-1);
             }
         }
-
-        //static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
-
-        //async Task MainAsync()
-        //{
-        //    var bot = new PoGoBot();
-        //    await bot.RunAsync();
-        //    await Task.Delay(-1);
-        //}
     }
 }

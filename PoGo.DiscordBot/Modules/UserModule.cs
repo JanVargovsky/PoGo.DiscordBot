@@ -1,5 +1,7 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
+using PoGo.DiscordBot.Dto;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,15 +14,16 @@ namespace PoGo.DiscordBot.Modules
 
         static UserModule()
         {
-            availableTeams = new[] { "Mystic", "Instinct", "Valor" };
+            availableTeams = Enum.GetNames(typeof(PokemonTeam));
         }
 
         [Command("team", RunMode = RunMode.Async)]
         public async Task SetTeam(string teamName)
         {
-            var team = availableTeams.FirstOrDefault(t => t.Equals(teamName, StringComparison.InvariantCultureIgnoreCase));
-            if (team == null)
+            if (!Enum.TryParse(typeof(PokemonTeam), teamName, true, out var teamObj))
                 return;
+
+            var team = (PokemonTeam)teamObj;
 
             var contextUser = Context.User;
             var user = contextUser as SocketGuildUser;
@@ -38,6 +41,16 @@ namespace PoGo.DiscordBot.Modules
         public Task SetLevel(int level)
         {
             return Task.CompletedTask;
+        }
+
+        public static PokemonTeam? GetTeam(SocketGuildUser user)
+        {
+            var role = user.Roles.FirstOrDefault(t => availableTeams.Any(tt => tt.Equals(t.Name, StringComparison.InvariantCultureIgnoreCase)));
+
+            if (role == null || !Enum.TryParse(typeof(PokemonTeam), role.Name, true, out var teamObj) || !(teamObj is PokemonTeam team))
+                return null;
+
+            return team;
         }
     }
 }
