@@ -3,8 +3,10 @@ using Discord.Commands;
 using Discord.WebSocket;
 using MoreLinq;
 using PoGo.DiscordBot.Dto;
+using PoGo.DiscordBot.Services;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +18,8 @@ namespace PoGo.DiscordBot.Modules
 
         internal static ConcurrentDictionary<ulong, RaidInfoDto> Raids { get; } // <messageId, RaidInfo>
         static readonly RequestOptions retryOptions;
-        static IMessageChannel raidChannel;
+        static ITextChannel raidChannel;
+        readonly RoleService roleService;
 
         static RaidModule()
         {
@@ -24,12 +27,19 @@ namespace PoGo.DiscordBot.Modules
             retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         }
 
+        public RaidModule(RoleService roleService)
+        {
+            this.roleService = roleService;
+        }
+
         [Command("restore", RunMode = RunMode.Async)]
+        [Alias("r")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Restore()
         {
             if (raidChannel == null)
-                raidChannel = await Context.Guild.GetTextChannelAsync(DefaultRaidChannelId, options: retryOptions);
+                raidChannel = await GetRaidChannelAsync();
+
             await UpdateRaidMessages(raidChannel);
         }
 
@@ -37,10 +47,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task StartRaid(string bossName, string location, string time)
         {
             if (raidChannel == null)
-            {
-                raidChannel = await Context.Guild.GetTextChannelAsync(DefaultRaidChannelId, options: retryOptions);
-                await UpdateRaidMessages(raidChannel);
-            }
+                raidChannel = await GetRaidChannelAsync();
 
             var raidInfo = new RaidInfoDto
             {
@@ -51,19 +58,15 @@ namespace PoGo.DiscordBot.Modules
                 Time = time,
             };
 
-            var message = await raidChannel.SendMessageAsync(string.Empty, embed: raidInfo.ToEmbed());
+            var roles = await roleService.TeamRoles;
+            var mention = string.Join(' ', roles.Values.Select(t => t.Mention));
+            var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
             await SetDefaultReactions(message);
             raidInfo.MessageId = message.Id;
             while (!Raids.TryAdd(raidInfo.MessageId, raidInfo)) ;
         }
 
-        [Command("raidchannel", RunMode = RunMode.Default)]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public Task BindRaidChannel()
-        {
-            raidChannel = Context.Channel;
-            return Task.CompletedTask;
-        }
+        Task<ITextChannel> GetRaidChannelAsync() => Context.Guild.GetTextChannelAsync(DefaultRaidChannelId, options: retryOptions);
 
         async Task SetDefaultReactions(IUserMessage message)
         {
@@ -94,8 +97,9 @@ namespace PoGo.DiscordBot.Modules
             while (!Raids.TryAdd(message.Id, raidInfo)) ;
             // Adjust user count
             var usersWithThumbsUp = await message.GetReactionUsersAsync(Emojis.ThumbsUp);
-            raidInfo.Users = usersWithThumbsUp.Where(t => !t.IsBot)
-                .ToDictionary(t => t.Id, t => t);
+            foreach (var user in usersWithThumbsUp)
+                if (!user.IsBot)
+                    raidInfo.Users[user.Id] = await Context.Guild.GetUserAsync(user.Id);
             await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
             var allReactions = message.Reactions;
@@ -131,14 +135,14 @@ namespace PoGo.DiscordBot.Modules
             if (Raids.TryGetValue(message.Id, out var raidInfo))
             {
                 IUserMessage raidMessage = await message.GetOrDownloadAsync();
+                var user = await channel.GetUserAsync(reaction.UserId) as IGuildUser;
                 if (reaction.Emote.Name == Emojis.ThumbsUp)
                 {
-                    raidInfo.Users.Add(reaction.UserId, reaction.User.GetValueOrDefault());
+                    raidInfo.Users.Add(reaction.UserId, user);
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
                 else if (reaction.Emote.Name != Emojis.ThumbsDown)
                 {
-                    var user = reaction.User.GetValueOrDefault();
                     await raidMessage.RemoveReactionAsync(reaction.Emote, user, retryOptions);
                 }
             }

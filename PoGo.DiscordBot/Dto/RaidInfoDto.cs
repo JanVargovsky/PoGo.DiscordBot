@@ -13,22 +13,17 @@ namespace PoGo.DiscordBot.Dto
         public string BossName { get; set; }
         public string Location { get; set; }
         public string Time { get; set; }
-        public IDictionary<ulong, IUser> Users { get; set; }
+        public IDictionary<ulong, IGuildUser> Users { get; set; }
 
         public RaidInfoDto()
         {
-            Users = new Dictionary<ulong, IUser>();
+            Users = new Dictionary<ulong, IGuildUser>();
         }
 
         public string ToMessage() => $"Raid {BossName}, {Location}, {Time}";
 
         public Embed ToEmbed()
         {
-            string UserToString(IUser user)
-            {
-                return user is IGuildUser guildUser ? guildUser.Nickname : user.Username;
-            }
-
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder
                 .WithColor(Users.Count > 4 ? Color.Green : Color.Red)
@@ -36,7 +31,7 @@ namespace PoGo.DiscordBot.Dto
                 .AddInlineField("Kde", Location)
                 .AddInlineField("Čas", Time);
             if (Users.Any())
-                embedBuilder.AddField($"Lidi ({Users.Count})", string.Join(", ", Users.Values.Select(UserToString)));
+                embedBuilder.AddField($"Lidi ({Users.Count})", string.Join(", ", Users.Values.Select(t => t.Nickname ?? t.Username)));
             return embedBuilder.Build();
         }
 

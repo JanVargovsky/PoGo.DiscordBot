@@ -1,7 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using PoGo.DiscordBot.Modules;
+using PoGo.DiscordBot.Services;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -14,13 +16,21 @@ namespace PoGo.DiscordBot
         const string Token = "MzQ3ODM2OTIyMDM2NzQ4Mjg5.DHeNAg.X7SXUjVVWteb14T9ewdULDFBB0A";
         public const char Prefix = '!';
 
+
+        public IServiceProvider ServiceProvider { get; }
+
         readonly LogSeverity LogSeverity;
         readonly DiscordSocketClient client;
         readonly CommandService commands;
 
         public PoGoBot()
         {
+#if DEBUG
+            LogSeverity = LogSeverity.Debug;
+#else
             LogSeverity = LogSeverity.Info;
+
+#endif
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity,
@@ -31,11 +41,24 @@ namespace PoGo.DiscordBot
                 LogLevel = LogSeverity,
             });
 
+            ServiceProvider = ConfigureServices();
+
             client.Log += Log;
+            commands.Log += Log;
             client.LoggedIn += LoggedIn;
             client.MessageReceived += HandleCommand;
             client.ReactionAdded += RaidModule.OnReactionAdded;
             client.ReactionRemoved += RaidModule.OnReactionRemoved;
+        }
+
+        public IServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton(this);
+            services.AddSingleton<IDiscordClient>(client);
+            services.AddSingleton<RoleService>();
+
+            return services.BuildServiceProvider();
         }
 
         public void Dispose()
@@ -74,25 +97,10 @@ namespace PoGo.DiscordBot
             var context = new CommandContext(client, message);
             // Execute the command. (result does not indicate a return value, 
             // rather an object stating if the command executed succesfully)
-            var result = await commands.ExecuteAsync(context, argPos);
+            var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
                 Console.WriteLine(result.ErrorReason);
             //await context.Channel.SendMessageAsync(result.ErrorReason);
-        }
-
-        async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel socketMessageChannel, SocketReaction socket)
-        {
-            if (RaidModule.Raids.TryGetValue(message.Id, out var raidInfo))
-            {
-                IUserMessage raidMessage = await message.GetOrDownloadAsync();
-                if (socket.Emote.Name == Emojis.ThumbsUp)
-                {
-                    raidInfo.Users.Add(socket.UserId, socket.User.GetValueOrDefault());
-                    await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
-                }
-                else
-                    await raidMessage.RemoveReactionAsync(socket.Emote, socket.User.Value);
-            }
         }
 
         async Task LoggedIn()
@@ -126,6 +134,8 @@ namespace PoGo.DiscordBot
                     break;
             }
             Console.WriteLine($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}");
+            if(message.Exception != null)
+                Console.WriteLine(message.Exception);
             Console.ForegroundColor = cc;
             return Task.CompletedTask;
         }

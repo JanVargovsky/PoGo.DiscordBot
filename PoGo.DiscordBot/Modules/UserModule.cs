@@ -20,10 +20,8 @@ namespace PoGo.DiscordBot.Modules
         [Command("team", RunMode = RunMode.Async)]
         public async Task SetTeam(string teamName)
         {
-            if (!Enum.TryParse(typeof(PokemonTeam), teamName, true, out var teamObj))
+            if (!Enum.TryParse<PokemonTeam>(teamName, true, out var team))
                 return;
-
-            var team = (PokemonTeam)teamObj;
 
             var contextUser = Context.User;
             var user = contextUser as SocketGuildUser;
@@ -40,6 +38,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("level", RunMode = RunMode.Async)]
         public Task SetLevel(int level)
         {
+            //var guildUser = await Context.Guild.GetCurrentUserAsync();
             return Task.CompletedTask;
         }
 
