@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PoGo.DiscordBot.Managers;
 using PoGo.DiscordBot.Modules;
 using PoGo.DiscordBot.Services;
 using System;
@@ -22,6 +23,7 @@ namespace PoGo.DiscordBot
         readonly LogSeverity LogSeverity;
         readonly DiscordSocketClient client;
         readonly CommandService commands;
+        readonly LogManager logManager;
 
         public PoGoBot()
         {
@@ -42,6 +44,7 @@ namespace PoGo.DiscordBot
             });
 
             ServiceProvider = ConfigureServices();
+            logManager = ServiceProvider.GetService<LogManager>();
 
             client.Log += Log;
             commands.Log += Log;
@@ -57,6 +60,7 @@ namespace PoGo.DiscordBot
             services.AddSingleton(this);
             services.AddSingleton<IDiscordClient>(client);
             services.AddSingleton<RoleService>();
+            services.AddSingleton<LogManager>();
 
             return services.BuildServiceProvider();
         }
@@ -133,9 +137,15 @@ namespace PoGo.DiscordBot
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     break;
             }
-            Console.WriteLine($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}");
-            if(message.Exception != null)
+
+            string logMessage = $"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}";
+            Console.WriteLine(logMessage);
+            logManager.AddLog(logMessage);
+            if (message.Exception != null)
+            {
                 Console.WriteLine(message.Exception);
+                logManager.AddLog(message.Exception.ToString());
+            }
             Console.ForegroundColor = cc;
             return Task.CompletedTask;
         }

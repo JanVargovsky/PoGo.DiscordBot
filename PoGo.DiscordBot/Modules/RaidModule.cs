@@ -1,12 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using MoreLinq;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -44,7 +42,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("raid", RunMode = RunMode.Async)]
-        public async Task StartRaid(string bossName, string location, string time)
+        public async Task StartRaid(string bossName, string location, string time, int minimumPlayers = 4)
         {
             if (raidChannel == null)
                 raidChannel = await GetRaidChannelAsync();
@@ -56,6 +54,7 @@ namespace PoGo.DiscordBot.Modules
                 BossName = bossName,
                 Location = location,
                 Time = time,
+                MinimumPlayers = minimumPlayers,
             };
 
             var roles = await roleService.TeamRoles;
@@ -66,7 +65,15 @@ namespace PoGo.DiscordBot.Modules
             while (!Raids.TryAdd(raidInfo.MessageId, raidInfo)) ;
         }
 
-        Task<ITextChannel> GetRaidChannelAsync() => Context.Guild.GetTextChannelAsync(DefaultRaidChannelId, options: retryOptions);
+        [Command("bind", RunMode = RunMode.Async)]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task BindToChannel()
+        {
+            raidChannel = await GetRaidChannelAsync(Context.Message.Channel.Id);
+            await ReplyAsync("Raids are binded to this chanel.");
+        }
+
+        Task<ITextChannel> GetRaidChannelAsync(ulong id = DefaultRaidChannelId) => Context.Guild.GetTextChannelAsync(id, options: retryOptions);
 
         async Task SetDefaultReactions(IUserMessage message)
         {
@@ -77,12 +84,12 @@ namespace PoGo.DiscordBot.Modules
         async Task UpdateRaidMessages(IMessageChannel channel, int count = 10)
         {
             var batchMessages = AsyncEnumerable.ToEnumerable(channel.GetMessagesAsync(count, options: retryOptions));
+            var now = DateTime.Now.AddHours(-3);
             foreach (var messages in batchMessages)
             {
                 foreach (var message in messages)
                 {
-                    var userMessage = message as IUserMessage;
-                    if (userMessage != null)
+                    if (message is IUserMessage userMessage && userMessage.Timestamp > now)
                         await FixMessageAfterLoad(userMessage);
                 }
             }

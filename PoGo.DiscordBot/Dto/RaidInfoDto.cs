@@ -13,23 +13,38 @@ namespace PoGo.DiscordBot.Dto
         public string BossName { get; set; }
         public string Location { get; set; }
         public string Time { get; set; }
-        public IDictionary<ulong, IGuildUser> Users { get; set; }
+        public int? MinimumPlayers { get; set; }
+        public IDictionary<ulong, IGuildUser> Users { get; set; } // <userId, IGuildUser>
+
+        public bool IsActive => Created.AddHours(3) >= DateTime.UtcNow;
 
         public RaidInfoDto()
         {
             Users = new Dictionary<ulong, IGuildUser>();
+            MinimumPlayers = 4;
         }
 
         public string ToMessage() => $"Raid {BossName}, {Location}, {Time}";
 
         public Embed ToEmbed()
         {
+            Color GetColor()
+            {
+                if (Users.Count >= MinimumPlayers)
+                    return Color.Green;
+                if (Users.Count / 2 >= MinimumPlayers)
+                    return Color.Orange;
+                return Color.Red;
+            }
+
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder
-                .WithColor(Users.Count > 4 ? Color.Green : Color.Red)
+                .WithColor(GetColor())
                 .AddInlineField("Boss", BossName)
                 .AddInlineField("Kde", Location)
-                .AddInlineField("Čas", Time);
+                .AddInlineField("Čas", Time)
+                //.AddInlineField("Počet lidí", MinimumPlayers)
+                ;
             if (Users.Any())
                 embedBuilder.AddField($"Lidi ({Users.Count})", string.Join(", ", Users.Values.Select(t => t.Nickname ?? t.Username)));
             return embedBuilder.Build();
