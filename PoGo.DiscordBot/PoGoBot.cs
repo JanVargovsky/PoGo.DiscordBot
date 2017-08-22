@@ -3,7 +3,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PoGo.DiscordBot.Managers;
-using PoGo.DiscordBot.Modules;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Linq;
@@ -19,11 +18,11 @@ namespace PoGo.DiscordBot
 
 
         public IServiceProvider ServiceProvider { get; }
-
+        readonly ServiceCollection services;
         readonly LogSeverity LogSeverity;
         readonly DiscordSocketClient client;
         readonly CommandService commands;
-        readonly LogManager logManager;
+        //readonly LogManager logManager;
 
         public PoGoBot()
         {
@@ -33,6 +32,7 @@ namespace PoGo.DiscordBot
             LogSeverity = LogSeverity.Info;
 
 #endif
+            services = new ServiceCollection();
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity,
@@ -44,23 +44,54 @@ namespace PoGo.DiscordBot
             });
 
             ServiceProvider = ConfigureServices();
-            logManager = ServiceProvider.GetService<LogManager>();
 
+            Init();
+        }
+
+        void Init()
+        {
             client.Log += Log;
             commands.Log += Log;
-            client.LoggedIn += LoggedIn;
+
+            //client.JoinedGuild += JoinedGuild;
+            client.GuildAvailable += GuildAvailable;
             client.MessageReceived += HandleCommand;
-            client.ReactionAdded += RaidModule.OnReactionAdded;
-            client.ReactionRemoved += RaidModule.OnReactionRemoved;
+            client.ReactionAdded += ReactionAdded;
+            client.ReactionRemoved += OnReactionRemoved;
+        }
+
+        async Task GuildAvailable(SocketGuild guild)
+        {
+            var raidService = ServiceProvider.GetService<RaidService>();
+            await raidService.OnNewGuild(guild);
+        }
+
+        async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            var raidService = ServiceProvider.GetService<RaidService>();
+            await raidService.OnReactionRemoved(message, channel, reaction);
+        }
+
+        async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            var raidService = ServiceProvider.GetService<RaidService>();
+            await raidService.OnReactionAdded(message, channel, reaction);
+        }
+
+        async Task JoinedGuild(SocketGuild guild)
+        {
+            var raidService = ServiceProvider.GetService<RaidService>();
+            await raidService.OnNewGuild(guild);
         }
 
         public IServiceProvider ConfigureServices()
         {
-            var services = new ServiceCollection();
             services.AddSingleton(this);
             services.AddSingleton<IDiscordClient>(client);
             services.AddSingleton<RoleService>();
+            services.AddSingleton<RaidService>();
             services.AddSingleton<LogManager>();
+            services.AddSingleton<StaticRaidChannels>();
 
             return services.BuildServiceProvider();
         }
@@ -107,11 +138,6 @@ namespace PoGo.DiscordBot
             //await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
-        async Task LoggedIn()
-        {
-            await Log("Logged in");
-        }
-
         Task Log(string message)
         {
             return Log(new LogMessage(LogSeverity.Debug, "Code", message));
@@ -140,11 +166,11 @@ namespace PoGo.DiscordBot
 
             string logMessage = $"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}";
             Console.WriteLine(logMessage);
-            logManager.AddLog(logMessage);
+            //logManager.AddLog(logMessage);
             if (message.Exception != null)
             {
                 Console.WriteLine(message.Exception);
-                logManager.AddLog(message.Exception.ToString());
+                //logManager.AddLog(message.Exception.ToString());
             }
             Console.ForegroundColor = cc;
             return Task.CompletedTask;

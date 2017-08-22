@@ -32,7 +32,7 @@ namespace PoGo.DiscordBot.Dto
             {
                 if (Users.Count >= MinimumPlayers)
                     return Color.Green;
-                if (Users.Count / 2 >= MinimumPlayers)
+                if (Users.Count >= MinimumPlayers / 2)
                     return Color.Orange;
                 return Color.Red;
             }
