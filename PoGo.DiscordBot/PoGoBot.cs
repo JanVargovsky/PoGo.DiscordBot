@@ -1,10 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PoGo.DiscordBot.Managers;
+using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Services;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,34 +16,57 @@ namespace PoGo.DiscordBot
     public class PoGoBot : IDisposable
     {
         const string Token = "MzQ3ODM2OTIyMDM2NzQ4Mjg5.DHeNAg.X7SXUjVVWteb14T9ewdULDFBB0A";
+        const string Environment =
+#if DEBUG
+            "Development";
+#else
+            "Production";
+#endif
         public const char Prefix = '!';
 
 
         public IServiceProvider ServiceProvider { get; }
-        readonly LogSeverity LogSeverity;
+        public IConfiguration Configuration { get; }
+
         readonly DiscordSocketClient client;
         readonly CommandService commands;
-        //readonly LogManager logManager;
+        ILogger logger;
 
         public PoGoBot()
         {
-#if DEBUG
-            LogSeverity = LogSeverity.Debug;
-#else
-            LogSeverity = LogSeverity.Info;
+            Console.WriteLine($"Environment: {Environment}");
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile($"appsettings.{Environment}.json", false)
+                .Build();
 
-#endif
+
+            var logSeverity = Enum.Parse<LogSeverity>(Configuration["Logging:LogLevel:Discord"]);
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                LogLevel = LogSeverity,
+                LogLevel = logSeverity,
                 MessageCacheSize = 100,
             });
             commands = new CommandService(new CommandServiceConfig
             {
-                LogLevel = LogSeverity,
+                LogLevel = logSeverity,
             });
 
             ServiceProvider = ConfigureServices();
+
+            logger = ServiceProvider.GetService<ILoggerFactory>()
+                .AddConsole(Configuration.GetSection("Logging"))
+                .AddDebug()
+                .AddFile(Configuration.GetSection("Logging"))
+                .CreateLogger<PoGoBot>();
+
+            logger.LogTrace("Trace test");
+            logger.LogDebug("Debug test");
+            logger.LogInformation("Info test");
+            logger.LogWarning("Warn test");
+            logger.LogError("Error test");
+            logger.LogCritical("Critical test");
 
             Init();
         }
@@ -56,12 +81,20 @@ namespace PoGo.DiscordBot
             client.MessageReceived += HandleCommand;
             client.ReactionAdded += ReactionAdded;
             client.ReactionRemoved += OnReactionRemoved;
+            client.Disconnected += Disconnected;
+        }
+
+        Task Disconnected(Exception exception)
+        {
+            logger.LogCritical(exception, "Disconnected");
+            return Task.CompletedTask;
         }
 
         async Task GuildAvailable(SocketGuild guild)
         {
             var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
+            logger.LogInformation($"New guild: '{guild.Name}'");
         }
 
         async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
@@ -85,11 +118,11 @@ namespace PoGo.DiscordBot
         public IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
-            services.AddSingleton(this);
+
+            services.AddLogging();
             services.AddSingleton<IDiscordClient>(client);
             services.AddSingleton<RoleService>();
             services.AddSingleton<RaidService>();
-            services.AddSingleton<LogManager>();
             services.AddSingleton<StaticRaidChannels>();
 
             return services.BuildServiceProvider();
@@ -112,10 +145,10 @@ namespace PoGo.DiscordBot
         async Task InitCommands()
         {
             var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            await Log("Loading modules");
+            logger.LogDebug("Loading modules");
             foreach (var module in modules)
-                await Log($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
-            await Log("Modules loaded");
+                logger.LogDebug($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
+            logger.LogDebug("Modules loaded");
         }
 
         async Task HandleCommand(SocketMessage messageParam)
@@ -135,11 +168,6 @@ namespace PoGo.DiscordBot
             if (!result.IsSuccess)
                 Console.WriteLine(result.ErrorReason);
             //await context.Channel.SendMessageAsync(result.ErrorReason);
-        }
-
-        Task Log(string message)
-        {
-            return Log(new LogMessage(LogSeverity.Debug, "Code", message));
         }
 
         Task Log(LogMessage message)
@@ -165,14 +193,20 @@ namespace PoGo.DiscordBot
 
             string logMessage = $"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}";
             Console.WriteLine(logMessage);
-            //logManager.AddLog(logMessage);
-            if (message.Exception != null)
-            {
-                Console.WriteLine(message.Exception);
-                //logManager.AddLog(message.Exception.ToString());
-            }
             Console.ForegroundColor = cc;
+
+            LogLevel logLevel = message.Severity.ToLogLevel();
+            logger.Log(logLevel, 0, message, null, LogMessageFormatter);
+
+            if (message.Exception != null)
+                logger.LogCritical(message.Exception.ToString());
+
             return Task.CompletedTask;
+        }
+
+        string LogMessageFormatter(LogMessage message, Exception exception)
+        {
+            return $"{message.Source}: {message.Message}";
         }
     }
 }

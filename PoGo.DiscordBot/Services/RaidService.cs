@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using System;
 using System.Collections.Concurrent;
@@ -13,7 +14,8 @@ namespace PoGo.DiscordBot.Services
         const ulong DefaultRaidChannelId = 348844165741936641;
 
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
-        private readonly StaticRaidChannels staticRaidChannels;
+        readonly StaticRaidChannels staticRaidChannels;
+        readonly ILogger<RaidService> logger;
 
         public ConcurrentDictionary<ulong, RaidInfoDto> Raids { get; } // <messageId, RaidInfo>
         public ConcurrentDictionary<ulong, ITextChannel> RaidChannels { get; } // <guildId, RaidChannel>
@@ -28,10 +30,8 @@ namespace PoGo.DiscordBot.Services
         public async Task OnNewGuild(SocketGuild guild)
         {
             ITextChannel channel;
-            if (staticRaidChannels.StaticGuildToTextMessageBinding.TryGetValue(guild.Id, out var channelId))
-            {
+            if (staticRaidChannels.GuildToTextChannelBinding.TryGetValue(guild.Id, out var channelId))
                 channel = guild.GetTextChannel(channelId);
-            }
             else
                 channel = guild.DefaultChannel;
 
@@ -41,8 +41,6 @@ namespace PoGo.DiscordBot.Services
 
         public async Task UpdateRaidMessages(IGuild guild, IMessageChannel channel, int count = 10)
         {
-            Console.WriteLine($"Updating last {count} raid messages");
-
             var batchMessages = AsyncEnumerable.ToEnumerable(channel.GetMessagesAsync(count, options: retryOptions));
             var now = DateTime.Now.AddHours(-3);
             foreach (var messages in batchMessages)
