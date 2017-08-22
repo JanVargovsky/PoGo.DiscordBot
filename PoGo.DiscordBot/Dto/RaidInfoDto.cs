@@ -7,12 +7,14 @@ namespace PoGo.DiscordBot.Dto
 {
     public class RaidInfoDto
     {
+        public const string TimeFormat = "H:mm";
+
         public ulong CreatedByUserId { get; set; }
         public ulong MessageId { get; set; }
         public DateTime Created { get; set; }
         public string BossName { get; set; }
         public string Location { get; set; }
-        public string Time { get; set; }
+        public DateTime Time { get; set; }
         public int? MinimumPlayers { get; set; }
         public IDictionary<ulong, IGuildUser> Users { get; set; } // <userId, IGuildUser>
 
@@ -42,12 +44,22 @@ namespace PoGo.DiscordBot.Dto
                 .WithColor(GetColor())
                 .AddInlineField("Boss", BossName)
                 .AddInlineField("Kde", Location)
-                .AddInlineField("Čas", Time)
+                .AddInlineField("Čas", Time.ToString(TimeFormat))
                 //.AddInlineField("Počet lidí", MinimumPlayers)
                 ;
             if (Users.Any())
                 embedBuilder.AddField($"Lidi ({Users.Count})", string.Join(", ", Users.Values.Select(t => t.Nickname ?? t.Username)));
             return embedBuilder.Build();
+        }
+
+        public static DateTime? ParseTime(string time)
+        {
+            var pieces = time.Split(' ', '.', ',', ':', ';');
+
+            if (pieces.Length != 2 || !int.TryParse(pieces[0], out int hours) || !int.TryParse(pieces[1], out int minutes))
+                return null;
+
+            return DateTime.Now.Date.AddHours(hours).AddMinutes(minutes);
         }
 
         public static RaidInfoDto Parse(IUserMessage message)
@@ -56,12 +68,16 @@ namespace PoGo.DiscordBot.Dto
             if (embed == null || embed.Fields.Length < 3)
                 return null;
 
+            var time = ParseTime(embed.Fields[2].Value);
+            if (!time.HasValue)
+                return null;
+
             var result = new RaidInfoDto
             {
                 Created = message.CreatedAt.Date,
                 BossName = embed.Fields[0].Value,
                 Location = embed.Fields[1].Value,
-                Time = embed.Fields[2].Value,
+                Time = time.Value,
             };
 
             return result;

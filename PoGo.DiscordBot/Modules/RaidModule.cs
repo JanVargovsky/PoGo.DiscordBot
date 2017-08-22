@@ -32,6 +32,13 @@ namespace PoGo.DiscordBot.Modules
         [Command("raid", RunMode = RunMode.Async)]
         public async Task StartRaid(string bossName, string location, string time, int minimumPlayers = 4)
         {
+            var parsedTime = RaidInfoDto.ParseTime(time);
+            if (!parsedTime.HasValue)
+            {
+                await ReplyAsync("Čas není ve validním formátu.");
+                return;
+            }
+
             var raidChannel = await raidService.GetRaidChannelAsync(Context.Guild);
 
             var raidInfo = new RaidInfoDto
@@ -40,7 +47,7 @@ namespace PoGo.DiscordBot.Modules
                 CreatedByUserId = Context.User.Id,
                 BossName = bossName,
                 Location = location,
-                Time = time,
+                Time = parsedTime.Value,
                 MinimumPlayers = minimumPlayers,
             };
 

@@ -18,7 +18,6 @@ namespace PoGo.DiscordBot
 
 
         public IServiceProvider ServiceProvider { get; }
-        readonly ServiceCollection services;
         readonly LogSeverity LogSeverity;
         readonly DiscordSocketClient client;
         readonly CommandService commands;
@@ -32,7 +31,6 @@ namespace PoGo.DiscordBot
             LogSeverity = LogSeverity.Info;
 
 #endif
-            services = new ServiceCollection();
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity,
@@ -86,6 +84,7 @@ namespace PoGo.DiscordBot
 
         public IServiceProvider ConfigureServices()
         {
+            var services = new ServiceCollection();
             services.AddSingleton(this);
             services.AddSingleton<IDiscordClient>(client);
             services.AddSingleton<RoleService>();
