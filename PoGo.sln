@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.0
+VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PoGo.Web", "PoGo.Web\PoGo.Web.csproj", "{84D7E558-3CB0-42CD-AE50-F01AD486E234}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoGo.DiscordBot", "PoGo.DiscordBot\PoGo.DiscordBot.csproj", "{EC350107-4EF0-43E1-BF05-FF85399E4A3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PoGo.DiscordBot", "PoGo.DiscordBot\PoGo.DiscordBot.csproj", "{EC350107-4EF0-43E1-BF05-FF85399E4A3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
