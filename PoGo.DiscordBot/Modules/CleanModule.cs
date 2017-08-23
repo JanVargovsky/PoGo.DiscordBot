@@ -9,9 +9,9 @@ namespace PoGo.DiscordBot.Modules
     public class CleanModule : ModuleBase
     {
         [Command("hardclean", RunMode = RunMode.Async)]
-        public async Task FullClean(int count)
+        public async Task FullClean(int count = 10)
         {
-            var batchMessages = AsyncEnumerable.ToEnumerable(Context.Channel.GetMessagesAsync());
+            var batchMessages = AsyncEnumerable.ToEnumerable(Context.Channel.GetMessagesAsync(count));
             foreach (var messages in batchMessages)
                 await Context.Channel.DeleteMessagesAsync(messages);
         }

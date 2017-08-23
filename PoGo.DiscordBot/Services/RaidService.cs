@@ -20,20 +20,27 @@ namespace PoGo.DiscordBot.Services
         public ConcurrentDictionary<ulong, RaidInfoDto> Raids { get; } // <messageId, RaidInfo>
         public ConcurrentDictionary<ulong, ITextChannel> RaidChannels { get; } // <guildId, RaidChannel>
 
-        public RaidService(StaticRaidChannels staticRaidChannels)
+        public RaidService(StaticRaidChannels staticRaidChannels, ILogger<RaidService> logger)
         {
             Raids = new ConcurrentDictionary<ulong, RaidInfoDto>();
             RaidChannels = new ConcurrentDictionary<ulong, ITextChannel>();
             this.staticRaidChannels = staticRaidChannels;
+            this.logger = logger;
         }
 
         public async Task OnNewGuild(SocketGuild guild)
         {
             ITextChannel channel;
             if (staticRaidChannels.GuildToTextChannelBinding.TryGetValue(guild.Id, out var channelId))
+            {
                 channel = guild.GetTextChannel(channelId);
+                logger.LogInformation($"Static guild {guild.Id} '{guild.Name}', channel {channelId} '{channel.Name}'");
+            }
             else
+            {
                 channel = guild.DefaultChannel;
+                logger.LogInformation($"New guild {guild.Id} '{guild.Name}', channel {channelId} '{channel.Name}'");
+            }
 
             SetRaidChannel(guild.Id, channel);
             await UpdateRaidMessages(guild, channel);
@@ -41,6 +48,7 @@ namespace PoGo.DiscordBot.Services
 
         public async Task UpdateRaidMessages(IGuild guild, IMessageChannel channel, int count = 10)
         {
+            logger.LogInformation($"Updating raid messages");
             var batchMessages = AsyncEnumerable.ToEnumerable(channel.GetMessagesAsync(count, options: retryOptions));
             var now = DateTime.Now.AddHours(-3);
             foreach (var messages in batchMessages)
