@@ -100,7 +100,7 @@ namespace PoGo.DiscordBot.Services
 
         public void SetRaidChannel(ulong id, ITextChannel channel)
         {
-            while (!RaidChannels.TryAdd(id, channel)) ;
+            RaidChannels[id] = channel;
         }
 
         public async Task SetDefaultReactions(IUserMessage message)
