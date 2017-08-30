@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireOwner]
     public class DiagnosticModule : ModuleBase
     {
         [Command("ps")]

@@ -50,12 +50,12 @@ namespace PoGo.DiscordBot.Services
         {
             logger.LogInformation($"Updating raid messages");
             var batchMessages = AsyncEnumerable.ToEnumerable(channel.GetMessagesAsync(count, options: retryOptions));
-            var now = DateTime.Now.AddHours(-3);
+            var now = DateTime.UtcNow.AddHours(-3);
             foreach (var messages in batchMessages)
             {
                 foreach (var message in messages)
                 {
-                    if (message is IUserMessage userMessage && userMessage.Timestamp > now)
+                    if (message is IUserMessage userMessage && userMessage.Timestamp.UtcDateTime > now)
                         await FixMessageAfterLoad(guild, userMessage);
                 }
             }
@@ -64,7 +64,7 @@ namespace PoGo.DiscordBot.Services
         async Task FixMessageAfterLoad(IGuild guild, IUserMessage message)
         {
             var raidInfo = RaidInfoDto.Parse(message);
-            if (raidInfo == null)
+            if (raidInfo == null || raidInfo.Time >= DateTime.Now.AddMinutes(15))
                 return;
 
             Raids[message.Id] = raidInfo;
@@ -73,6 +73,7 @@ namespace PoGo.DiscordBot.Services
             foreach (var user in usersWithThumbsUp)
                 if (!user.IsBot)
                     raidInfo.Users[user.Id] = await guild.GetUserAsync(user.Id);
+            logger.LogInformation($"Updating raid message '{message.Id}'");
             await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
             var allReactions = message.Reactions;
@@ -82,9 +83,7 @@ namespace PoGo.DiscordBot.Services
             {
                 var users = await message.GetReactionUsersAsync(react.Key.Name, options: retryOptions);
                 foreach (var user in users)
-                {
                     await message.RemoveReactionAsync(react.Key, user, options: retryOptions);
-                }
             }
         }
 
