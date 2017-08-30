@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Services;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -61,12 +62,12 @@ namespace PoGo.DiscordBot
                 .AddFile(Configuration.GetSection("Logging"))
                 .CreateLogger<PoGoBot>();
 
-            logger.LogTrace("Trace test");
-            logger.LogDebug("Debug test");
-            logger.LogInformation("Info test");
-            logger.LogWarning("Warn test");
-            logger.LogError("Error test");
-            logger.LogCritical("Critical test");
+            logger.LogTrace("START TRACE");
+            logger.LogDebug("START DEBUG");
+            logger.LogInformation("START INFO");
+            logger.LogWarning("START WARNING");
+            logger.LogError("START ERROR");
+            logger.LogCritical("START CRITICAL");
 
             Init();
         }
@@ -76,18 +77,22 @@ namespace PoGo.DiscordBot
             client.Log += Log;
             commands.Log += Log;
 
-            //client.JoinedGuild += JoinedGuild;
+            client.LoggedIn += LoggedIn;
+            client.LoggedOut += LoggedOut;
+
+            client.Connected += Connected;
+            client.Disconnected += Disconnected;
             client.GuildAvailable += GuildAvailable;
             client.MessageReceived += HandleCommand;
             client.ReactionAdded += ReactionAdded;
             client.ReactionRemoved += OnReactionRemoved;
-            client.Disconnected += Disconnected;
+            client.UserJoined += OnUserJoined;
         }
 
-        Task Disconnected(Exception exception)
+        async Task OnUserJoined(SocketGuildUser user)
         {
-            logger.LogCritical(exception, "Disconnected");
-            return Task.CompletedTask;
+            var roleService = ServiceProvider.GetService<RoleService>();
+            await roleService.OnUserJoined(user);
         }
 
         async Task GuildAvailable(SocketGuild guild)
@@ -115,6 +120,31 @@ namespace PoGo.DiscordBot
             await raidService.OnNewGuild(guild);
         }
 
+        Task LoggedIn()
+        {
+            logger.LogInformation("Logged in");
+            return Task.CompletedTask;
+        }
+
+        Task LoggedOut()
+        {
+            logger.LogInformation("Logged out");
+            return Task.CompletedTask;
+        }
+
+        async Task Connected()
+        {
+            logger.LogInformation("Connected");
+            if (Debugger.IsAttached)
+                await client.SetGameAsync("Debugging");
+        }
+
+        Task Disconnected(Exception exception)
+        {
+            logger.LogInformation(exception, "Disconnected");
+            return Task.CompletedTask;
+        }
+
         public IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
@@ -130,7 +160,6 @@ namespace PoGo.DiscordBot
 
         public void Dispose()
         {
-            client?.LogoutAsync().Wait();
             client?.Dispose();
         }
 
@@ -166,34 +195,38 @@ namespace PoGo.DiscordBot
             // rather an object stating if the command executed succesfully)
             var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
+            {
+                if (result.Error.Value == CommandError.BadArgCount)
+                    await context.Channel.SendMessageAsync("Nesedí počet parametrů - nechybí ti tam uvozovky?");
                 Console.WriteLine(result.ErrorReason);
-            //await context.Channel.SendMessageAsync(result.ErrorReason);
+            }
+            // await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
         Task Log(LogMessage message)
         {
-            var cc = Console.ForegroundColor;
-            switch (message.Severity)
-            {
-                case LogSeverity.Critical:
-                case LogSeverity.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-                case LogSeverity.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-                case LogSeverity.Info:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
-                case LogSeverity.Verbose:
-                case LogSeverity.Debug:
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    break;
-            }
+            //var cc = Console.ForegroundColor;
+            //switch (message.Severity)
+            //{
+            //    case LogSeverity.Critical:
+            //    case LogSeverity.Error:
+            //        Console.ForegroundColor = ConsoleColor.Red;
+            //        break;
+            //    case LogSeverity.Warning:
+            //        Console.ForegroundColor = ConsoleColor.Yellow;
+            //        break;
+            //    case LogSeverity.Info:
+            //        Console.ForegroundColor = ConsoleColor.White;
+            //        break;
+            //    case LogSeverity.Verbose:
+            //    case LogSeverity.Debug:
+            //        Console.ForegroundColor = ConsoleColor.DarkGray;
+            //        break;
+            //}
 
-            string logMessage = $"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}";
-            Console.WriteLine(logMessage);
-            Console.ForegroundColor = cc;
+            //string logMessage = $"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}";
+            //Console.WriteLine(logMessage);
+            //Console.ForegroundColor = cc;
 
             LogLevel logLevel = message.Severity.ToLogLevel();
             logger.Log(logLevel, 0, message, null, LogMessageFormatter);
