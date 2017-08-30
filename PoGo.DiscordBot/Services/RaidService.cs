@@ -67,7 +67,7 @@ namespace PoGo.DiscordBot.Services
             if (raidInfo == null)
                 return;
 
-            while (!Raids.TryAdd(message.Id, raidInfo)) ;
+            Raids[message.Id] = raidInfo;
             // Adjust user count
             var usersWithThumbsUp = await message.GetReactionUsersAsync(Emojis.ThumbsUp);
             foreach (var user in usersWithThumbsUp)

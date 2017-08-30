@@ -56,7 +56,7 @@ namespace PoGo.DiscordBot.Modules
             var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
             await raidService.SetDefaultReactions(message);
             raidInfo.MessageId = message.Id;
-            while (!raidService.Raids.TryAdd(raidInfo.MessageId, raidInfo)) ;
+            raidService.Raids[raidInfo.MessageId] = raidInfo;
         }
 
         [Command("bind", RunMode = RunMode.Async)]
