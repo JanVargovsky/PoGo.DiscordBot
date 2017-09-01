@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
 using System.Collections.Concurrent;
@@ -16,16 +17,18 @@ namespace PoGo.DiscordBot.Services
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly StaticRaidChannels staticRaidChannels;
         readonly ILogger<RaidService> logger;
+        private readonly UserService userService;
 
         public ConcurrentDictionary<ulong, RaidInfoDto> Raids { get; } // <messageId, RaidInfo>
         public ConcurrentDictionary<ulong, ITextChannel> RaidChannels { get; } // <guildId, RaidChannel>
 
-        public RaidService(StaticRaidChannels staticRaidChannels, ILogger<RaidService> logger)
+        public RaidService(StaticRaidChannels staticRaidChannels, ILogger<RaidService> logger, UserService userService)
         {
             Raids = new ConcurrentDictionary<ulong, RaidInfoDto>();
             RaidChannels = new ConcurrentDictionary<ulong, ITextChannel>();
             this.staticRaidChannels = staticRaidChannels;
             this.logger = logger;
+            this.userService = userService;
         }
 
         public async Task OnNewGuild(SocketGuild guild)
@@ -46,33 +49,32 @@ namespace PoGo.DiscordBot.Services
             await UpdateRaidMessages(guild, channel);
         }
 
-        public async Task UpdateRaidMessages(IGuild guild, IMessageChannel channel, int count = 10)
+        public async Task UpdateRaidMessages(SocketGuild guild, IMessageChannel channel, int count = 10)
         {
             logger.LogInformation($"Updating raid messages");
             var batchMessages = AsyncEnumerable.ToEnumerable(channel.GetMessagesAsync(count, options: retryOptions));
-            var now = DateTime.UtcNow.AddHours(-3);
+            var now = DateTime.UtcNow.AddHours(-6);
             foreach (var messages in batchMessages)
-            {
                 foreach (var message in messages)
-                {
                     if (message is IUserMessage userMessage && userMessage.Timestamp.UtcDateTime > now)
                         await FixMessageAfterLoad(guild, userMessage);
-                }
-            }
         }
 
-        async Task FixMessageAfterLoad(IGuild guild, IUserMessage message)
+        async Task FixMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
             var raidInfo = RaidInfoDto.Parse(message);
-            if (raidInfo == null || raidInfo.Time >= DateTime.Now.AddMinutes(15))
+            if (raidInfo == null)
                 return;
+
+            //if (raidInfo.Time >= DateTime.Now.AddMinutes(15))
+            //return;
 
             Raids[message.Id] = raidInfo;
             // Adjust user count
             var usersWithThumbsUp = await message.GetReactionUsersAsync(Emojis.ThumbsUp);
-            foreach (var user in usersWithThumbsUp)
-                if (!user.IsBot)
-                    raidInfo.Users[user.Id] = await guild.GetUserAsync(user.Id);
+            foreach (var user in usersWithThumbsUp.Where(t => !t.IsBot))
+                raidInfo.Users[user.Id] = userService.GetTeamUser(guild.GetUser(user.Id));
+
             logger.LogInformation($"Updating raid message '{message.Id}'");
             await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
@@ -125,13 +127,16 @@ namespace PoGo.DiscordBot.Services
 
         public async Task OnReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
+            if (!(channel is SocketGuildChannel socketGuildChannel))
+                return;
+
             if (Raids.TryGetValue(message.Id, out var raidInfo))
             {
                 IUserMessage raidMessage = await message.GetOrDownloadAsync();
-                var user = await channel.GetUserAsync(reaction.UserId) as IGuildUser;
+                var user = socketGuildChannel.GetUser(reaction.UserId);
                 if (reaction.Emote.Name == Emojis.ThumbsUp)
                 {
-                    raidInfo.Users.Add(reaction.UserId, user);
+                    raidInfo.Users.Add(reaction.UserId, userService.GetTeamUser(user));
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
                 else if (reaction.Emote.Name != Emojis.ThumbsDown)

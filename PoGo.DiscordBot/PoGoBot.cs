@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Diagnostics;
@@ -24,7 +25,6 @@ namespace PoGo.DiscordBot
             "Production";
 #endif
         public const char Prefix = '!';
-
 
         public IServiceProvider ServiceProvider { get; }
         public IConfiguration Configuration { get; }
@@ -91,14 +91,18 @@ namespace PoGo.DiscordBot
 
         async Task OnUserJoined(SocketGuildUser user)
         {
-            var roleService = ServiceProvider.GetService<RoleService>();
-            await roleService.OnUserJoined(user);
+            var userService = ServiceProvider.GetService<UserService>();
+            await userService.OnUserJoined(user);
         }
 
         async Task GuildAvailable(SocketGuild guild)
         {
+            var teamService = ServiceProvider.GetService<TeamService>();
+            await teamService.OnNewGuild(guild);
+
             var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
+
             logger.LogInformation($"New guild: '{guild.Name}'");
         }
 
@@ -151,9 +155,11 @@ namespace PoGo.DiscordBot
 
             services.AddLogging();
             services.AddSingleton<IDiscordClient>(client);
-            services.AddSingleton<RoleService>();
-            services.AddSingleton<RaidService>();
             services.AddSingleton<StaticRaidChannels>();
+
+            services.AddSingleton<RaidService>();
+            services.AddSingleton<TeamService>();
+            services.AddSingleton<UserService>();
 
             return services.BuildServiceProvider();
         }

@@ -8,16 +8,8 @@ namespace PoGo.DiscordBot.Modules
     [RequireUserPermission(GuildPermission.Administrator)]
     public class TestModule : ModuleBase
     {
-        private readonly RoleService roleService;
-
-        public TestModule(RoleService roleService)
-        {
-            this.roleService = roleService;
-        }
-
         [Command("test")]
         [Alias("t")]
-        [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Test()
         {
             await Task.CompletedTask;

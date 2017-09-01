@@ -11,22 +11,13 @@ namespace PoGo.DiscordBot.Modules
     public class RaidModule : ModuleBase
     {
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
-        readonly RoleService roleService;
+        readonly TeamService teamService;
         readonly RaidService raidService;
 
-        public RaidModule(RoleService roleService, RaidService raidService)
+        public RaidModule(TeamService teamService, RaidService raidService)
         {
-            this.roleService = roleService;
+            this.teamService = teamService;
             this.raidService = raidService;
-        }
-
-        [Command("restore", RunMode = RunMode.Async)]
-        [Alias("r")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task Restore()
-        {
-            var raidChannel = await raidService.GetRaidChannelAsync(Context.Guild);
-            await raidService.UpdateRaidMessages(Context.Guild, raidChannel);
         }
 
         [Command("raid", RunMode = RunMode.Async)]
@@ -51,8 +42,8 @@ namespace PoGo.DiscordBot.Modules
                 MinimumPlayers = minimumPlayers,
             };
 
-            var roles = await roleService.TeamRoles;
-            var mention = string.Join(' ', roles.Values.Select(t => t.Mention));
+            var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
+            var mention = string.Join(' ', roles.Select(t => t.Mention));
             var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
             await raidService.SetDefaultReactions(message);
             raidInfo.MessageId = message.Id;

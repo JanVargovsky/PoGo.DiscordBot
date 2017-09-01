@@ -1,7 +1,9 @@
 ﻿using Discord;
+using PoGo.DiscordBot.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PoGo.DiscordBot.Dto
 {
@@ -16,13 +18,13 @@ namespace PoGo.DiscordBot.Dto
         public string Location { get; set; }
         public DateTime Time { get; set; }
         public int? MinimumPlayers { get; set; }
-        public IDictionary<ulong, IGuildUser> Users { get; set; } // <userId, IGuildUser>
+        public IDictionary<ulong, TeamUserDto> Users { get; set; } // <userId, IGuildUser>
 
         public bool IsActive => Created.AddHours(3) >= DateTime.UtcNow;
 
         public RaidInfoDto()
         {
-            Users = new Dictionary<ulong, IGuildUser>();
+            Users = new Dictionary<ulong, TeamUserDto>();
             MinimumPlayers = 4;
         }
 
@@ -48,8 +50,33 @@ namespace PoGo.DiscordBot.Dto
                 //.AddInlineField("Počet lidí", MinimumPlayers)
                 ;
             if (Users.Any())
-                embedBuilder.AddField($"Lidi ({Users.Count})", string.Join(", ", Users.Values.Select(t => t.Nickname ?? t.Username)));
+            {
+                string usersFieldValue = Users.Count >= 10 ?
+                    UsersToGroupString(Users.Values) :
+                    UsersToString(Users.Values);
+
+                embedBuilder.AddField($"Lidi ({Users.Count})", usersFieldValue);
+            }
             return embedBuilder.Build();
+        }
+
+        string UsersToString(IEnumerable<TeamUserDto> users) => string.Join(", ", users);
+
+        string UsersToGroupString(IEnumerable<TeamUserDto> users)
+        {
+            List<string> formatterGroupedPlayers = new List<string>();
+
+            string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : "Bez teamu";
+
+            var teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
+            foreach (PokemonTeam? team in teams)
+            {
+                var players = users.Where(t => t.Team == team).ToList();
+                if (players.Any())
+                    formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}): {UsersToString(players)}");
+            }
+
+            return string.Join(Environment.NewLine, formatterGroupedPlayers);
         }
 
         public static DateTime? ParseTime(string time)

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace PoGo.DiscordBot.Services
+namespace PoGo.DiscordBot.Configuration
 {
     public class StaticRaidChannels
     {

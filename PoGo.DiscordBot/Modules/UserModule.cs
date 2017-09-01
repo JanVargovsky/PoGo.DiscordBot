@@ -1,9 +1,8 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
-using PoGo.DiscordBot.Dto;
+using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Services;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
@@ -11,27 +10,42 @@ namespace PoGo.DiscordBot.Modules
     public class UserModule : ModuleBase
     {
         static readonly string[] availableTeams;
+        private readonly UserService userService;
+        private readonly TeamService teamService;
 
         static UserModule()
         {
             availableTeams = Enum.GetNames(typeof(PokemonTeam));
         }
 
+        public UserModule(UserService userService, TeamService teamService)
+        {
+            this.userService = userService;
+            this.teamService = teamService;
+        }
+
         [Command("team", RunMode = RunMode.Async)]
         public async Task SetTeam(string teamName)
         {
             if (!Enum.TryParse<PokemonTeam>(teamName, true, out var team))
+            {
+                await ReplyAsync("Takový team neexistuje");
                 return;
+            }
 
             var contextUser = Context.User;
             var user = contextUser as SocketGuildUser;
             if (user == null)
                 return;
 
-            if (user.Roles.Any(t => availableTeams.Any(tt => tt.Equals(t.Name, StringComparison.InvariantCultureIgnoreCase))))
+            var userTeam = userService.GetTeam(user);
+            if (userTeam != null)
+            {
+                await ReplyAsync("Už jsi v teamu");
                 return;
+            }
 
-            var role = Context.Guild.Roles.First(t => t.Name.Equals(teamName, StringComparison.InvariantCultureIgnoreCase));
+            var role = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles[team];
             await user.AddRoleAsync(role);
         }
 
@@ -40,16 +54,6 @@ namespace PoGo.DiscordBot.Modules
         {
             //var guildUser = await Context.Guild.GetCurrentUserAsync();
             return Task.CompletedTask;
-        }
-
-        public static PokemonTeam? GetTeam(SocketGuildUser user)
-        {
-            var role = user.Roles.FirstOrDefault(t => availableTeams.Any(tt => tt.Equals(t.Name, StringComparison.InvariantCultureIgnoreCase)));
-
-            if (role == null || !Enum.TryParse(typeof(PokemonTeam), role.Name, true, out var teamObj) || !(teamObj is PokemonTeam team))
-                return null;
-
-            return team;
         }
     }
 }
