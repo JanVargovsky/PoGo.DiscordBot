@@ -3,7 +3,7 @@ using PoGo.DiscordBot.Configuration;
 
 namespace PoGo.DiscordBot.Dto
 {
-    public class TeamUserDto
+    public class PlayerDto
     {
         public IGuildUser User { get; set; }
         public PokemonTeam? Team { get; set; }

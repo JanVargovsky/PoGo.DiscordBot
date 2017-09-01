@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Services
@@ -30,15 +29,14 @@ namespace PoGo.DiscordBot.Services
             return null;
         }
 
-        public TeamUserDto GetTeamUser(SocketGuildUser user) => new TeamUserDto
+        public PlayerDto GetPlayer(SocketGuildUser user) => new PlayerDto
         {
             User = user,
             Team = GetTeam(user),
         };
 
-        public async Task CheckUserTeam(SocketGuildUser user)
+        public async Task CheckTeam(SocketGuildUser user)
         {
-            logger.LogInformation($"User joined {user.Id} '{user.Nickname ?? user.Username}'");
             var team = GetTeam(user);
 
             if (team == null)
@@ -50,7 +48,8 @@ namespace PoGo.DiscordBot.Services
 
         public Task OnUserJoined(SocketGuildUser user)
         {
-            return CheckUserTeam(user);
+            logger.LogInformation($"User joined {user.Id} '{user.Nickname ?? user.Username}'");
+            return CheckTeam(user);
         }
     }
 }

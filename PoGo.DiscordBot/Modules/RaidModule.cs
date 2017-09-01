@@ -2,7 +2,6 @@
 using Discord.Commands;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Services;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,7 +25,7 @@ namespace PoGo.DiscordBot.Modules
             var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
             {
-                await ReplyAsync("Čas není ve validním formátu.");
+                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat}).");
                 return;
             }
 
@@ -34,8 +33,6 @@ namespace PoGo.DiscordBot.Modules
 
             var raidInfo = new RaidInfoDto
             {
-                Created = DateTime.UtcNow,
-                CreatedByUserId = Context.User.Id,
                 BossName = bossName,
                 Location = location,
                 Time = parsedTime.Value,
@@ -46,8 +43,30 @@ namespace PoGo.DiscordBot.Modules
             var mention = string.Join(' ', roles.Select(t => t.Mention));
             var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
             await raidService.SetDefaultReactions(message);
-            raidInfo.MessageId = message.Id;
-            raidService.Raids[raidInfo.MessageId] = raidInfo;
+            raidService.Raids[message.Id] = raidInfo;
+        }
+
+        [Command("time", RunMode = RunMode.Async)]
+        public async Task AdjustLastRaidTime(string time)
+        {
+            var raid = raidService.Raids.Values
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefault();
+
+            if(raid == null)
+            {
+                await ReplyAsync("Raid nenalezen");
+                return;
+            }
+
+            var parsedTime = RaidInfoDto.ParseTime(time);
+            if (!parsedTime.HasValue)
+            {
+                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat}).");
+                return;
+            }
+
+            raid.Time = parsedTime.Value;
         }
 
         [Command("bind", RunMode = RunMode.Async)]

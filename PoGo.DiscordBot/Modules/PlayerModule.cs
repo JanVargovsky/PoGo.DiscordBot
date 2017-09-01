@@ -7,18 +7,12 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    public class UserModule : ModuleBase
+    public class PlayerModule : ModuleBase
     {
-        static readonly string[] availableTeams;
         private readonly UserService userService;
         private readonly TeamService teamService;
 
-        static UserModule()
-        {
-            availableTeams = Enum.GetNames(typeof(PokemonTeam));
-        }
-
-        public UserModule(UserService userService, TeamService teamService)
+        public PlayerModule(UserService userService, TeamService teamService)
         {
             this.userService = userService;
             this.teamService = teamService;
@@ -29,7 +23,7 @@ namespace PoGo.DiscordBot.Modules
         {
             if (!Enum.TryParse<PokemonTeam>(teamName, true, out var team))
             {
-                await ReplyAsync("Takový team neexistuje");
+                await ReplyAsync("Takový team neexistuje.");
                 return;
             }
 
@@ -41,7 +35,7 @@ namespace PoGo.DiscordBot.Modules
             var userTeam = userService.GetTeam(user);
             if (userTeam != null)
             {
-                await ReplyAsync("Už jsi v teamu");
+                await ReplyAsync("Už jsi v teamu.");
                 return;
             }
 

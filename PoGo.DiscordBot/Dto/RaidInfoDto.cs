@@ -3,7 +3,6 @@ using PoGo.DiscordBot.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PoGo.DiscordBot.Dto
 {
@@ -11,20 +10,19 @@ namespace PoGo.DiscordBot.Dto
     {
         public const string TimeFormat = "H:mm";
 
-        public ulong CreatedByUserId { get; set; }
-        public ulong MessageId { get; set; }
-        public DateTime Created { get; set; }
+        public DateTime CreatedAt { get; set; }
         public string BossName { get; set; }
         public string Location { get; set; }
         public DateTime Time { get; set; }
         public int? MinimumPlayers { get; set; }
-        public IDictionary<ulong, TeamUserDto> Users { get; set; } // <userId, IGuildUser>
+        public IDictionary<ulong, PlayerDto> Players { get; set; } // <userId, PlayerDto>
 
-        public bool IsActive => Created.AddHours(3) >= DateTime.UtcNow;
+        public bool IsExpired => Time < DateTime.Now;
 
         public RaidInfoDto()
         {
-            Users = new Dictionary<ulong, TeamUserDto>();
+            CreatedAt = DateTime.UtcNow;
+            Players = new Dictionary<ulong, PlayerDto>();
             MinimumPlayers = 4;
         }
 
@@ -34,9 +32,9 @@ namespace PoGo.DiscordBot.Dto
         {
             Color GetColor()
             {
-                if (Users.Count >= MinimumPlayers)
+                if (Players.Count >= MinimumPlayers)
                     return Color.Green;
-                if (Users.Count >= MinimumPlayers / 2)
+                if (Players.Count >= MinimumPlayers / 2)
                     return Color.Orange;
                 return Color.Red;
             }
@@ -47,33 +45,34 @@ namespace PoGo.DiscordBot.Dto
                 .AddInlineField("Boss", BossName)
                 .AddInlineField("Kde", Location)
                 .AddInlineField("Čas", Time.ToString(TimeFormat))
-                //.AddInlineField("Počet lidí", MinimumPlayers)
                 ;
-            if (Users.Any())
-            {
-                string usersFieldValue = Users.Count >= 10 ?
-                    UsersToGroupString(Users.Values) :
-                    UsersToString(Users.Values);
 
-                embedBuilder.AddField($"Lidi ({Users.Count})", usersFieldValue);
+            if (Players.Any())
+            {
+                string playerFieldValue = Players.Count >= 10 ?
+                    PlayersToGroupString(Players.Values) :
+                    PlayersToString(Players.Values);
+
+                embedBuilder.AddField($"Lidi ({Players.Count})", playerFieldValue);
             }
+
             return embedBuilder.Build();
         }
 
-        string UsersToString(IEnumerable<TeamUserDto> users) => string.Join(", ", users);
+        string PlayersToString(IEnumerable<PlayerDto> players) => string.Join(", ", players);
 
-        string UsersToGroupString(IEnumerable<TeamUserDto> users)
+        string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
         {
-            List<string> formatterGroupedPlayers = new List<string>();
-
             string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : "Bez teamu";
+
+            List<string> formatterGroupedPlayers = new List<string>();
 
             var teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
             foreach (PokemonTeam? team in teams)
             {
-                var players = users.Where(t => t.Team == team).ToList();
+                var players = allPlayers.Where(t => t.Team == team).ToList();
                 if (players.Any())
-                    formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}): {UsersToString(players)}");
+                    formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}) - {PlayersToString(players)}");
             }
 
             return string.Join(Environment.NewLine, formatterGroupedPlayers);
@@ -101,7 +100,7 @@ namespace PoGo.DiscordBot.Dto
 
             var result = new RaidInfoDto
             {
-                Created = message.CreatedAt.Date,
+                CreatedAt = message.CreatedAt.UtcDateTime,
                 BossName = embed.Fields[0].Value,
                 Location = embed.Fields[1].Value,
                 Time = time.Value,
