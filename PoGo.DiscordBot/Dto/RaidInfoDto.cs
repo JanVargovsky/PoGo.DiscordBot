@@ -16,6 +16,7 @@ namespace PoGo.DiscordBot.Dto
         public DateTime Time { get; set; }
         public int? MinimumPlayers { get; set; }
         public IDictionary<ulong, PlayerDto> Players { get; set; } // <userId, PlayerDto>
+        public List<(ulong UserId, int Count)> ExtraPlayers { get; set; }
 
         public bool IsExpired => Time < DateTime.Now;
 
@@ -24,6 +25,7 @@ namespace PoGo.DiscordBot.Dto
             CreatedAt = DateTime.UtcNow;
             Players = new Dictionary<ulong, PlayerDto>();
             MinimumPlayers = 4;
+            ExtraPlayers = new List<(ulong UserId, int Count)>();
         }
 
         public string ToMessage() => $"Raid {BossName}, {Location}, {Time}";
@@ -53,7 +55,12 @@ namespace PoGo.DiscordBot.Dto
                     PlayersToGroupString(Players.Values) :
                     PlayersToString(Players.Values);
 
-                embedBuilder.AddField($"Lidi ({Players.Count})", playerFieldValue);
+                embedBuilder.AddField($"Hráči ({Players.Count})", playerFieldValue);
+            }
+
+            if(ExtraPlayers.Any())
+            {
+                embedBuilder.AddField($"Extra hráči", ExtraPlayers.Sum(t => t.Count));
             }
 
             return embedBuilder.Build();
@@ -80,7 +87,7 @@ namespace PoGo.DiscordBot.Dto
 
         public static DateTime? ParseTime(string time)
         {
-            var pieces = time.Split(' ', '.', ',', ':', ';');
+            var pieces = time.Split(' ', '.', ',', ':', ';', '\'');
 
             if (pieces.Length != 2 || !int.TryParse(pieces[0], out int hours) || !int.TryParse(pieces[1], out int minutes))
                 return null;

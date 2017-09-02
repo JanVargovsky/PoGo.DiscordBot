@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
@@ -12,14 +13,12 @@ namespace PoGo.DiscordBot.Services
 {
     public class RaidService
     {
-        static readonly string[] AllowedEmojis = new[] { Emojis.ThumbsUp, Emojis.ThumbsDown };
-
         const ulong DefaultRaidChannelId = 348844165741936641;
 
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly StaticRaidChannels staticRaidChannels;
         readonly ILogger<RaidService> logger;
-        private readonly UserService userService;
+        readonly UserService userService;
 
         public ConcurrentDictionary<ulong, RaidInfoDto> Raids { get; } // <messageId, RaidInfo>
         public ConcurrentDictionary<ulong, ITextChannel> RaidChannels { get; } // <guildId, RaidChannel>
@@ -55,7 +54,7 @@ namespace PoGo.DiscordBot.Services
         {
             logger.LogInformation($"Updating raid messages");
             var batchMessages = channel.GetMessagesAsync(count, options: retryOptions).ToEnumerable();
-            var now = DateTime.UtcNow.AddHours(-2);
+            var now = DateTime.UtcNow.AddHours(-3);
             foreach (var messages in batchMessages)
                 foreach (var message in messages)
                     if (message is IUserMessage userMessage && userMessage.Timestamp.UtcDateTime > now)
@@ -68,17 +67,28 @@ namespace PoGo.DiscordBot.Services
             if (raidInfo == null || raidInfo.IsExpired)
                 return;
 
+            logger.LogInformation($"Updating raid message '{message.Id}'");
+
             Raids[message.Id] = raidInfo;
             // Adjust user count
-            var usersWithThumbsUp = await message.GetReactionUsersAsync(Emojis.ThumbsUp);
+            var usersWithThumbsUp = await message.GetReactionUsersAsync(UnicodeEmojis.ThumbsUp);
             foreach (var user in usersWithThumbsUp.Where(t => !t.IsBot))
                 raidInfo.Players[user.Id] = userService.GetPlayer(guild.GetUser(user.Id));
 
-            logger.LogInformation($"Updating raid message '{message.Id}'");
+            // Extra players
+            for (int i = 0; i < UnicodeEmojis.KeycapDigits.Length; i++)
+            {
+                var emoji = UnicodeEmojis.KeycapDigits[i];
+                var usersWithKeycapReaction = await message.GetReactionUsersAsync(emoji);
+
+                foreach (var user in usersWithKeycapReaction.Where(t => !t.IsBot))
+                    raidInfo.ExtraPlayers.Add((user.Id, ExtraPlayerKeycapDigitToCount(emoji)));
+            }
+
             await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
             var allReactions = message.Reactions;
-            var invalidReactions = allReactions.Where(t => t.Key.Name != Emojis.ThumbsUp && t.Key.Name != Emojis.ThumbsDown);
+            var invalidReactions = allReactions.Where(t => !IsValidReactionEmote(t.Key.Name)).ToList();
             // Remove invalid reactions
             foreach (var react in invalidReactions)
             {
@@ -105,42 +115,64 @@ namespace PoGo.DiscordBot.Services
 
         public async Task SetDefaultReactions(IUserMessage message)
         {
-            await message.AddReactionAsync(new Emoji(Emojis.ThumbsUp), retryOptions);
-            await message.AddReactionAsync(new Emoji(Emojis.ThumbsDown), retryOptions);
+            await message.AddReactionAsync(Emojis.ThumbsUp, retryOptions);
+            await message.AddReactionAsync(Emojis.ThumbsDown, retryOptions);
         }
 
-        bool IsValidReaction(SocketReaction reaction) => AllowedEmojis.Contains(reaction.Emote.Name);
+        bool IsValidReactionEmote(string emote) =>
+            emote == UnicodeEmojis.ThumbsUp ||
+            emote == UnicodeEmojis.ThumbsDown ||
+            UnicodeEmojis.KeycapDigits.Contains(emote);
+
+        int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
 
         public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            if (!IsValidReaction(reaction) || !Raids.TryGetValue(message.Id, out var raidInfo) || raidInfo.IsExpired)
+            if (!Raids.TryGetValue(message.Id, out var raidInfo) || raidInfo.IsExpired)
                 return;
 
-            if (reaction.Emote.Name == Emojis.ThumbsUp)
+            IUserMessage raidMessage = await message.GetOrDownloadAsync();
+            if (reaction.Emote.Name == UnicodeEmojis.ThumbsUp)
+            {
                 if (raidInfo.Players.Remove(reaction.UserId))
                 {
-                    IUserMessage raidMessage = await message.GetOrDownloadAsync();
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
+            }
+            else if (Emojis.KeycapDigits.Contains(reaction.Emote))
+            {
+                var count = ExtraPlayerKeycapDigitToCount(reaction.Emote.Name);
+                if (raidInfo.ExtraPlayers.Remove((reaction.UserId, count)))
+                    await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+            }
         }
 
         public async Task OnReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (!(channel is SocketGuildChannel socketGuildChannel))
                 return;
-            if (!IsValidReaction(reaction) || !Raids.TryGetValue(message.Id, out var raidInfo) || raidInfo.IsExpired)
+            if (!Raids.TryGetValue(message.Id, out var raidInfo) || raidInfo.IsExpired)
                 return;
 
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
             var user = socketGuildChannel.GetUser(reaction.UserId);
-            if (reaction.Emote.Name == Emojis.ThumbsUp)
+
+            if (!IsValidReactionEmote(reaction.Emote.Name))
+            {
+                await raidMessage.RemoveReactionAsync(reaction.Emote, user, retryOptions);
+                return;
+            }
+
+            if (reaction.Emote.Name == UnicodeEmojis.ThumbsUp)
             {
                 raidInfo.Players[reaction.UserId] = userService.GetPlayer(user);
                 await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
             }
-            else if (reaction.Emote.Name != Emojis.ThumbsDown)
+            else if (Emojis.KeycapDigits.Contains(reaction.Emote))
             {
-                await raidMessage.RemoveReactionAsync(reaction.Emote, user, retryOptions);
+                var count = ExtraPlayerKeycapDigitToCount(reaction.Emote.Name);
+                raidInfo.ExtraPlayers.Add((reaction.UserId, count));
+                await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
             }
         }
     }
