@@ -190,13 +190,13 @@ namespace PoGo.DiscordBot
         {
             // Don't process the command if it was a System Message
             var message = messageParam as SocketUserMessage;
-            if (message == null) return;
+            if (message == null || message.Author == client.CurrentUser) return;
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
             // Determine if the message is a command, based on if it starts with '!' or a mention prefix
             if (!(message.HasCharPrefix(configuration.Prefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos))) return;
             // Create a Command Context
-            var context = new CommandContext(client, message);
+            var context = new SocketCommandContext(client, message);
             // Execute the command. (result does not indicate a return value, 
             // rather an object stating if the command executed succesfully)
             var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
