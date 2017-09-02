@@ -189,8 +189,8 @@ namespace PoGo.DiscordBot
         async Task HandleCommand(SocketMessage messageParam)
         {
             // Don't process the command if it was a System Message
-            var message = messageParam as SocketUserMessage;
-            if (message == null || message.Author == client.CurrentUser) return;
+            if (!(messageParam is SocketUserMessage message))
+                return;
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
             // Determine if the message is a command, based on if it starts with '!' or a mention prefix
