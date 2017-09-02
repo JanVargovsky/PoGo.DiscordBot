@@ -49,6 +49,12 @@ namespace PoGo.DiscordBot.Modules
             if (!(Context.User is SocketGuildUser user))
                 return;
 
+            if (!(level >= 1 && level <= 40))
+            {
+                await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-40");
+                return;
+            }
+
             await user.ModifyAsync(t =>
             {
                 string name = user.Nickname ?? user.Username;
