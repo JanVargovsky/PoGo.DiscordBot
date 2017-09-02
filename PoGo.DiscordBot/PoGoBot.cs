@@ -137,8 +137,7 @@ namespace PoGo.DiscordBot
         async Task Connected()
         {
             logger.LogInformation("Connected");
-            if (Debugger.IsAttached)
-                await client.SetGameAsync("Debugging");
+            await client.SetGameAsync(Debugger.IsAttached ? "Debugging" : "Pokémon GO");
         }
 
         Task Disconnected(Exception exception)
