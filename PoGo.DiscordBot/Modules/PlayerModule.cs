@@ -44,10 +44,26 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("level", RunMode = RunMode.Async)]
-        public Task SetLevel(int level)
+        public async Task SetLevel(int level)
         {
-            //var guildUser = await Context.Guild.GetCurrentUserAsync();
-            return Task.CompletedTask;
+            if (!(Context.User is SocketGuildUser user))
+                return;
+
+            await user.ModifyAsync(t =>
+            {
+                string name = user.Nickname ?? user.Username;
+
+                // remove previous level
+                if (name.EndsWith(')'))
+                {
+                    int index = name.IndexOf('(');
+                    if (index != -1)
+                        name = name.Substring(0, index);
+                    name = name.TrimEnd();
+                }
+
+                t.Nickname = $"{name} ({level})";
+            });
         }
     }
 }

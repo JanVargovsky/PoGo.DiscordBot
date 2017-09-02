@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
