@@ -53,10 +53,9 @@ namespace PoGo.DiscordBot.Services
         {
             logger.LogInformation($"Updating raid messages");
             var batchMessages = channel.GetMessagesAsync(count, options: retryOptions).ToEnumerable();
-            var now = DateTime.UtcNow.AddHours(-3);
             foreach (var messages in batchMessages)
                 foreach (var message in messages)
-                    if (message is IUserMessage userMessage && userMessage.Timestamp.UtcDateTime > now)
+                    if (message is IUserMessage userMessage)
                         await FixMessageAfterLoad(guild, userMessage);
         }
 
@@ -97,11 +96,11 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        public async Task<ITextChannel> GetRaidChannelAsync(IGuild guild)
+        public ITextChannel GetRaidChannel(SocketGuild guild)
         {
             if (!RaidChannels.TryGetValue(guild.Id, out var channel))
             {
-                channel = await guild.GetDefaultChannelAsync(options: retryOptions);
+                channel = guild.DefaultChannel;
                 SetRaidChannel(guild.Id, channel);
             }
             return channel;

@@ -4,7 +4,9 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Diagnostics;
@@ -17,31 +19,25 @@ namespace PoGo.DiscordBot
 {
     public class PoGoBot : IDisposable
     {
-        const string Token = "MzQ3ODM2OTIyMDM2NzQ4Mjg5.DHeNAg.X7SXUjVVWteb14T9ewdULDFBB0A";
-        const string Environment =
-#if DEBUG
-            "Development";
-#else
-            "Production";
-#endif
-        public const char Prefix = '!';
-
         public IServiceProvider ServiceProvider { get; }
         public IConfiguration Configuration { get; }
 
         readonly DiscordSocketClient client;
         readonly CommandService commands;
-        ILogger logger;
+        readonly ILogger logger;
+        readonly ConfigurationOptions configuration;
 
         public PoGoBot()
         {
-            Console.WriteLine($"Environment: {Environment}");
+            string environment = File.ReadAllText("environment.txt");
+            Console.WriteLine($"Environment: {environment}");
+
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("configuration.json", false)
                 .AddJsonFile("appsettings.json", false)
-                .AddJsonFile($"appsettings.{Environment}.json", false)
+                .AddJsonFile($"appsettings.{environment}.json", false)
                 .Build();
-
 
             var logSeverity = Enum.Parse<LogSeverity>(Configuration["Logging:LogLevel:Discord"]);
             client = new DiscordSocketClient(new DiscordSocketConfig
@@ -61,6 +57,8 @@ namespace PoGo.DiscordBot
                 .AddDebug()
                 .AddFile(Configuration.GetSection("Logging"))
                 .CreateLogger<PoGoBot>();
+
+            configuration = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value;
 
             logger.LogTrace("START TRACE");
             logger.LogDebug("START DEBUG");
@@ -153,6 +151,9 @@ namespace PoGo.DiscordBot
         {
             var services = new ServiceCollection();
 
+            services.AddOptions();
+            services.Configure<ConfigurationOptions>(Configuration);
+
             services.AddLogging();
             services.AddSingleton<IDiscordClient>(client);
             services.AddSingleton<StaticRaidChannels>();
@@ -173,7 +174,7 @@ namespace PoGo.DiscordBot
         {
             await InitCommands();
 
-            await client.LoginAsync(TokenType.Bot, Token);
+            await client.LoginAsync(TokenType.Bot, configuration.Token);
             await client.StartAsync();
         }
 
@@ -194,7 +195,7 @@ namespace PoGo.DiscordBot
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
             // Determine if the message is a command, based on if it starts with '!' or a mention prefix
-            if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos))) return;
+            if (!(message.HasCharPrefix(configuration.Prefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos))) return;
             // Create a Command Context
             var context = new CommandContext(client, message);
             // Execute the command. (result does not indicate a return value, 

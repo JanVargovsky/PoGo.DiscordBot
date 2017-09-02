@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    public class PlayerModule : ModuleBase
+    [RequireContext(ContextType.Guild)]
+    public class PlayerModule : ModuleBase<SocketCommandContext>
     {
         private readonly UserService userService;
         private readonly TeamService teamService;

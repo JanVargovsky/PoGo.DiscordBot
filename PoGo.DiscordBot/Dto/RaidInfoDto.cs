@@ -34,9 +34,10 @@ namespace PoGo.DiscordBot.Dto
         {
             Color GetColor()
             {
-                if (Players.Count >= MinimumPlayers)
+                int playersCount = Players.Count + ExtraPlayers.Sum(t => t.Count);
+                if (playersCount >= MinimumPlayers)
                     return Color.Green;
-                if (Players.Count >= MinimumPlayers / 2)
+                if (playersCount >= MinimumPlayers / 2)
                     return Color.Orange;
                 return Color.Red;
             }
@@ -60,7 +61,8 @@ namespace PoGo.DiscordBot.Dto
 
             if(ExtraPlayers.Any())
             {
-                embedBuilder.AddField($"Extra hráči", ExtraPlayers.Sum(t => t.Count));
+                string extraPlayersFieldValue = string.Join(" + ", ExtraPlayers.Select(t => t.Count));
+                embedBuilder.AddField($"Extra hráči ({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
             }
 
             return embedBuilder.Build();

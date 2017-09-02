@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireUserPermission(GuildPermission.ManageMessages)]
     public class CleanModule : ModuleBase
     {
         [Command("hardclean", RunMode = RunMode.Async)]

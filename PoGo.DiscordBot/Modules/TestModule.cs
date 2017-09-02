@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PoGo.DiscordBot.Modules
 {
     [RequireUserPermission(GuildPermission.Administrator)]
-    public class TestModule : ModuleBase
+    public class TestModule : ModuleBase<SocketCommandContext>
     {
         [Command("test")]
         [Alias("t")]

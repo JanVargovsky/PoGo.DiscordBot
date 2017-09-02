@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    public class RaidModule : ModuleBase
+    [RequireContext(ContextType.Guild)]
+    public class RaidModule : ModuleBase<SocketCommandContext>
     {
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly TeamService teamService;
@@ -29,7 +30,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var raidChannel = await raidService.GetRaidChannelAsync(Context.Guild);
+            var raidChannel = raidService.GetRaidChannel(Context.Guild);
 
             var raidInfo = new RaidInfoDto
             {
@@ -73,9 +74,11 @@ namespace PoGo.DiscordBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task BindToChannel()
         {
-            var channel = await Context.Guild.GetTextChannelAsync(Context.Channel.Id, options: retryOptions);
-            raidService.SetRaidChannel(Context.Guild.Id, channel);
-            await ReplyAsync("Raids are binded to this chanel.");
+            if (Context.Channel is ITextChannel channel)
+            {
+                raidService.SetRaidChannel(Context.Guild.Id, channel);
+                await ReplyAsync("Raids are binded to this chanel.");
+            }
         }
     }
 }
