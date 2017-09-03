@@ -34,7 +34,11 @@ namespace PoGo.DiscordBot.Services
             if (role == null)
             {
                 logger.LogInformation($"Creating new role for team {pokemonTeam}");
-                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), color: TeamRoleColors.GetColor(pokemonTeam));
+                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), color: TeamRoleColors.GetColor(pokemonTeam), isHoisted: true);
+                await role.ModifyAsync(t =>
+                {
+                    t.Mentionable = true;
+                });
             }
 
             return role;
@@ -42,26 +46,21 @@ namespace PoGo.DiscordBot.Services
 
         async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
         {
-            var teams = Enum.GetNames(typeof(PokemonTeam));
+            var roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
+            var teamToRole = new Dictionary<PokemonTeam, IRole>();
 
-            var mysticRole = await GetOrCreateRole(guild, PokemonTeam.Mystic);
-            var instinctRole = await GetOrCreateRole(guild, PokemonTeam.Instinct);
-            var valorRole = await GetOrCreateRole(guild, PokemonTeam.Valor);
+            foreach (PokemonTeam team in Enum.GetValues(typeof(PokemonTeam)))
+            {
+                var role = await GetOrCreateRole(guild, team);
+
+                roleIdtoTeam[role.Id] = team;
+                teamToRole[team] = role;
+            }
 
             return new TeamRolesDto
             {
-                RoleTeams = new Dictionary<ulong, PokemonTeam>
-                {
-                    [mysticRole.Id] = PokemonTeam.Mystic,
-                    [instinctRole.Id] = PokemonTeam.Instinct,
-                    [valorRole.Id] = PokemonTeam.Valor,
-                },
-                TeamRoles = new Dictionary<PokemonTeam, IRole>
-                {
-                    [PokemonTeam.Mystic] = mysticRole,
-                    [PokemonTeam.Instinct] = instinctRole,
-                    [PokemonTeam.Valor] = valorRole,
-                }
+                RoleTeams = roleIdtoTeam,
+                TeamRoles = teamToRole,
             };
         }
     }

@@ -33,6 +33,12 @@
     <None Update="appsettings.Production.json">
       <DependentUpon>appsettings.json</DependentUpon>
     </None>
+    <None Update="configuration.Development.json">
+      <DependentUpon>configuration.json</DependentUpon>
+    </None>
+    <None Update="configuration.Production.json">
+      <DependentUpon>configuration.json</DependentUpon>
+    </None>
   </ItemGroup>
 
 </Project>

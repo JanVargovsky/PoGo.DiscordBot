@@ -11,6 +11,7 @@ namespace PoGo.DiscordBot.Configuration
         {
             GuildToTextChannelBinding = new ReadOnlyDictionary<ulong, ulong>(new Dictionary<ulong, ulong>()
             {
+                [353860813364396032] = 353860981669232641, // PoGo Bot Dev - #raids
                 [343037316752998410] = 348844165741936641, // PoGo Mapa FM - #raid-diskuze
             });
         }

@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
+using System;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Services
@@ -42,7 +43,11 @@ namespace PoGo.DiscordBot.Services
             if (team == null)
             {
                 logger.LogInformation($"Notifying {user.Id} '{user.Nickname ?? user.Username}' about team role");
-                await user.SendMessageAsync("Ahoj, nastav si team prosím.");
+                string userMessage = "Ahoj, nastav si team a level prosím." + Environment.NewLine + 
+                    "Team si nastavíš pomocí příkazu team, např. !team mystic" + Environment.NewLine +
+                    "Level si nastavíš pomocí příkazu level, např. !level 30" + Environment.NewLine +
+                    "Díky!";
+                await user.SendMessageAsync(userMessage);
             }
         }
 

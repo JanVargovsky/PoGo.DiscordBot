@@ -35,6 +35,7 @@ namespace PoGo.DiscordBot
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("configuration.json", false)
+                .AddJsonFile($"configuration.{environment}.json", false)
                 .AddJsonFile("appsettings.json", false)
                 .AddJsonFile($"appsettings.{environment}.json", false)
                 .Build();
@@ -202,8 +203,10 @@ namespace PoGo.DiscordBot
             var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
             {
-                if (result.Error.Value == CommandError.BadArgCount)
+                if (result.Error == CommandError.BadArgCount)
                     await context.Channel.SendMessageAsync("Nesedí počet parametrů - nechybí ti tam uvozovky?");
+                else if(result.Error == CommandError.ParseFailed)
+                    await context.Channel.SendMessageAsync("Špatné parametry.");
                 Console.WriteLine(result.ErrorReason);
             }
             // await context.Channel.SendMessageAsync(result.ErrorReason);

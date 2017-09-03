@@ -1,6 +1,8 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Threading.Tasks;
@@ -19,15 +21,15 @@ namespace PoGo.DiscordBot.Modules
             this.teamService = teamService;
         }
 
-        [Command("team", RunMode = RunMode.Async)]
-        public async Task SetTeam(string teamName)
+        [Command("team")]
+        public async Task CheckTeam(SocketGuildUser user)
         {
-            if (!Enum.TryParse<PokemonTeam>(teamName, true, out var team))
-            {
-                await ReplyAsync("Takový team neexistuje.");
-                return;
-            }
+            await userService.CheckTeam(user);
+        }
 
+        [Command("team", RunMode = RunMode.Async)]
+        public async Task SetTeam(PokemonTeam team)
+        {
             var contextUser = Context.User;
             var user = contextUser as SocketGuildUser;
             if (user == null)
@@ -45,6 +47,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("level", RunMode = RunMode.Async)]
+        [TeamPrecondition]
         public async Task SetLevel(int level)
         {
             if (!(Context.User is SocketGuildUser user))
