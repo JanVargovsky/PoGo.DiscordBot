@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Configuration.Options;
+using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Diagnostics;
@@ -205,9 +206,12 @@ namespace PoGo.DiscordBot
             {
                 if (result.Error == CommandError.BadArgCount)
                     await context.Channel.SendMessageAsync("Nesedí počet parametrů - nechybí ti tam uvozovky?");
-                else if(result.Error == CommandError.ParseFailed)
+                else if (result.Error == CommandError.ParseFailed)
                     await context.Channel.SendMessageAsync("Špatné parametry.");
-                Console.WriteLine(result.ErrorReason);
+                else if (result is TeamPreconditionResult teamResult)
+                    await context.Channel.SendMessageAsync(teamResult.ErrorReason);
+
+                logger.LogDebug(result.ErrorReason);
             }
             // await context.Channel.SendMessageAsync(result.ErrorReason);
         }
