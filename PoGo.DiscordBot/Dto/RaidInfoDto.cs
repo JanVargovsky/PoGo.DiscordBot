@@ -10,6 +10,7 @@ namespace PoGo.DiscordBot.Dto
     {
         public const string TimeFormat = "H:mm";
 
+        public IUserMessage Message { get; set; }
         public DateTime CreatedAt { get; set; }
         public string BossName { get; set; }
         public string Location { get; set; }

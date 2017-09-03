@@ -1,10 +1,8 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
-using System;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
@@ -47,6 +45,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("level", RunMode = RunMode.Async)]
+        [Alias("lvl")]
         [TeamPrecondition]
         public async Task SetLevel(int level)
         {
@@ -55,7 +54,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (!(level >= 1 && level <= 40))
             {
-                await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-40");
+                await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-40.");
                 return;
             }
 

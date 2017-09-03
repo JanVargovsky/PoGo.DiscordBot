@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Services;
 using System.Linq;
@@ -13,11 +14,13 @@ namespace PoGo.DiscordBot.Modules
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly TeamService teamService;
         readonly RaidService raidService;
+        private readonly ILogger<RaidModule> logger;
 
-        public RaidModule(TeamService teamService, RaidService raidService)
+        public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger)
         {
             this.teamService = teamService;
             this.raidService = raidService;
+            this.logger = logger;
         }
 
         [Command("raid", RunMode = RunMode.Async)]
@@ -43,22 +46,23 @@ namespace PoGo.DiscordBot.Modules
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
             var mention = string.Join(' ', roles.Select(t => t.Mention));
             var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
+            raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
             raidService.Raids[message.Id] = raidInfo;
         }
 
         [Command("time", RunMode = RunMode.Async)]
-        public async Task AdjustLastRaidTime(string time, int skip = 0)
+        public async Task AdjustRaidTime(string time, int skip = 0)
         {
             var raid = raidService.Raids.Values
                 .OrderByDescending(t => t.CreatedAt)
                 .Skip(skip)
                 .FirstOrDefault();
 
-            if(raid == null)
+            if (raid == null)
             {
-                await ReplyAsync("Raid nenalezen");
+                await ReplyAsync("Raid nenalezen.");
                 return;
             }
 
@@ -69,7 +73,16 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
+            logger.LogInformation($"Raid time change from {raid.Time.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
+
+            foreach (var player in raid.Players.Values)
+            {
+                var user = player.User;
+                await user.SendMessageAsync($"Změna raid času z {raid.Time.ToString(RaidInfoDto.TimeFormat)} na {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}!");
+            }
+
             raid.Time = parsedTime.Value;
+            await raid.Message.ModifyAsync(t => t.Embed = raid.ToEmbed());
         }
 
         [Command("bind", RunMode = RunMode.Async)]
