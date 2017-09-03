@@ -62,7 +62,7 @@ namespace PoGo.DiscordBot.Dto
             if(ExtraPlayers.Any())
             {
                 string extraPlayersFieldValue = string.Join(" + ", ExtraPlayers.Select(t => t.Count));
-                embedBuilder.AddField($"Extra hráči ({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
+                embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
             }
 
             return embedBuilder.Build();
