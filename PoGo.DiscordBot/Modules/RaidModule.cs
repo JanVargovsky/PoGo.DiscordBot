@@ -43,15 +43,17 @@ namespace PoGo.DiscordBot.Modules
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
             var mention = string.Join(' ', roles.Select(t => t.Mention));
             var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
+            await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
             raidService.Raids[message.Id] = raidInfo;
         }
 
         [Command("time", RunMode = RunMode.Async)]
-        public async Task AdjustLastRaidTime(string time)
+        public async Task AdjustLastRaidTime(string time, int skip = 0)
         {
             var raid = raidService.Raids.Values
                 .OrderByDescending(t => t.CreatedAt)
+                .Skip(skip)
                 .FirstOrDefault();
 
             if(raid == null)
