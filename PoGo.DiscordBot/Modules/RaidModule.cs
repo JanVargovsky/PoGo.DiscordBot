@@ -46,6 +46,7 @@ namespace PoGo.DiscordBot.Modules
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
             var mention = string.Join(' ', roles.Select(t => t.Mention));
             var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
+            logger.LogInformation($"New raid has been created '{bossName}' '{location}' '{parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);

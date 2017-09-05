@@ -51,19 +51,25 @@ namespace PoGo.DiscordBot.Services
 
         public async Task UpdateRaidMessages(SocketGuild guild, IMessageChannel channel, int count = 10)
         {
-            logger.LogInformation($"Updating raid messages");
+            logger.LogInformation($"start updating raid messages");
             var batchMessages = channel.GetMessagesAsync(count, options: retryOptions).ToEnumerable();
             foreach (var messages in batchMessages)
-                foreach (var message in messages)
+            {
+                var latestMessages = messages
+                    .Where(m => m.CreatedAt.UtcDateTime > DateTime.UtcNow.AddHours(-3))
+                    ;
+                foreach (var message in latestMessages)
                     if (message is IUserMessage userMessage)
                         await FixMessageAfterLoad(guild, userMessage);
+            }
+            logger.LogInformation($"end updating raid messages");
         }
 
-        async Task FixMessageAfterLoad(SocketGuild guild, IUserMessage message)
+        async Task<bool> FixMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
             var raidInfo = RaidInfoDto.Parse(message);
             if (raidInfo == null || raidInfo.IsExpired)
-                return;
+                return false;
 
             logger.LogInformation($"Updating raid message '{message.Id}'");
 
@@ -95,6 +101,8 @@ namespace PoGo.DiscordBot.Services
                 foreach (var user in users)
                     await message.RemoveReactionAsync(react.Key, user, options: retryOptions);
             }
+
+            return true;
         }
 
         public ITextChannel GetRaidChannel(SocketGuild guild)
@@ -133,8 +141,10 @@ namespace PoGo.DiscordBot.Services
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
             if (reaction.Emote.Name == UnicodeEmojis.ThumbsUp)
             {
-                if (raidInfo.Players.Remove(reaction.UserId))
+                if (raidInfo.Players.TryGetValue(reaction.UserId, out var player))
                 {
+                    logger.LogInformation($"Player '{player}' removed {nameof(UnicodeEmojis.ThumbsUp)} on raid {raidInfo.Message.Id}");
+                    raidInfo.Players.Remove(reaction.UserId);
                     await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
                 }
             }
@@ -164,7 +174,9 @@ namespace PoGo.DiscordBot.Services
 
             if (reaction.Emote.Name == UnicodeEmojis.ThumbsUp)
             {
-                raidInfo.Players[reaction.UserId] = userService.GetPlayer(user);
+                var player = userService.GetPlayer(user);
+                raidInfo.Players[reaction.UserId] = player;
+                logger.LogInformation($"Player '{player}' added {nameof(UnicodeEmojis.ThumbsUp)} on raid {raidInfo.Message.Id}");
                 await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
             }
             else if (Emojis.KeycapDigits.Contains(reaction.Emote))

@@ -60,7 +60,7 @@ namespace PoGo.DiscordBot.Dto
                 embedBuilder.AddField($"Hráči ({Players.Count})", playerFieldValue);
             }
 
-            if(ExtraPlayers.Any())
+            if (ExtraPlayers.Any())
             {
                 string extraPlayersFieldValue = string.Join(" + ", ExtraPlayers.Select(t => t.Count));
                 embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
@@ -88,14 +88,16 @@ namespace PoGo.DiscordBot.Dto
             return string.Join(Environment.NewLine, formatterGroupedPlayers);
         }
 
-        public static DateTime? ParseTime(string time)
+        public static DateTime? ParseTime(string time) => ParseTime(time, DateTime.Now.Date);
+
+        public static DateTime? ParseTime(string time, DateTime date)
         {
             var pieces = time.Split(' ', '.', ',', ':', ';', '\'');
 
             if (pieces.Length != 2 || !int.TryParse(pieces[0], out int hours) || !int.TryParse(pieces[1], out int minutes))
                 return null;
 
-            return DateTime.Now.Date.AddHours(hours).AddMinutes(minutes);
+            return new DateTime(date.Year, date.Month, date.Day, hours, minutes, 0);
         }
 
         public static RaidInfoDto Parse(IUserMessage message)
@@ -104,7 +106,7 @@ namespace PoGo.DiscordBot.Dto
             if (embed == null || embed.Fields.Length < 3)
                 return null;
 
-            var time = ParseTime(embed.Fields[2].Value);
+            var time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
             if (!time.HasValue)
                 return null;
 
