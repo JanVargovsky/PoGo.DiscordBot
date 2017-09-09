@@ -4,6 +4,7 @@ using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Services;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
@@ -19,7 +20,8 @@ namespace PoGo.DiscordBot.Modules
             this.userService = userService;
         }
 
-        [Command("team")]
+        [Command("team", RunMode = RunMode.Async)]
+        [Summary("Vypíše počet lidí ve všech týmech.")]
         public async Task TeamsStatistics()
         {
             Dictionary<PokemonTeam, int> groups = new Dictionary<PokemonTeam, int>
@@ -45,6 +47,29 @@ namespace PoGo.DiscordBot.Modules
                 embedBuilder.AddInlineField(item.Key.ToString(), item.Value);
             if(withoutTeam != 0)
                 embedBuilder.AddInlineField("Bez teamu", withoutTeam);
+
+            await ReplyAsync(string.Empty, embed: embedBuilder.Build());
+        }
+
+        [RequireOwner] // Not done yet
+        [Command("level")]
+        [Summary("Vypíše průměrný level všech hráčů.")]
+        public async Task LevelStatistics()
+        {
+            var allPlayers = Context.Guild.Users
+                .Where(t => !t.IsBot)
+                .Select(t => userService.GetPlayerLevel(t))
+                .ToList();
+
+            var playerLevels = allPlayers
+                .Where(t => t.HasValue)
+                .Select(t => t.Value)
+                .ToList();
+
+            int totalPlayers = allPlayers.Count;
+            double averageLevel = playerLevels.Average();
+
+            var embedBuilder = new EmbedBuilder();
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }

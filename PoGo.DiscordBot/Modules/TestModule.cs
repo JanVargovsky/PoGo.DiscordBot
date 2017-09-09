@@ -1,19 +1,22 @@
-﻿using Discord;
-using Discord.Commands;
-using PoGo.DiscordBot.Services;
+﻿using Discord.Commands;
+using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Modules.Preconditions;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireOwner]
     public class TestModule : ModuleBase<SocketCommandContext>
     {
         [Command("test")]
         [Alias("t")]
-        public async Task Test()
+        [Summary("Test.")]
+        [TeamPrecondition]
+        public async Task Test(
+            [Summary("Test description for param.")]string param,
+            [Summary("Test pokemon team description for param team.")]PokemonTeam team)
         {
             await Task.CompletedTask;
-            //await ReplyAsync("Raid", embed: );
         }
     }
 }

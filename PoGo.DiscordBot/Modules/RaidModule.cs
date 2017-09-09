@@ -24,7 +24,12 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("raid", RunMode = RunMode.Async)]
-        public async Task StartRaid(string bossName, string location, string time, int minimumPlayers = 4)
+        [Summary("Vytvoří raid anketu do speciálního kanálu.")]
+        public async Task StartRaid(
+            [Summary("Název bosse.")]string bossName,
+            [Summary("Místo.")]string location,
+            [Summary("Čas (" + RaidInfoDto.TimeFormat + ").")]string time,
+            [Summary("Doporučený minimální počet hráčů.")]int minimumPlayers = 4)
         {
             var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
@@ -54,7 +59,10 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("time", RunMode = RunMode.Async)]
-        public async Task AdjustRaidTime(string time, int skip = 0)
+        [Summary("Přenastaví čas raidu.")]
+        public async Task AdjustRaidTime(
+            [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
+            [Summary("Počet anket odspodu.")] int skip = 0)
         {
             var raid = raidService.Raids.Values
                 .OrderByDescending(t => t.CreatedAt)
@@ -88,6 +96,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("bind", RunMode = RunMode.Async)]
         [RequireUserPermission(GuildPermission.Administrator)]
+        [Summary("Nastaví aktuální kanál pro vyhlašování anket.")]
         public async Task BindToChannel()
         {
             if (Context.Channel is ITextChannel channel)

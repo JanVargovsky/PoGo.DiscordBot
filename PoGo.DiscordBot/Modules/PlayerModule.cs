@@ -20,13 +20,17 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("team")]
-        public async Task CheckTeam(SocketGuildUser user)
+        [Summary("Zkontroluje zda má uživatel nastavený team. Jestliže ne, tak mu přijde zpráva s informacemi jak ho nastavit.")]
+        public async Task CheckTeam(
+            [Summary("Kontrolovaný uživatel.")]SocketGuildUser user)
         {
             await userService.CheckTeam(user);
         }
 
         [Command("team", RunMode = RunMode.Async)]
-        public async Task SetTeam(PokemonTeam team)
+        [Summary("Nastaví team.")]
+        public async Task SetTeam(
+            [Summary("Zvolený team (roli).")][Remainder]PokemonTeam team)
         {
             var contextUser = Context.User;
             var user = contextUser as SocketGuildUser;
@@ -47,6 +51,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("level", RunMode = RunMode.Async)]
         [Alias("lvl")]
         [TeamPrecondition]
+        [Summary("Nastaví level.")]
         public async Task SetLevel(int level)
         {
             if (!(Context.User is SocketGuildUser user))

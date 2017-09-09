@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Services
@@ -17,6 +18,16 @@ namespace PoGo.DiscordBot.Services
         {
             this.logger = logger;
             this.teamService = teamService;
+        }
+
+        public int? GetPlayerLevel(SocketGuildUser user)
+        {
+            var name = user.ToString();
+            const string levelRegex = @" (\d)";
+            var result = Regex.Match(name, levelRegex, RegexOptions.RightToLeft);
+            if (int.TryParse(result.Value, out var level))
+                return level;
+            return null;
         }
 
         public PokemonTeam? GetTeam(SocketGuildUser user)
@@ -43,7 +54,7 @@ namespace PoGo.DiscordBot.Services
             if (team == null)
             {
                 logger.LogInformation($"Notifying {user.Id} '{user.Nickname ?? user.Username}' about team role");
-                string userMessage = "Ahoj, nastav si team a level prosím." + Environment.NewLine + 
+                string userMessage = "Ahoj, nastav si team a level prosím." + Environment.NewLine +
                     "Tyhle příkazy mi nemůžeš psát přímo tady, ale musíš ho psát do některých z kanálů (např. #diskuze)" + Environment.NewLine +
                     "Team si nastavíš pomocí příkazu team, např. !team mystic" + Environment.NewLine +
                     "Level si nastavíš pomocí příkazu level, např. !level 30" + Environment.NewLine +

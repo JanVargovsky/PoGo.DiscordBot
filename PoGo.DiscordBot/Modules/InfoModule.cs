@@ -2,10 +2,12 @@
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
+using System;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
+    [Obsolete]
     public class InfoModule : ModuleBase
     {
         private readonly ConfigurationOptions configuration;
@@ -16,13 +18,10 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("info", RunMode = RunMode.Async)]
-        [Alias("help")]
         public async Task WriteInfo()
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.WithTitle("Příkazy")
-            .AddField("Prefix", configuration.Prefix)
-
             .AddField("Příkaz team",
 $@"Přiřadí vám roli (a barvu) pro daný team.
 Parametry příkazu: team (Mystic | Valor | Instinct)
