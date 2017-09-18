@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Services;
@@ -82,12 +83,17 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            logger.LogInformation($"Raid time change from {raid.Time.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
+            var currentUser = Context.User as SocketGuildUser;
+            logger.LogInformation($"User '{currentUser.Nickname ?? Context.User.Username}' with id '{Context.User.Id}'" +
+                $" changed raid s'{raid.Message.Id}' time change" +
+                $" from {raid.Time.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
 
             foreach (var player in raid.Players.Values)
             {
                 var user = player.User;
-                await user.SendMessageAsync($"Změna raid času z {raid.Time.ToString(RaidInfoDto.TimeFormat)} na {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}!");
+                await user.SendMessageAsync(
+                    $"Změna raid času z {raid.Time.ToString(RaidInfoDto.TimeFormat)} na {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}!" +
+                    $" Jestli ti změna nevyhovuje, tak se odhlaš z raidu nebo se domluv s ostatními na jiném čase.");
             }
 
             raid.Time = parsedTime.Value;
