@@ -105,6 +105,15 @@ namespace PoGo.DiscordBot.Services
             return true;
         }
 
+        public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
+        {
+            var messageId = cacheableMessage.Id;
+            if (Raids.TryRemove(messageId, out _))
+                logger.LogInformation($"Raid message '{messageId}' was removed.");
+
+            return Task.CompletedTask;
+        }
+
         public ITextChannel GetRaidChannel(SocketGuild guild)
         {
             if (!RaidChannels.TryGetValue(guild.Id, out var channel))

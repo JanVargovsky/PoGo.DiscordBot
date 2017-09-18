@@ -87,6 +87,13 @@ namespace PoGo.DiscordBot
             client.ReactionAdded += ReactionAdded;
             client.ReactionRemoved += OnReactionRemoved;
             client.UserJoined += OnUserJoined;
+            client.MessageDeleted += OnMessageDeleted;
+        }
+
+        async Task OnMessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
+        {
+            var raidService = ServiceProvider.GetService<RaidService>();
+            await raidService.OnMessageDeleted(message, channel);
         }
 
         async Task OnUserJoined(SocketGuildUser user)
