@@ -104,13 +104,13 @@ namespace PoGo.DiscordBot
 
         async Task GuildAvailable(SocketGuild guild)
         {
+            logger.LogInformation($"New guild: '{guild.Name}'");
+
             var teamService = ServiceProvider.GetService<TeamService>();
             await teamService.OnNewGuild(guild);
 
             var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
-
-            logger.LogInformation($"New guild: '{guild.Name}'");
         }
 
         async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
