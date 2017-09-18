@@ -30,7 +30,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("team", RunMode = RunMode.Async)]
         [Summary("Nastaví team.")]
         public async Task SetTeam(
-            [Summary("Zvolený team (roli).")][Remainder]PokemonTeam team)
+            [Summary("Zvolený team (roli).")]PokemonTeam team)
         {
             var contextUser = Context.User;
             var user = contextUser as SocketGuildUser;
