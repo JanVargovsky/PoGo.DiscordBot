@@ -45,7 +45,7 @@ namespace PoGo.DiscordBot.Modules
             builder.AddField("Nápověda ke konkrétnímu příkazu", "Pro detailnější nápovědu k příkazu napiš **!help <příkaz>** kde příkaz je jeden z výše uvedených příkazů." +
                 $@" Jestliže je příkaz složen z více slov (třeba příkaz {prefix}stats team) je nutné ho obalit uvozovkami **{prefix}help ""stats team""**.");
 
-            builder.AddField("Použití příkazu", 
+            builder.AddField("Použití příkazu",
                 $"BOT reaguje na všechny zprávy, které začínají nějakým znakem." +
                 $" V našem případě je to znak **{prefix}**." +
                 $" Pokud tedy přijde zpráva např. **!raid**, tak je předána k zpracování." +
@@ -108,7 +108,7 @@ namespace PoGo.DiscordBot.Modules
                 {
                     var parameters = ci.Parameters.AsEnumerable();
 
-                    if(signature == HelpModule.CommandInfoSignature.Basic)
+                    if (signature == HelpModule.CommandInfoSignature.Basic)
                         parameters = parameters.Where(pi => !pi.IsOptional);
 
                     sb.Append(' ')
