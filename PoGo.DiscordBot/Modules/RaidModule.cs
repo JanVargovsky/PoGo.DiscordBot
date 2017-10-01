@@ -51,12 +51,17 @@ namespace PoGo.DiscordBot.Modules
 
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
             var mention = string.Join(' ', roles.Select(t => t.Mention));
-            var message = await raidChannel.SendMessageAsync(mention, embed: raidInfo.ToEmbed());
+            var message = await raidChannel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
             logger.LogInformation($"New raid has been created '{bossName}' '{location}' '{parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
             raidService.Raids[message.Id] = raidInfo;
+            await message.ModifyAsync(t =>
+            {
+                t.Content = string.Empty;
+                t.Embed = raidInfo.ToEmbed(); // required workaround to set content to empty
+            }, retryOptions);
         }
 
         [Command("time", RunMode = RunMode.Async)]

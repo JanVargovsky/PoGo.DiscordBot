@@ -73,7 +73,6 @@ namespace PoGo.DiscordBot.Services
 
             logger.LogInformation($"Updating raid message '{message.Id}'");
 
-            raidInfo.Message = message;
             Raids[message.Id] = raidInfo;
             // Adjust user count
             var usersWithThumbsUp = await message.GetReactionUsersAsync(UnicodeEmojis.ThumbsUp);

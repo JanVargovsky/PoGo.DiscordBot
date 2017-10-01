@@ -69,6 +69,8 @@ namespace PoGo.DiscordBot.Dto
             return embedBuilder.Build();
         }
 
+        public string ToSimpleString() => $"{BossName} {Location} {Time.ToString(TimeFormat)}";
+
         string PlayersToString(IEnumerable<PlayerDto> players) => string.Join(", ", players);
 
         string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
@@ -112,6 +114,7 @@ namespace PoGo.DiscordBot.Dto
 
             var result = new RaidInfoDto
             {
+                Message = message,
                 CreatedAt = message.CreatedAt.UtcDateTime,
                 BossName = embed.Fields[0].Value,
                 Location = embed.Fields[1].Value,
