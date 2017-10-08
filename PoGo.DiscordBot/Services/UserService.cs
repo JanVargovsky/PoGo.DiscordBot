@@ -56,6 +56,7 @@ namespace PoGo.DiscordBot.Services
                 logger.LogInformation($"Notifying {user.Id} '{user.Nickname ?? user.Username}' about team role");
                 string userMessage = "Ahoj, nastav si team a level prosím." + Environment.NewLine +
                     "Tyhle příkazy mi nemůžeš psát přímo tady, ale musíš ho psát do některých z kanálů (např. #diskuze)" + Environment.NewLine +
+                    "Přípazy piš zvlášť, jeden příkaz = jedna zpráva." + Environment.NewLine +
                     "Team si nastavíš pomocí příkazu team, např. !team mystic" + Environment.NewLine +
                     "Level si nastavíš pomocí příkazu level, např. !level 30" + Environment.NewLine +
                     "Díky!";
