@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace PoGo.DiscordBot.Modules
 {
     [RequireContext(ContextType.Guild)]
+    [Group("raid")]
+    [Alias("r")]
     public class RaidModule : ModuleBase<SocketCommandContext>
     {
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
@@ -24,7 +26,8 @@ namespace PoGo.DiscordBot.Modules
             this.logger = logger;
         }
 
-        [Command("raid", RunMode = RunMode.Async)]
+        [Command("create", RunMode = RunMode.Async)]
+        [Alias("c")]
         [Summary("Vytvoří raid anketu do speciálního kanálu.")]
         public async Task StartRaid(
             [Summary("Název bosse.")]string bossName,
@@ -65,15 +68,13 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("time", RunMode = RunMode.Async)]
+        [Alias("t")]
         [Summary("Přenastaví čas raidu.")]
         public async Task AdjustRaidTime(
             [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = raidService.Raids.Values
-                .OrderByDescending(t => t.CreatedAt)
-                .Skip(skip)
-                .FirstOrDefault();
+            var raid = raidService.GetRaid(skip);
 
             if (raid == null)
             {
@@ -90,8 +91,8 @@ namespace PoGo.DiscordBot.Modules
 
             var currentUser = Context.User as SocketGuildUser;
             logger.LogInformation($"User '{currentUser.Nickname ?? Context.User.Username}' with id '{Context.User.Id}'" +
-                $" changed raid s'{raid.Message.Id}' time change" +
-                $" from {raid.Time.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
+                $" changed raid with id '{raid.Message.Id}'" +
+                $" time changed from {raid.Time.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
 
             foreach (var player in raid.Players.Values)
             {
@@ -102,6 +103,36 @@ namespace PoGo.DiscordBot.Modules
             }
 
             raid.Time = parsedTime.Value;
+            await raid.Message.ModifyAsync(t => t.Embed = raid.ToEmbed());
+        }
+
+        [Command("boss", RunMode = RunMode.Async)]
+        [Alias("b")]
+        [Summary("Přenastaví bosse raidu.")]
+        public async Task AdjustBossTime(
+            [Summary("Přenastaví bosse raidu.")]string boss,
+            [Summary("Počet anket odspodu.")] int skip = 0)
+        {
+            var raid = raidService.GetRaid(skip);
+
+            if (raid == null)
+            {
+                await ReplyAsync("Raid nenalezen.");
+                return;
+            }
+
+            var currentUser = Context.User as SocketGuildUser;
+            logger.LogInformation($"User '{currentUser.Nickname ?? Context.User.Username}' with id '{Context.User.Id}'" +
+                $" changed raid with id '{raid.Message.Id}'" +
+                $" boss changed from {raid.BossName} to {boss}");
+
+            foreach (var player in raid.Players.Values)
+            {
+                var user = player.User;
+                await user.SendMessageAsync($"Změna raid bosse z '{raid.BossName}' na '{boss}'!");
+            }
+
+            raid.BossName = boss;
             await raid.Message.ModifyAsync(t => t.Embed = raid.ToEmbed());
         }
 

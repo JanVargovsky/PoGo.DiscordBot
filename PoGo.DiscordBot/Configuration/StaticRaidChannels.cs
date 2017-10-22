@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace PoGo.DiscordBot.Configuration
 {
+    [Obsolete]
     public class StaticRaidChannels
     {
         public IReadOnlyDictionary<ulong, ulong> GuildToTextChannelBinding { get; }

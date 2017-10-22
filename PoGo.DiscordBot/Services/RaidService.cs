@@ -104,6 +104,12 @@ namespace PoGo.DiscordBot.Services
             return true;
         }
 
+        public RaidInfoDto GetRaid(int skip) =>
+            Raids.Values
+            .OrderByDescending(t => t.CreatedAt)
+            .Skip(skip)
+            .FirstOrDefault();
+
         public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
         {
             var messageId = cacheableMessage.Id;
