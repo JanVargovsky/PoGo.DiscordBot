@@ -109,6 +109,10 @@ namespace PoGo.DiscordBot
             var teamService = ServiceProvider.GetService<TeamService>();
             await teamService.OnNewGuild(guild);
 
+            var raidChannelService = ServiceProvider.GetService<RaidChannelService>();
+            var guildOptions = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value.Guilds;
+            raidChannelService.OnNewGuild(guild, guildOptions);
+
             var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
         }
