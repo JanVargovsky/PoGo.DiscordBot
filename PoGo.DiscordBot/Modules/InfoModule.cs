@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    [Obsolete]
     public class InfoModule : ModuleBase
     {
         private readonly ConfigurationOptions configuration;
@@ -18,6 +17,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("info", RunMode = RunMode.Async)]
+        [Obsolete]
         public async Task WriteInfo()
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -38,6 +38,19 @@ Pozn. Jestliže má jakýkoliv parametr mezery, je nutné ho obalit uvozovkami (
 
             var embed = embedBuilder.Build();
             await ReplyAsync(string.Empty, embed: embed);
+        }
+
+        [Command("contribute", RunMode = RunMode.Async)]
+        [Alias("github")]
+        public async Task Contribute()
+        {
+            await ReplyAsync("https://github.com/JanVargovsky/PoGo.DiscordBot");
+        }
+
+        [Command("donate", RunMode = RunMode.Async)]
+        public async Task Donate()
+        {
+            await ReplyAsync("V případě, že byste chtěli podpořit vývoj, tak se ozvěte Pako#3904");
         }
     }
 }
