@@ -20,13 +20,16 @@ namespace PoGo.DiscordBot.Modules
         readonly RaidService raidService;
         readonly ILogger<RaidModule> logger;
         readonly RaidChannelService raidChannelService;
+        readonly ConfigurationService configuration;
 
-        public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService)
+        public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
+            ConfigurationService configuration)
         {
             this.teamService = teamService;
             this.raidService = raidService;
             this.logger = logger;
             this.raidChannelService = raidChannelService;
+            this.configuration = configuration;
         }
 
         [Command("create", RunMode = RunMode.Async)]
@@ -57,13 +60,18 @@ namespace PoGo.DiscordBot.Modules
             };
 
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
-            var mention = string.Join(' ', roles.Select(t => t.Mention));
+            bool shouldMention = !(configuration.GetGuildOptions(Context.Guild.Id)?.IgnoreMention ?? false);
+            var mention = shouldMention ?
+                string.Join(' ', roles.Select(t => t.Mention)) :
+                string.Empty;
+
             var message = await raidChannel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
             logger.LogInformation($"New raid has been created '{bossName}' '{location}' '{parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
             raidService.Raids[Context.Guild.Id][message.Id] = raidInfo;
+
             await message.ModifyAsync(t =>
             {
                 t.Content = string.Empty;

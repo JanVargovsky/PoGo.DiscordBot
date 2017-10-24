@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
@@ -168,7 +167,7 @@ namespace PoGo.DiscordBot
 
             services.AddLogging();
             services.AddSingleton<IDiscordClient>(client);
-            services.AddSingleton<StaticRaidChannels>();
+            services.AddSingleton<ConfigurationService>();
 
             services.AddSingleton<RaidService>();
             services.AddSingleton<TeamService>();
