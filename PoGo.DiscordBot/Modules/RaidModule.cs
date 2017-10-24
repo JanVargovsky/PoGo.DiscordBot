@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
+using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,18 +18,21 @@ namespace PoGo.DiscordBot.Modules
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly TeamService teamService;
         readonly RaidService raidService;
-        private readonly ILogger<RaidModule> logger;
+        readonly ILogger<RaidModule> logger;
+        readonly RaidChannelService raidChannelService;
 
-        public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger)
+        public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService)
         {
             this.teamService = teamService;
             this.raidService = raidService;
             this.logger = logger;
+            this.raidChannelService = raidChannelService;
         }
 
         [Command("create", RunMode = RunMode.Async)]
         [Alias("c")]
         [Summary("Vytvoří raid anketu do speciálního kanálu.")]
+        [RaidChannelPrecondition]
         public async Task StartRaid(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
@@ -42,7 +46,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var raidChannel = raidService.GetRaidChannel(Context.Guild);
+            var raidChannel = raidChannelService.TryGetRaidChannel(Context.Guild.Id, Context.Channel.Id);
 
             var raidInfo = new RaidInfoDto
             {
@@ -59,7 +63,7 @@ namespace PoGo.DiscordBot.Modules
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
-            raidService.Raids[message.Id] = raidInfo;
+            raidService.Raids[Context.Guild.Id][message.Id] = raidInfo;
             await message.ModifyAsync(t =>
             {
                 t.Content = string.Empty;
@@ -70,11 +74,12 @@ namespace PoGo.DiscordBot.Modules
         [Command("time", RunMode = RunMode.Async)]
         [Alias("t")]
         [Summary("Přenastaví čas raidu.")]
+        [RaidChannelPrecondition]
         public async Task AdjustRaidTime(
             [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = raidService.GetRaid(skip);
+            var raid = raidService.GetRaid(Context.Guild.Id, skip);
 
             if (raid == null)
             {
@@ -109,11 +114,12 @@ namespace PoGo.DiscordBot.Modules
         [Command("boss", RunMode = RunMode.Async)]
         [Alias("b")]
         [Summary("Přenastaví bosse raidu.")]
+        [RaidChannelPrecondition]
         public async Task AdjustBossTime(
             [Summary("Přenastaví bosse raidu.")]string boss,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = raidService.GetRaid(skip);
+            var raid = raidService.GetRaid(Context.Guild.Id, skip);
 
             if (raid == null)
             {
@@ -138,13 +144,12 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("bind", RunMode = RunMode.Async)]
         [RequireUserPermission(GuildPermission.Administrator)]
-        [Summary("Nastaví aktuální kanál pro vyhlašování anket.")]
-        public async Task BindToChannel()
+        public async Task BindToChannel(string from, string to)
         {
             if (Context.Channel is ITextChannel channel)
             {
-                raidService.SetRaidChannel(Context.Guild.Id, channel);
-                await ReplyAsync("Raids are binded to this chanel.");
+                raidChannelService.AddBinding(Context.Guild, from, to);
+                await ReplyAsync("Binded");
             }
         }
     }
