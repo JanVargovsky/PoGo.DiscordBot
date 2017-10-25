@@ -61,13 +61,6 @@ namespace PoGo.DiscordBot
 
             configuration = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value;
 
-            logger.LogTrace("START TRACE");
-            logger.LogDebug("START DEBUG");
-            logger.LogInformation("START INFO");
-            logger.LogWarning("START WARNING");
-            logger.LogError("START ERROR");
-            logger.LogCritical("START CRITICAL");
-
             Init();
         }
 
@@ -187,6 +180,7 @@ namespace PoGo.DiscordBot
             await InitCommands();
 
             await client.LoginAsync(TokenType.Bot, configuration.Token);
+            logger.LogInformation("START");
             await client.StartAsync();
         }
 
@@ -229,29 +223,6 @@ namespace PoGo.DiscordBot
 
         Task Log(LogMessage message)
         {
-            //var cc = Console.ForegroundColor;
-            //switch (message.Severity)
-            //{
-            //    case LogSeverity.Critical:
-            //    case LogSeverity.Error:
-            //        Console.ForegroundColor = ConsoleColor.Red;
-            //        break;
-            //    case LogSeverity.Warning:
-            //        Console.ForegroundColor = ConsoleColor.Yellow;
-            //        break;
-            //    case LogSeverity.Info:
-            //        Console.ForegroundColor = ConsoleColor.White;
-            //        break;
-            //    case LogSeverity.Verbose:
-            //    case LogSeverity.Debug:
-            //        Console.ForegroundColor = ConsoleColor.DarkGray;
-            //        break;
-            //}
-
-            //string logMessage = $"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message}";
-            //Console.WriteLine(logMessage);
-            //Console.ForegroundColor = cc;
-
             LogLevel logLevel = message.Severity.ToLogLevel();
             logger.Log(logLevel, 0, message, null, LogMessageFormatter);
 
