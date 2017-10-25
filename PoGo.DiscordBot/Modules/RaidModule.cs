@@ -136,7 +136,7 @@ namespace PoGo.DiscordBot.Modules
         [Alias("b")]
         [Summary("Přenastaví bosse raidu.")]
         [RaidChannelPrecondition]
-        public async Task AdjustBossTime(
+        public async Task AdjustRaidBoss(
             [Summary("Přenastaví bosse raidu.")]string boss,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
@@ -161,6 +161,35 @@ namespace PoGo.DiscordBot.Modules
 
             raid.BossName = boss;
             await raid.Message.ModifyAsync(t => t.Embed = raid.ToEmbed());
+        }
+
+        [Command("mention", RunMode = RunMode.Async)]
+        [Alias("m")]
+        [Summary("Označí lidi, kteří jsou zapsáni na raid.")]
+        [RaidChannelPrecondition]
+        public async Task MentionRaidPlayers(
+            [Summary("Počet anket odspodu.")] int skip = 0,
+            [Remainder][Summary("Text")]string text = null)
+        {
+            var raid = raidService.GetRaid(Context.Guild.Id, skip);
+
+            if (raid == null)
+            {
+                await ReplyAsync("Raid nenalezen.");
+                return;
+            }
+
+            var users = raid.Players.Values.ToHashSet();
+
+            if (users.Any())
+            {
+                string playerMentions = string.Join(' ', users.Select(t => t.User.Mention));
+                string message = string.Empty;
+                if (!string.IsNullOrWhiteSpace(text))
+                    message = text + Environment.NewLine;
+                message += playerMentions;
+                await ReplyAsync(message);
+            }
         }
 
         [Command("bind", RunMode = RunMode.Async)]

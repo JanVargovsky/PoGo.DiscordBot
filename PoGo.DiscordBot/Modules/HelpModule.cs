@@ -42,16 +42,15 @@ namespace PoGo.DiscordBot.Modules
             string orderedCommandsString = string.Join(Environment.NewLine, commands.OrderBy(t => t));
             builder.AddField("Dostupné příkazy", orderedCommandsString);
 
-            builder.AddField("Nápověda ke konkrétnímu příkazu", "Pro detailnější nápovědu k příkazu napiš **!help <příkaz>** kde příkaz je jeden z výše uvedených příkazů." +
-                $@" Jestliže je příkaz složen z více slov (třeba příkaz {prefix}stats team) je nutné ho obalit uvozovkami **{prefix}help ""stats team""**.");
+            builder.AddField("Nápověda ke konkrétnímu příkazu", "Pro detailnější nápovědu k příkazu napiš **!help <příkaz>** kde příkaz je jeden z výše uvedených příkazů.");
 
             builder.AddField("Použití příkazu",
                 $"BOT reaguje na všechny zprávy, které začínají nějakým znakem." +
                 $" V našem případě je to znak **{prefix}**." +
-                $" Pokud tedy přijde zpráva např. **!raid**, tak je předána k zpracování." +
+                $" Pokud tedy přijde zpráva např. **!raid create**, tak je předána k zpracování." +
                 $" Každý příkaz má přesně dané parametry - **ty je nutné dodržovat, jinak se příkaz vůbec nevykoná**." +
-                $" Jestliže má tedy příkaz **raid** 3 parametry - bossName, location a time, je nutné je všechny předat." +
-                $" Napíšu tedy tohle: **!raid Tyranitar Stoun 15:30**");
+                $" Jestliže má tedy příkaz **raid create** 3 parametry - bossName, location a time, je nutné je všechny předat." +
+                $" Napíšu tedy tohle: **!raid create Tyranitar Stoun 15:30**");
 
             await ReplyAsync(string.Empty, embed: builder.Build());
         }
@@ -140,7 +139,7 @@ namespace PoGo.DiscordBot.Modules
                         .AppendLine(detailedParameters);
                 }
 
-                builder.AddField(string.Join(", ", cmd.Aliases), sb);
+                builder.AddField($"Příkaz{(cmd.Aliases.Count > 1 ? "y" : "")}: {string.Join(", ", cmd.Aliases)}", sb);
             }
 
             await ReplyAsync(string.Empty, false, builder.Build());
