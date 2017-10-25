@@ -56,7 +56,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var raidChannel = raidChannelService.TryGetRaidChannel(Context.Guild.Id, Context.Channel.Id);
+            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
 
             var raidInfo = new RaidInfoDto
             {
@@ -68,11 +68,11 @@ namespace PoGo.DiscordBot.Modules
 
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
             bool shouldMention = !(configuration.GetGuildOptions(Context.Guild.Id)?.IgnoreMention ?? false);
-            var mention = shouldMention ?
-                string.Join(' ', roles.Select(t => t.Mention)) :
-                string.Empty;
+            string mention = string.Empty;
+            if (shouldMention)
+                mention = raidChannelBinding.Mention == null ? string.Join(' ', roles.Select(t => t.Mention)) : raidChannelBinding.Mention.Mention;
 
-            var message = await raidChannel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
+            var message = await raidChannelBinding.Channel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
             logger.LogInformation($"New raid has been created '{bossName}' '{location}' '{parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
@@ -189,17 +189,6 @@ namespace PoGo.DiscordBot.Modules
                     message = text + Environment.NewLine;
                 message += playerMentions;
                 await ReplyAsync(message);
-            }
-        }
-
-        [Command("bind", RunMode = RunMode.Async)]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task BindToChannel(string from, string to)
-        {
-            if (Context.Channel is ITextChannel channel)
-            {
-                raidChannelService.AddBinding(Context.Guild, from, to);
-                await ReplyAsync("Binded");
             }
         }
     }

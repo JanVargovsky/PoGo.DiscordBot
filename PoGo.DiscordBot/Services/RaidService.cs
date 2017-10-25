@@ -42,8 +42,10 @@ namespace PoGo.DiscordBot.Services
 
         public async Task UpdateRaidMessages(SocketGuild guild, IMessageChannel channel, int count = 10)
         {
-            logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");
             var batchMessages = channel.GetMessagesAsync(count, options: retryOptions).ToEnumerable();
+            if (!batchMessages.Any())
+                return;
+            logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");
             foreach (var messages in batchMessages)
             {
                 var latestMessages = messages

@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration.Options;
+using PoGo.DiscordBot.Dto;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,11 +14,13 @@ namespace PoGo.DiscordBot.Services
         {
             public ITextChannel From { get; }
             public ITextChannel To { get; }
+            public IMentionable Mention { get; set; }
 
-            public RaidChannelBinding(ITextChannel from, ITextChannel to)
+            public RaidChannelBinding(ITextChannel from, ITextChannel to, IMentionable mention)
             {
                 From = from;
                 To = to;
+                Mention = mention;
             }
         }
 
@@ -49,46 +52,57 @@ namespace PoGo.DiscordBot.Services
 
             // go through configured channels and register them
             foreach (var channel in guildConfig.Channels)
-                AddBindingIfValid(channelBindings, guild, channel.From, channel.To);
+                AddBindingIfValid(channelBindings, guild, channel);
         }
 
         public bool IsKnown(ulong guildId) => guilds.ContainsKey(guildId);
 
         public bool IsKnown(ulong guildId, ulong textChannelId) =>
-            TryGetRaidChannel(guildId, textChannelId) != null;
+            TryGetRaidChannelBinding(guildId, textChannelId) != null;
 
         public IEnumerable<ITextChannel> GetRaidChannels(ulong guildId) => guilds[guildId].Select(t => t.To);
 
         /// <summary>
         /// Returns raid channel for the raid poll based on the channel where the command came from.
         /// </summary>
-        public ITextChannel TryGetRaidChannel(ulong guildId, ulong fromTextChannelId)
+        public RaidChannelBindingDto TryGetRaidChannelBinding(ulong guildId, ulong fromTextChannelId)
         {
             if (guilds.TryGetValue(guildId, out var raidChannelBindings))
                 foreach (var channel in raidChannelBindings)
                     if (channel.From == null || channel.From.Id == fromTextChannelId)
-                        return channel.To;
+                        return new RaidChannelBindingDto
+                        {
+                            Channel = channel.To,
+                            Mention = channel.Mention,
+                        };
 
             return null;
         }
 
-        void AddBindingIfValid(List<RaidChannelBinding> channelBindings, SocketGuild guild, string from, string to)
+        void AddBindingIfValid(List<RaidChannelBinding> channelBindings, SocketGuild guild, ChannelOptions channelOptions)
         {
-            var channelFrom = guild.TextChannels.FirstOrDefault(t => t.Name == from);
-            var channelTo = guild.TextChannels.FirstOrDefault(t => t.Name == to);
+            var channelFrom = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.From);
+            var channelTo = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.To);
 
-            if (from != "*" && (channelFrom == null || channelTo == null))
+            if (channelOptions.From != "*" && (channelFrom == null || channelTo == null))
             {
                 if (channelFrom == null)
-                    logger.LogError($"Unknown from channel binding '{from}'");
+                    logger.LogError($"Unknown from channel binding '{channelOptions.From}'");
                 if (channelTo == null)
-                    logger.LogError($"Unknown to channel binding '{to}'");
+                    logger.LogError($"Unknown to channel binding '{channelOptions.To}'");
                 return;
             }
 
-            channelBindings.Add(new RaidChannelBinding(channelFrom, channelTo));
-        }
 
-        public void AddBinding(SocketGuild guild, string from, string to) => AddBindingIfValid(guilds[guild.Id], guild, from, to);
+            IMentionable mention = null;
+            if (!string.IsNullOrEmpty(channelOptions.Mention))
+            {
+                mention = guild.Roles.FirstOrDefault(t => t.Name == channelOptions.Mention);
+                if (mention == null)
+                    logger.LogError($"Unknown role '{channelOptions.Mention}'");
+            }
+
+            channelBindings.Add(new RaidChannelBinding(channelFrom, channelTo, mention));
+        }
     }
 }
