@@ -63,7 +63,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("help")]
-        public async Task Help(string command)
+        public async Task Help([Remainder] string command)
         {
             var result = commandService.Search(Context, command);
 
