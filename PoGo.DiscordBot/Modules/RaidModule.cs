@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,7 +46,13 @@ namespace PoGo.DiscordBot.Modules
             var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
             {
-                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat}).");
+                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat} 24H).");
+                return;
+            }
+
+            if (parsedTime < DateTime.Now)
+            {
+                await ReplyAsync($"Vážně chceš vytvořit raid v minulosti?");
                 return;
             }
 
@@ -98,7 +105,13 @@ namespace PoGo.DiscordBot.Modules
             var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
             {
-                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat}).");
+                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat} 24H).");
+                return;
+            }
+
+            if (parsedTime < DateTime.Now)
+            {
+                await ReplyAsync($"Vážně změnit čas do minulosti?");
                 return;
             }
 
