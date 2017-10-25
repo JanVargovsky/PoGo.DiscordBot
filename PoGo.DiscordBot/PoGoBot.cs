@@ -166,6 +166,7 @@ namespace PoGo.DiscordBot
             services.AddSingleton<TeamService>();
             services.AddSingleton<UserService>();
             services.AddSingleton<RaidChannelService>();
+            services.AddSingleton<RoleService>();
 
             return services.BuildServiceProvider();
         }
