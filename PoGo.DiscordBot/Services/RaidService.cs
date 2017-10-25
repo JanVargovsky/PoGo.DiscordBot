@@ -42,19 +42,17 @@ namespace PoGo.DiscordBot.Services
 
         public async Task UpdateRaidMessages(SocketGuild guild, IMessageChannel channel, int count = 10)
         {
-            var batchMessages = channel.GetMessagesAsync(count, options: retryOptions).ToEnumerable();
-            if (!batchMessages.Any())
+            var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
+                .ToList();
+            var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > DateTime.UtcNow.AddHours(-2)))
+                .ToList();
+            if (!latestMessages.Any())
                 return;
+
             logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");
-            foreach (var messages in batchMessages)
-            {
-                var latestMessages = messages
-                    .Where(m => m.CreatedAt.UtcDateTime > DateTime.UtcNow.AddHours(-3))
-                    ;
-                foreach (var message in latestMessages)
-                    if (message is IUserMessage userMessage)
-                        await FixMessageAfterLoad(guild, userMessage);
-            }
+            foreach (var message in latestMessages)
+                if (message is IUserMessage userMessage)
+                    await FixMessageAfterLoad(guild, userMessage);
             logger.LogInformation($"end updating raid messages for channel '{channel.Name}'");
         }
 
