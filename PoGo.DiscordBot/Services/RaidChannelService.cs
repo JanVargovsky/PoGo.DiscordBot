@@ -84,15 +84,16 @@ namespace PoGo.DiscordBot.Services
             var channelFrom = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.From);
             var channelTo = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.To);
 
-            if (channelOptions.From != "*" && (channelFrom == null || channelTo == null))
+            bool channelFromBinding = channelFrom == null && channelOptions.From != "*";
+            bool channelToBinding = channelTo == null;
+            if (channelFromBinding || channelToBinding)
             {
-                if (channelFrom == null)
+                if (channelFromBinding)
                     logger.LogError($"Unknown from channel binding '{channelOptions.From}'");
-                if (channelTo == null)
+                if (channelToBinding)
                     logger.LogError($"Unknown to channel binding '{channelOptions.To}'");
                 return;
             }
-
 
             IMentionable mention = null;
             if (!string.IsNullOrEmpty(channelOptions.Mention))
