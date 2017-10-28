@@ -28,6 +28,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("add")]
+        [Alias("a")]
         [Summary("Přidá uživateli roli")]
         public async Task AddRole([Summary("Název role")]string roleName)
         {
@@ -49,6 +50,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("remove")]
+        [Alias("r")]
         [Summary("Smaže uživateli roli")]
         public async Task RemoveRole([Summary("Název role")]string roleName)
         {
