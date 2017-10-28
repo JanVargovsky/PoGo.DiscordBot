@@ -191,5 +191,23 @@ namespace PoGo.DiscordBot.Modules
                 await ReplyAsync(message);
             }
         }
+
+        [Command("delete", RunMode = RunMode.Async)]
+        [Alias("d")]
+        [Summary("Smaže raid")]
+        [RaidChannelPrecondition]
+        public async Task DeleteRaid(
+            [Summary("Počet anket odspodu.")] int skip = 0)
+        {
+            var raid = raidService.GetRaid(Context.Guild.Id, skip);
+
+            if (raid == null)
+            {
+                await ReplyAsync("Raid nenalezen.");
+                return;
+            }
+
+            await raid.Message.DeleteAsync();
+        }
     }
 }

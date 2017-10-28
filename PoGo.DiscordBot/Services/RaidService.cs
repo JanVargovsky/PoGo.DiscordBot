@@ -103,8 +103,11 @@ namespace PoGo.DiscordBot.Services
 
         public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
         {
+            if (!(channel is SocketTextChannel socketChannel))
+                return Task.CompletedTask;
+
             var messageId = cacheableMessage.Id;
-            if (Raids.TryRemove(messageId, out _))
+            if (Raids[socketChannel.Guild.Id].TryRemove(messageId, out _))
                 logger.LogInformation($"Raid message '{messageId}' was removed.");
 
             return Task.CompletedTask;
