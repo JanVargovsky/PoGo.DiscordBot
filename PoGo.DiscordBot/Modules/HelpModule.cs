@@ -99,7 +99,7 @@ namespace PoGo.DiscordBot.Modules
             {
                 StringBuilder sb = new StringBuilder()
                     .Append(prefix)
-                    .Append(ci.Name);
+                    .Append(ci.Aliases.First());
 
                 string FormatParameter(ParameterInfo pi) => $"<{pi.Name}>";
 
