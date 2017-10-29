@@ -22,15 +22,17 @@ namespace PoGo.DiscordBot.Modules
         readonly ILogger<RaidModule> logger;
         readonly RaidChannelService raidChannelService;
         readonly ConfigurationService configuration;
+        readonly RaidBossInfoService raidBossInfoService;
 
         public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
-            ConfigurationService configuration)
+            ConfigurationService configuration, RaidBossInfoService raidBossInfoService)
         {
             this.teamService = teamService;
             this.raidService = raidService;
             this.logger = logger;
             this.raidChannelService = raidChannelService;
             this.configuration = configuration;
+            this.raidBossInfoService = raidBossInfoService;
         }
 
         [Command("create", RunMode = RunMode.Async)]
@@ -207,7 +209,40 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
+            foreach (var player in raid.Players.Values)
+            {
+                var user = player.User;
+                await user.SendMessageAsync($"Raid {raid.ToSimpleString()} se ruší!");
+            }
+
             await raid.Message.DeleteAsync();
+        }
+
+        [Command("info", RunMode = RunMode.Async)]
+        [Alias("i")]
+        [Summary("Vypíše základní info o bossovi.")]
+        [RaidChannelPrecondition]
+        public async Task RaidBossInfo(
+            [Summary("Název bosse.")] string bossName)
+        {
+            var boss = raidBossInfoService.GetBoss(bossName);
+
+            if (boss == null)
+            {
+                var availableBosses = string.Join(", ", raidBossInfoService.GetAllKnownBossNames());
+                await ReplyAsync($"Boss nenalezen - znám informace pouze o: {availableBosses}.");
+                return;
+            }
+
+            string bossMention = raidBossInfoService.GetBossNameWithEmoji(boss.BossName, Context.Guild);
+            var counters = boss.Counters.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild));
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                .WithTitle(bossMention)
+                .AddInlineField($"Min. CP", boss.MinCP)
+                .AddInlineField($"Max. CP", boss.MaxCP)
+                .AddInlineField($"Protipokémoni", string.Join(", ", counters));
+
+            await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }
     }
 }

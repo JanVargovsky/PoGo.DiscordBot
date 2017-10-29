@@ -1,3 +1,279 @@
 ﻿{
-  "Prefix": "!"
+  "Prefix": "!",
+  "RaidBosses": {
+    // Level 3
+    "Arcanine": {
+      "MinCP": 1546,
+      "MaxCP": 1622,
+      "Counters": [
+        "Rhydon",
+        "Golem",
+        "Mewtwo",
+        "Vaporeon",
+        "Feraligatr",
+        "Dragonite",
+        "Tyranitar",
+        "Omastar"
+      ]
+    },
+    "Alakazam": {
+      "MinCP": 1569,
+      "MaxCP": 1649,
+      "Counters": [
+        "Mewtwo",
+        "Tyranitar",
+        "Alakazam",
+        "Scizor",
+        "Pinsir",
+        "Houndoom",
+        "Dragonite",
+        "Gyarados",
+        "Snorlax",
+        "Gengar"
+      ]
+    },
+    "Machamp": {
+      "MinCP": 1574,
+      "MaxCP": 1650,
+      "Counters": [
+        "Mewtwo",
+        "Lugia",
+        "Moltres",
+        "Alakazam",
+        "Espeon",
+        "Dragonite",
+        "Exeggutor",
+        "Gengar",
+        "Charizard"
+      ]
+    },
+    "Gengar": {
+      "MinCP": 1420,
+      "MaxCP": 1496,
+      "Counters": [
+        "Tyranitar",
+        "Mewtwo",
+        "Lugia",
+        "Houndoom",
+        "Rhydon",
+        "Golem",
+        "Dragonite",
+        "Gyarados",
+        "Alakazam",
+        "Espeon",
+        "Exeggutor",
+        "Gengar",
+        "Snorlax"
+      ]
+    },
+    "Vaporeon": {
+      "MinCP": 1724,
+      "MaxCP": 1804,
+      "Counters": [
+        "Raikou",
+        "Zapdos",
+        "Jolteon",
+        "Exeggutor",
+        "Venusaur",
+        "Victreebel"
+      ]
+    },
+    "Jolteon": {
+      "MinCP": 1484,
+      "MaxCP": 1560,
+      "Counters": [
+        "Rhydon",
+        "Golem",
+        "Sandslash",
+        "Donphan",
+        "Nidoking",
+        "Tyranitar"
+      ]
+    },
+    "Flareon": {
+      "MinCP": 1581,
+      "MaxCP": 1659,
+      "Counters": [
+        "Vaporeon",
+        "Omastar",
+        "Golem",
+        "Rhydon",
+        "Tyranitar",
+        "Gyarados"
+      ]
+    },
+    // Level 4
+    "Venusaur": {
+      "MinCP": 1395,
+      "MaxCP": 1467,
+      "Counters": [
+        "Moltres",
+        "Flareon",
+        "Arcanine",
+        "Mewtwo",
+        "Alakazam",
+        "Espeon"
+      ]
+    },
+    "Charizard": {
+      "MinCP": 1461,
+      "MaxCP": 1535,
+      "Counters": [
+        "Golem",
+        "Omastar",
+        "Tyranitar",
+        "Vaporeon",
+        "Zapdos",
+        "Jolteon"
+      ]
+    },
+    "Blastoise": {
+      "MinCP": 1241,
+      "MaxCP": 1309,
+      "Counters": [
+        "Raikou",
+        "Zapdos",
+        "Jolteon",
+        "Exeggutor",
+        "Venusaur",
+        "Victreebel"
+      ]
+    },
+    "Rhydon": {
+      "MinCP": 1804,
+      "MaxCP": 1886,
+      "Counters": [
+        "Vaporeon",
+        "Gyarados",
+        "Starmie",
+        "Exeggutor",
+        "Venusaur",
+        "Victreebel"
+      ]
+    },
+    "Lapras": {
+      "MinCP": 1414,
+      "MaxCP": 1487,
+      "Counters": [
+        "Machamp",
+        "Heracross",
+        "Jolteon",
+        "Magneton",
+        "Mewtwo",
+        "Alakazam"
+      ]
+    },
+    "Snorlax": {
+      "MinCP": 1833,
+      "MaxCP": 1917,
+      "Counters": [
+        "Machamp",
+        "Heracross",
+        "Dragonite",
+        "Tyranitar",
+        "Espeon",
+        "Alakazam"
+      ]
+    },
+    "Tyranitar": {
+      "MinCP": 2011,
+      "MaxCP": 2097,
+      "Counters": [
+        "Machamp",
+        "Heracross",
+        "Hitmonchan",
+        "Hitmonlee",
+        "Vaporeon",
+        "Gyarados",
+        "Exeggutor",
+        "Venusaur"
+      ]
+    },
+    "Articuno": {
+      "MinCP": 1599,
+      "MaxCP": 1676,
+      "Counters": [
+        "Golem",
+        "Omastar",
+        "Moltres",
+        "Flareon",
+        "Tyranitar",
+        "Arcanice"
+      ]
+    },
+    // Level 5
+    "Zapdos": {
+      "MinCP": 1820,
+      "MaxCP": 1902,
+      "Counters": [
+        "Piloswine",
+        "Golem",
+        "Tyranitar",
+        "Dragonite",
+        "Alakazam",
+        "Gengar"
+      ]
+    },
+    "Moltres": {
+      "MinCP": 1788,
+      "MaxCP": 1870,
+      "Counters": [
+        "Golem",
+        "Omastar",
+        "Tyranitar",
+        "Vaporeon",
+        "Zapdos",
+        "Jolteon"
+      ]
+    },
+    "Lugia": {
+      "MinCP": 1969,
+      "MaxCP": 2056,
+      "Counters": [
+        "Golem",
+        "Tyranitar",
+        "Omastar",
+        "Zapdos",
+        "Jolteon"
+      ]
+    },
+    "Entei": {
+      "MinCP": 1847,
+      "MaxCP": 1930,
+      "Counters": [
+        "Vaporeon",
+        "Omastar",
+        "Golem",
+        "Rhydon",
+        "Tyranitar",
+        "Gyarados"
+      ]
+    },
+    "Suicune": {
+      "MinCP": 1538,
+      "MaxCP": 1613,
+      "Counters": [
+        "Raikou",
+        "Zapdos",
+        "Jolteon",
+        "Exeggutor",
+        "Venusaur",
+        "Victreebel"
+      ]
+    },
+    "Raikou": {
+      "MinCP": 1813,
+      "MaxCP": 1913,
+      "Counters": [
+        "Golem",
+        "Rhydon",
+        "MewTwo",
+        "Donphan",
+        "Dragonite",
+        "Exeggutor",
+        "Nidoking",
+        "Machamp"
+      ]
+    }
+  }
 }

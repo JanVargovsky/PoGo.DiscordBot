@@ -1,10 +1,13 @@
-﻿namespace PoGo.DiscordBot.Configuration.Options
+﻿using System.Collections.Generic;
+
+namespace PoGo.DiscordBot.Configuration.Options
 {
     public class ConfigurationOptions
     {
         public char Prefix { get; set; }
         public string Token { get; set; }
         public GuildOptions[] Guilds { get; set; }
+        public Dictionary<string, RaidBossOptions> RaidBosses { get; set; }
     }
 
     public class GuildOptions
@@ -21,5 +24,12 @@
         public string Mention { get; set; }
         public string From { get; set; }
         public string To { get; set; }
+    }
+
+    public class RaidBossOptions
+    {
+        public int MinCP { get; set; }
+        public int MaxCP { get; set; }
+        public string[] Counters { get; set; }
     }
 }
