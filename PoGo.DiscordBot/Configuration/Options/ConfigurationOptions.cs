@@ -17,6 +17,7 @@ namespace PoGo.DiscordBot.Configuration.Options
         public bool IgnoreMention { get; set; }
         public string[] FreeRoles { get; set; }
         public ChannelOptions[] Channels { get; set; }
+        public List<GymInfoOptions> Gyms { get; set; }
     }
 
     public class ChannelOptions
@@ -31,5 +32,12 @@ namespace PoGo.DiscordBot.Configuration.Options
         public int MinCP { get; set; }
         public int MaxCP { get; set; }
         public string[] Counters { get; set; }
+    }
+
+    public class GymInfoOptions
+    {
+        public string Name { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
     }
 }

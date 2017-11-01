@@ -7,6 +7,7 @@ using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
@@ -23,9 +24,10 @@ namespace PoGo.DiscordBot.Modules
         readonly RaidChannelService raidChannelService;
         readonly ConfigurationService configuration;
         readonly RaidBossInfoService raidBossInfoService;
+        readonly GymLocationService gymLocationService;
 
         public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
-            ConfigurationService configuration, RaidBossInfoService raidBossInfoService)
+            ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService)
         {
             this.teamService = teamService;
             this.raidService = raidService;
@@ -33,6 +35,7 @@ namespace PoGo.DiscordBot.Modules
             this.raidChannelService = raidChannelService;
             this.configuration = configuration;
             this.raidBossInfoService = raidBossInfoService;
+            this.gymLocationService = gymLocationService;
         }
 
         [Command("create", RunMode = RunMode.Async)]
@@ -243,6 +246,32 @@ namespace PoGo.DiscordBot.Modules
                 .AddInlineField($"Protipokémoni", string.Join(", ", counters));
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
+        }
+
+        [Command("location", RunMode = RunMode.Async)]
+        [Alias("l", "loc")]
+        [Summary("Vrátí lokaci gymu.")]
+        public async Task RaidLocation(
+            [Remainder][Summary("Část názvu gymu")]string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length < 3)
+            {
+                await ReplyAsync("Moc krátký název.");
+                return;
+            }
+
+            var searchResult = gymLocationService.Search(Context.Guild.Id, name);
+            if (searchResult == null)
+            {
+                await ReplyAsync("Server nepodporuje tenhle příkaz.");
+                return;
+            }
+
+            var sb = new StringBuilder();
+            foreach (var gymInfo in searchResult)
+                sb.AppendLine($"{gymInfo.Name}: {gymLocationService.GetMapUrl(gymInfo)}");
+
+            await ReplyAsync(sb.ToString());
         }
     }
 }
