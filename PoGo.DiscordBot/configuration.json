@@ -274,6 +274,18 @@
         "Nidoking",
         "Machamp"
       ]
+    },
+    "MewTwo": {
+      "MinCP": 2184,
+      "MaxCP": 2275,
+      "Counters": [
+        "MewTwo",
+        "Tyranitar",
+        "Lugia",
+        "Dragonite",
+        "Gyarados",
+        "Gengar"
+      ]
     }
   }
 }
