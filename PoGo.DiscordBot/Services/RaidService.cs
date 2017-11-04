@@ -19,12 +19,8 @@ namespace PoGo.DiscordBot.Services
         readonly RaidChannelService raidChannelService;
         readonly RaidStorageService raidStorageService;
 
-        // <guildId, <channelId, <messageId, RaidInfo>>>
-        readonly ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>> raids;
-
         public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService, RaidStorageService raidStorageService)
         {
-            //raids = new ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>>();
             this.logger = logger;
             this.userService = userService;
             this.raidChannelService = raidChannelService;
@@ -95,19 +91,6 @@ namespace PoGo.DiscordBot.Services
 
             return true;
         }
-
-        //public void AddRaid(ulong guildId, ulong channelId, ulong messageId, RaidInfoDto raidInfoDto)
-        //{
-        //    raids[guildId][channelId][messageId] = raidInfoDto;
-        //}
-
-        //public RaidInfoDto GetRaid(ulong guildId, ulong channelId, int skip) =>
-        //    raids[guildId][channelId].Values
-        //    .OrderByDescending(t => t.CreatedAt)
-        //    .Skip(skip)
-        //    .FirstOrDefault();
-
-        //public RaidInfoDto GetRaid(ulong guildId, ulong channelId, ulong messageId) => raids[guildId][channelId][messageId];
 
         public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
         {

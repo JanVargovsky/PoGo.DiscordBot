@@ -94,6 +94,13 @@ namespace PoGo.DiscordBot.Modules
             }, retryOptions);
         }
 
+        RaidInfoDto GetRaid(int skip)
+        {
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
+            return raid;
+        }
+
         [Command("time", RunMode = RunMode.Async)]
         [Alias("t")]
         [Summary("Přenastaví čas raidu.")]
@@ -102,8 +109,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -149,8 +155,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Přenastaví bosse raidu.")]string boss,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -181,8 +186,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Počet anket odspodu.")] int skip = 0,
             [Remainder][Summary("Text")]string text = null)
         {
-            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -210,8 +214,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task DeleteRaid(
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
