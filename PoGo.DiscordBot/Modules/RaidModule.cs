@@ -25,9 +25,10 @@ namespace PoGo.DiscordBot.Modules
         readonly ConfigurationService configuration;
         readonly RaidBossInfoService raidBossInfoService;
         readonly GymLocationService gymLocationService;
+        readonly RaidStorageService raidStorageService;
 
         public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
-            ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService)
+            ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService, RaidStorageService raidStorageService)
         {
             this.teamService = teamService;
             this.raidService = raidService;
@@ -36,6 +37,7 @@ namespace PoGo.DiscordBot.Modules
             this.configuration = configuration;
             this.raidBossInfoService = raidBossInfoService;
             this.gymLocationService = gymLocationService;
+            this.raidStorageService = raidStorageService;
         }
 
         [Command("create", RunMode = RunMode.Async)]
@@ -82,7 +84,8 @@ namespace PoGo.DiscordBot.Modules
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
-            raidService.Raids[Context.Guild.Id][message.Id] = raidInfo;
+
+            raidStorageService.AddRaid(Context.Guild.Id, raidChannelBinding.Channel.Id, message.Id, raidInfo);
 
             await message.ModifyAsync(t =>
             {
@@ -99,7 +102,8 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = raidService.GetRaid(Context.Guild.Id, skip);
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
 
             if (raid == null)
             {
@@ -145,7 +149,8 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Přenastaví bosse raidu.")]string boss,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = raidService.GetRaid(Context.Guild.Id, skip);
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
 
             if (raid == null)
             {
@@ -176,7 +181,8 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Počet anket odspodu.")] int skip = 0,
             [Remainder][Summary("Text")]string text = null)
         {
-            var raid = raidService.GetRaid(Context.Guild.Id, skip);
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
 
             if (raid == null)
             {
@@ -204,7 +210,8 @@ namespace PoGo.DiscordBot.Modules
         public async Task DeleteRaid(
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = raidService.GetRaid(Context.Guild.Id, skip);
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
 
             if (raid == null)
             {

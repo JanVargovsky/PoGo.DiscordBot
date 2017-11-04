@@ -17,15 +17,18 @@ namespace PoGo.DiscordBot.Services
         readonly ILogger<RaidService> logger;
         readonly UserService userService;
         readonly RaidChannelService raidChannelService;
+        readonly RaidStorageService raidStorageService;
 
-        public ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>> Raids { get; } // <guildId, <messageId, RaidInfo>>
+        // <guildId, <channelId, <messageId, RaidInfo>>>
+        readonly ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>> raids;
 
-        public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService)
+        public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService, RaidStorageService raidStorageService)
         {
-            Raids = new ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>();
+            //raids = new ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>>();
             this.logger = logger;
             this.userService = userService;
             this.raidChannelService = raidChannelService;
+            this.raidStorageService = raidStorageService;
         }
 
         public async Task OnNewGuild(SocketGuild guild)
@@ -33,8 +36,6 @@ namespace PoGo.DiscordBot.Services
             if (!raidChannelService.IsKnown(guild.Id))
                 // ignore unknown guilds for now
                 return;
-
-            Raids[guild.Id] = new ConcurrentDictionary<ulong, RaidInfoDto>();
 
             foreach (var channel in raidChannelService.GetRaidChannels(guild.Id))
                 await UpdateRaidMessages(guild, channel);
@@ -64,7 +65,7 @@ namespace PoGo.DiscordBot.Services
 
             logger.LogInformation($"Updating raid message '{message.Id}'");
 
-            Raids[guild.Id][message.Id] = raidInfo;
+            raidStorageService.AddRaid(guild.Id, message.Channel.Id, message.Id, raidInfo);
             // Adjust user count
             var usersWithThumbsUp = await message.GetReactionUsersAsync(UnicodeEmojis.ThumbsUp);
             foreach (var user in usersWithThumbsUp.Where(t => !t.IsBot))
@@ -95,11 +96,18 @@ namespace PoGo.DiscordBot.Services
             return true;
         }
 
-        public RaidInfoDto GetRaid(ulong guildId, int skip) =>
-            Raids[guildId].Values
-            .OrderByDescending(t => t.CreatedAt)
-            .Skip(skip)
-            .FirstOrDefault();
+        //public void AddRaid(ulong guildId, ulong channelId, ulong messageId, RaidInfoDto raidInfoDto)
+        //{
+        //    raids[guildId][channelId][messageId] = raidInfoDto;
+        //}
+
+        //public RaidInfoDto GetRaid(ulong guildId, ulong channelId, int skip) =>
+        //    raids[guildId][channelId].Values
+        //    .OrderByDescending(t => t.CreatedAt)
+        //    .Skip(skip)
+        //    .FirstOrDefault();
+
+        //public RaidInfoDto GetRaid(ulong guildId, ulong channelId, ulong messageId) => raids[guildId][channelId][messageId];
 
         public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
         {
@@ -107,7 +115,7 @@ namespace PoGo.DiscordBot.Services
                 return Task.CompletedTask;
 
             var messageId = cacheableMessage.Id;
-            if (Raids[socketChannel.Guild.Id].TryRemove(messageId, out _))
+            if (raidStorageService.TryRemove(socketChannel.Guild.Id, socketChannel.Id, messageId))
                 logger.LogInformation($"Raid message '{messageId}' was removed.");
 
             return Task.CompletedTask;
@@ -130,7 +138,8 @@ namespace PoGo.DiscordBot.Services
         {
             if (!(channel is SocketGuildChannel socketGuildChannel))
                 return;
-            if (!Raids[socketGuildChannel.Guild.Id].TryGetValue(message.Id, out var raidInfo) || raidInfo.IsExpired)
+            var raidInfo = raidStorageService.GetRaid(socketGuildChannel.Guild.Id, channel.Id, message.Id);
+            if (raidInfo == null || raidInfo.IsExpired)
                 return;
 
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
@@ -155,7 +164,8 @@ namespace PoGo.DiscordBot.Services
         {
             if (!(channel is SocketGuildChannel socketGuildChannel))
                 return;
-            if (!Raids[socketGuildChannel.Guild.Id].TryGetValue(message.Id, out var raidInfo) || raidInfo.IsExpired)
+            var raidInfo = raidStorageService.GetRaid(socketGuildChannel.Guild.Id, channel.Id, message.Id);
+            if (raidInfo == null || raidInfo.IsExpired)
                 return;
 
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
