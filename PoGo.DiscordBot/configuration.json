@@ -66,42 +66,42 @@
         "Snorlax"
       ]
     },
-    "Vaporeon": {
-      "MinCP": 1724,
-      "MaxCP": 1804,
-      "Counters": [
-        "Raikou",
-        "Zapdos",
-        "Jolteon",
-        "Exeggutor",
-        "Venusaur",
-        "Victreebel"
-      ]
-    },
-    "Jolteon": {
-      "MinCP": 1484,
-      "MaxCP": 1560,
-      "Counters": [
-        "Rhydon",
-        "Golem",
-        "Sandslash",
-        "Donphan",
-        "Nidoking",
-        "Tyranitar"
-      ]
-    },
-    "Flareon": {
-      "MinCP": 1581,
-      "MaxCP": 1659,
-      "Counters": [
-        "Vaporeon",
-        "Omastar",
-        "Golem",
-        "Rhydon",
-        "Tyranitar",
-        "Gyarados"
-      ]
-    },
+    //"Vaporeon": {
+    //  "MinCP": 1724,
+    //  "MaxCP": 1804,
+    //  "Counters": [
+    //    "Raikou",
+    //    "Zapdos",
+    //    "Jolteon",
+    //    "Exeggutor",
+    //    "Venusaur",
+    //    "Victreebel"
+    //  ]
+    //},
+    //"Jolteon": {
+    //  "MinCP": 1484,
+    //  "MaxCP": 1560,
+    //  "Counters": [
+    //    "Rhydon",
+    //    "Golem",
+    //    "Sandslash",
+    //    "Donphan",
+    //    "Nidoking",
+    //    "Tyranitar"
+    //  ]
+    //},
+    //"Flareon": {
+    //  "MinCP": 1581,
+    //  "MaxCP": 1659,
+    //  "Counters": [
+    //    "Vaporeon",
+    //    "Omastar",
+    //    "Golem",
+    //    "Rhydon",
+    //    "Tyranitar",
+    //    "Gyarados"
+    //  ]
+    //},
     // Level 4
     "Venusaur": {
       "MinCP": 1395,
@@ -189,6 +189,38 @@
         "Venusaur"
       ]
     },
+    "Golem": {
+      "MinCP": 1589,
+      "MaxCP": 1666,
+      "Counters": [
+        "Exeggutor",
+        "Venusaur",
+        "Vaporeon",
+        "Gyarados",
+        "Machamp",
+        "Rhydon"
+      ]
+    },
+    "Victreebel": {
+      "MinCP": 1228,
+      "MaxCP": 1296
+    },
+    "Poliwrath": {
+      "MinCP": 1325,
+      "MaxCP": 1395,
+      "Counters": []
+    },
+    "Nidoqueen": {
+      "MinCP": 1267,
+      "MaxCP": 1336,
+      "Counters": []
+    },
+    "Nidoking": {
+      "MinCP": 1294,
+      "MaxCP": 1363,
+      "Counters": []
+    },
+    // Level 5
     "Articuno": {
       "MinCP": 1599,
       "MaxCP": 1676,
@@ -201,7 +233,6 @@
         "Arcanice"
       ]
     },
-    // Level 5
     "Zapdos": {
       "MinCP": 1820,
       "MaxCP": 1902,
@@ -285,6 +316,19 @@
         "Dragonite",
         "Gyarados",
         "Gengar"
+      ]
+    },
+    "HoOh": {
+      "MinCP": 2133,
+      "MaxCP": 2222,
+      "Counters": [
+        "Vaporeon",
+        "Omastar",
+        "Golem",
+        "Raikou",
+        "Tyranitar",
+        "Zapdos",
+        "Gyarados"
       ]
     }
   }
