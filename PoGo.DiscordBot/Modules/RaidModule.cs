@@ -234,7 +234,6 @@ namespace PoGo.DiscordBot.Modules
         [Command("info", RunMode = RunMode.Async)]
         [Alias("i")]
         [Summary("Vypíše základní info o bossovi.")]
-        [RaidChannelPrecondition]
         public async Task RaidBossInfo(
             [Summary("Název bosse.")] string bossName)
         {
@@ -248,12 +247,14 @@ namespace PoGo.DiscordBot.Modules
             }
 
             string bossMention = raidBossInfoService.GetBossNameWithEmoji(boss.BossName, Context.Guild);
-            var counters = boss.Counters.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild));
+            var countersWithEmojis = boss.Counters?.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild)) ?? Enumerable.Empty<string>();
+            var countersField = string.Join(", ", countersWithEmojis);
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .WithTitle(bossMention)
                 .AddInlineField($"Min. CP", boss.MinCP)
-                .AddInlineField($"Max. CP", boss.MaxCP)
-                .AddInlineField($"Protipokémoni", string.Join(", ", counters));
+                .AddInlineField($"Max. CP", boss.MaxCP);
+            if (!string.IsNullOrEmpty(countersField))
+                embedBuilder.AddInlineField($"Protipokémoni", countersField);
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }

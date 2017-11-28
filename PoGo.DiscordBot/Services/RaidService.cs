@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
