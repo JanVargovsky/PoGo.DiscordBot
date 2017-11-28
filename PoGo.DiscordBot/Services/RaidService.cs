@@ -38,18 +38,25 @@ namespace PoGo.DiscordBot.Services
 
         public async Task UpdateRaidMessages(SocketGuild guild, IMessageChannel channel, int count = 10)
         {
-            var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
+            try
+            {
+                var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
                 .ToList();
-            var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > DateTime.UtcNow.AddHours(-2)))
-                .ToList();
-            if (!latestMessages.Any())
-                return;
+                var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > DateTime.UtcNow.AddHours(-2)))
+                    .ToList();
+                if (!latestMessages.Any())
+                    return;
 
-            logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");
-            foreach (var message in latestMessages)
-                if (message is IUserMessage userMessage)
-                    await FixMessageAfterLoad(guild, userMessage);
-            logger.LogInformation($"end updating raid messages for channel '{channel.Name}'");
+                logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");
+                foreach (var message in latestMessages)
+                    if (message is IUserMessage userMessage)
+                        await FixMessageAfterLoad(guild, userMessage);
+                logger.LogInformation($"end updating raid messages for channel '{channel.Name}'");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Failed to update {guild.Name}/{channel.Name} ({ex.Message})");
+            }
         }
 
         async Task<bool> FixMessageAfterLoad(SocketGuild guild, IUserMessage message)
