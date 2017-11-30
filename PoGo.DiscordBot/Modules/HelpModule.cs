@@ -36,7 +36,12 @@ namespace PoGo.DiscordBot.Modules
                 {
                     var result = await cmd.CheckPreconditionsAsync(Context, serviceProvider);
                     if (result.IsSuccess)
-                        commands.Add($"{prefix}{cmd.Aliases.First()}");
+                    {
+                        string s = $"{prefix}{cmd.Aliases.First()}";
+                        if (!string.IsNullOrEmpty(cmd.Summary))
+                            s += $" ({ cmd.Summary})";
+                        commands.Add(s);
+                    }
                 }
 
             string orderedCommandsString = string.Join(Environment.NewLine, commands.OrderBy(t => t));
