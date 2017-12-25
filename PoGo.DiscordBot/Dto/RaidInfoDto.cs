@@ -6,35 +6,46 @@ using System.Linq;
 
 namespace PoGo.DiscordBot.Dto
 {
+    public enum RaidType
+    {
+        Normal, // Today - within a few hours
+        Scheduled,
+    }
+
     public class RaidInfoDto
     {
         public const string TimeFormat = "H:mm";
+        public const string DateTimeFormat = "d.M.yyyy H:mm";
 
         public IUserMessage Message { get; set; }
         public DateTime CreatedAt { get; set; }
         public string BossName { get; set; }
         public string Location { get; set; }
-        public DateTime Time { get; set; }
+        public DateTime DateTime { get; set; }
         public int? MinimumPlayers { get; set; }
         public IDictionary<ulong, PlayerDto> Players { get; set; } // <userId, PlayerDto>
         public List<(ulong UserId, int Count)> ExtraPlayers { get; set; }
+        public bool IsExpired => DateTime < DateTime.Now;
+        public RaidType RaidType { get; set; }
 
-        public bool IsExpired => Time < DateTime.Now;
+        string DateTimeAsString => DateTime.ToString(RaidType == RaidType.Normal ? TimeFormat : DateTimeFormat);
 
-        public RaidInfoDto()
+        public RaidInfoDto(RaidType raidType)
         {
+            RaidType = raidType;
             CreatedAt = DateTime.UtcNow;
             Players = new Dictionary<ulong, PlayerDto>();
-            MinimumPlayers = 4;
+            MinimumPlayers = raidType == RaidType.Normal ? (int?)4 : null;
             ExtraPlayers = new List<(ulong UserId, int Count)>();
         }
-
-        public string ToMessage() => $"Raid {BossName}, {Location}, {Time}";
 
         public Embed ToEmbed()
         {
             Color GetColor()
             {
+                if (!MinimumPlayers.HasValue)
+                    return new Color(191, 155, 48);
+
                 int playersCount = Players.Count + ExtraPlayers.Sum(t => t.Count);
                 if (playersCount >= MinimumPlayers)
                     return Color.Green;
@@ -48,7 +59,7 @@ namespace PoGo.DiscordBot.Dto
                 .WithColor(GetColor())
                 .AddInlineField("Boss", BossName)
                 .AddInlineField("Kde", Location)
-                .AddInlineField("Čas", Time.ToString(TimeFormat))
+                .AddInlineField(RaidType == RaidType.Normal ? "Čas" : "Datum", DateTimeAsString)
                 ;
 
             if (Players.Any())
@@ -69,7 +80,7 @@ namespace PoGo.DiscordBot.Dto
             return embedBuilder.Build();
         }
 
-        public string ToSimpleString() => $"{BossName} {Location} {Time.ToString(TimeFormat)}";
+        public string ToSimpleString() => $"{BossName} {Location} {DateTimeAsString}";
 
         string PlayersToString(IEnumerable<PlayerDto> players) => string.Join(", ", players);
 
@@ -102,24 +113,62 @@ namespace PoGo.DiscordBot.Dto
             return new DateTime(date.Year, date.Month, date.Day, hours, minutes, 0);
         }
 
+        public static DateTime? ParseDateTime(string dateTime)
+        {
+            DateTime? result = null;
+            try
+            {
+                var tokens = dateTime.Split(new[] { ' ', '.', ',', ':', ';', '\'', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (tokens.Length != 5)
+                    throw new Exception($"Invalid date '{dateTime}'");
+                var intTokens = tokens.Select(int.Parse).ToArray();
+
+                result = new DateTime(intTokens[2], intTokens[1], intTokens[0], intTokens[3], intTokens[4], 0);
+            }
+            catch
+            {
+            }
+            return result;
+        }
+
         public static RaidInfoDto Parse(IUserMessage message)
         {
             var embed = message.Embeds.FirstOrDefault();
             if (embed == null || embed.Fields.Length < 3)
                 return null;
 
-            var time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
-            if (!time.HasValue)
-                return null;
+            RaidInfoDto result = null;
 
-            var result = new RaidInfoDto
+            if (embed.Fields[2].Name == "Čas")
             {
-                Message = message,
-                CreatedAt = message.CreatedAt.UtcDateTime,
-                BossName = embed.Fields[0].Value,
-                Location = embed.Fields[1].Value,
-                Time = time.Value,
-            };
+                var time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
+                if (!time.HasValue)
+                    return null;
+
+                result = new RaidInfoDto(RaidType.Normal)
+                {
+                    Message = message,
+                    CreatedAt = message.CreatedAt.UtcDateTime,
+                    BossName = embed.Fields[0].Value,
+                    Location = embed.Fields[1].Value,
+                    DateTime = time.Value,
+                };
+            }
+            else if (embed.Fields[2].Name == "Datum")
+            {
+                var dateTime = ParseDateTime(embed.Fields[2].Value);
+                if (!dateTime.HasValue)
+                    return null;
+
+                result = new RaidInfoDto(RaidType.Scheduled)
+                {
+                    Message = message,
+                    CreatedAt = message.CreatedAt.UtcDateTime,
+                    BossName = embed.Fields[0].Value,
+                    Location = embed.Fields[1].Value,
+                    DateTime = dateTime.Value,
+                };
+            }
 
             return result;
         }

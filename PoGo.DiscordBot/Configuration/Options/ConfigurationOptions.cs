@@ -25,6 +25,7 @@ namespace PoGo.DiscordBot.Configuration.Options
         public string Mention { get; set; }
         public string From { get; set; }
         public string To { get; set; }
+        public bool ScheduledRaids { get; set; }
     }
 
     public class RaidBossOptions

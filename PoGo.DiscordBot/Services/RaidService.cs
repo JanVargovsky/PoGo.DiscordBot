@@ -40,9 +40,13 @@ namespace PoGo.DiscordBot.Services
         {
             try
             {
+                var channelBinding = raidChannelService.TryGetRaidChannelBindingTo(guild.Id, channel.Id);
+                var mayContainScheduledRaids = channelBinding != null && channelBinding.AllowScheduledRaids;
+                var dateTimeFrom = !mayContainScheduledRaids ? DateTime.UtcNow.AddHours(-2) : DateTime.UtcNow.AddDays(-14);
+
                 var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
-                .ToList();
-                var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > DateTime.UtcNow.AddHours(-2)))
+                    .ToList();
+                var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > dateTimeFrom))
                     .ToList();
                 if (!latestMessages.Any())
                     return;
@@ -50,7 +54,7 @@ namespace PoGo.DiscordBot.Services
                 logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");
                 foreach (var message in latestMessages)
                     if (message is IUserMessage userMessage)
-                        await FixMessageAfterLoad(guild, userMessage);
+                        await FixRaidMessageAfterLoad(guild, userMessage);
                 logger.LogInformation($"end updating raid messages for channel '{channel.Name}'");
             }
             catch (Exception ex)
@@ -59,7 +63,7 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        async Task<bool> FixMessageAfterLoad(SocketGuild guild, IUserMessage message)
+        async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
             var raidInfo = RaidInfoDto.Parse(message);
             if (raidInfo == null || raidInfo.IsExpired)

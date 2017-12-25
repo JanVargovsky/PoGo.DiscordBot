@@ -15,12 +15,14 @@ namespace PoGo.DiscordBot.Services
             public ITextChannel From { get; }
             public ITextChannel To { get; }
             public IMentionable Mention { get; set; }
+            public bool ScheduledRaids { get; set; }
 
-            public RaidChannelBinding(ITextChannel from, ITextChannel to, IMentionable mention)
+            public RaidChannelBinding(ITextChannel from, ITextChannel to, IMentionable mention, bool scheduledRaids)
             {
                 From = from;
                 To = to;
                 Mention = mention;
+                ScheduledRaids = scheduledRaids;
             }
         }
 
@@ -74,6 +76,22 @@ namespace PoGo.DiscordBot.Services
                         {
                             Channel = channel.To,
                             Mention = channel.Mention,
+                            AllowScheduledRaids = channel.ScheduledRaids,
+                        };
+
+            return null;
+        }
+
+        public RaidChannelBindingDto TryGetRaidChannelBindingTo(ulong guildId, ulong toTextChannelId)
+        {
+            if (guilds.TryGetValue(guildId, out var raidChannelBindings))
+                foreach (var channel in raidChannelBindings)
+                    if (channel.To.Id == toTextChannelId)
+                        return new RaidChannelBindingDto
+                        {
+                            Channel = channel.To,
+                            Mention = channel.Mention,
+                            AllowScheduledRaids = channel.ScheduledRaids,
                         };
 
             return null;
@@ -103,7 +121,7 @@ namespace PoGo.DiscordBot.Services
                     logger.LogError($"Unknown role '{channelOptions.Mention}'");
             }
 
-            channelBindings.Add(new RaidChannelBinding(channelFrom, channelTo, mention));
+            channelBindings.Add(new RaidChannelBinding(channelFrom, channelTo, mention, channelOptions.ScheduledRaids));
         }
     }
 }
