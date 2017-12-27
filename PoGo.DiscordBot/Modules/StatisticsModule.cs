@@ -13,7 +13,7 @@ namespace PoGo.DiscordBot.Modules
     [Group("stats")]
     public class StatisticsModule : ModuleBase<SocketCommandContext>
     {
-        private readonly UserService userService;
+        readonly UserService userService;
 
         public StatisticsModule(UserService userService)
         {
@@ -45,31 +45,38 @@ namespace PoGo.DiscordBot.Modules
             EmbedBuilder embedBuilder = new EmbedBuilder();
             foreach (var item in groups)
                 embedBuilder.AddInlineField(item.Key.ToString(), item.Value);
-            if(withoutTeam != 0)
+            if (withoutTeam != 0)
                 embedBuilder.AddInlineField("Bez teamu", withoutTeam);
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }
 
-        [RequireOwner] // Not done yet
         [Command("level")]
-        [Summary("Vypíše průměrný level všech hráčů.")]
+        [Alias("lvl")]
+        [Summary("Vypíše informace o levelech hráčů.")]
         public async Task LevelStatistics()
         {
-            var allPlayers = Context.Guild.Users
+            var players = Context.Guild.Users
                 .Where(t => !t.IsBot)
-                .Select(t => userService.GetPlayerLevel(t))
+                .Select(t => userService.GetPlayer(t))
+                .Where(t => t?.Team != null && t?.Level != null)
                 .ToList();
 
-            var playerLevels = allPlayers
-                .Where(t => t.HasValue)
-                .Select(t => t.Value)
-                .ToList();
+            var groupedPlayersPerTeam = players
+                .GroupBy(t => t.Team.Value)
+                .ToDictionary(t => t.Key, t => new
+                {
+                    Players = t.ToList(),
+                    AverageLevel = t.Average(p => p.Level.Value),
+                });
 
-            int totalPlayers = allPlayers.Count;
-            double averageLevel = playerLevels.Average();
+            double averageLevel = groupedPlayersPerTeam.Values.Average(t => t.AverageLevel);
 
-            var embedBuilder = new EmbedBuilder();
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("Průmerné levely");
+            foreach (var team in groupedPlayersPerTeam)
+                embedBuilder.AddInlineField($"{team.Key} ({team.Value.Players.Count})", $"{team.Value.AverageLevel:f2}");
+            embedBuilder.AddField($"Všichni ({players.Count})", $"{averageLevel:f2}");
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }

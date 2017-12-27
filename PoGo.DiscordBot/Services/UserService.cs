@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -11,8 +12,8 @@ namespace PoGo.DiscordBot.Services
 {
     public class UserService
     {
-        private readonly ILogger<UserService> logger;
-        private readonly TeamService teamService;
+        readonly ILogger<UserService> logger;
+        readonly TeamService teamService;
 
         public UserService(ILogger<UserService> logger, TeamService teamService)
         {
@@ -22,10 +23,12 @@ namespace PoGo.DiscordBot.Services
 
         public int? GetPlayerLevel(SocketGuildUser user)
         {
-            var name = user.ToString();
-            const string levelRegex = @" (\d)";
-            var result = Regex.Match(name, levelRegex, RegexOptions.RightToLeft);
-            if (int.TryParse(result.Value, out var level))
+            var name = user.Nickname ?? user.Username;
+            var result = Regex.Match(name, @"\(\d+\)");
+            var stringLevel = result.Captures.LastOrDefault()?.Value;
+            if (stringLevel != null &&
+                int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out var level) &&
+                level >= 1 && level <= 40)
                 return level;
             return null;
         }
@@ -45,6 +48,7 @@ namespace PoGo.DiscordBot.Services
         {
             User = user,
             Team = GetTeam(user),
+            Level = GetPlayerLevel(user),
         };
 
         public async Task CheckTeam(SocketGuildUser user)

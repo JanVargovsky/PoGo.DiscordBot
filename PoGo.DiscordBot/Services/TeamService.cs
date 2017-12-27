@@ -13,7 +13,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class TeamService
     {
-        private readonly ILogger<TeamService> logger;
+        readonly ILogger<TeamService> logger;
 
         public ConcurrentDictionary<ulong, TeamRolesDto> GuildTeamRoles { get; } // <guildId, roles>
 

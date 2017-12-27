@@ -10,8 +10,8 @@ namespace PoGo.DiscordBot.Modules
     [RequireContext(ContextType.Guild)]
     public class PlayerModule : ModuleBase<SocketCommandContext>
     {
-        private readonly UserService userService;
-        private readonly TeamService teamService;
+        readonly UserService userService;
+        readonly TeamService teamService;
 
         public PlayerModule(UserService userService, TeamService teamService)
         {

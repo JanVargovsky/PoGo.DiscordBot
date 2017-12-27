@@ -27,7 +27,7 @@ namespace PoGo.DiscordBot.Services
         }
 
         readonly Dictionary<ulong, List<RaidChannelBinding>> guilds; // <guildId, channels[]>
-        private readonly ILogger<RaidChannelService> logger;
+        readonly ILogger<RaidChannelService> logger;
 
         public RaidChannelService(ILogger<RaidChannelService> logger)
         {

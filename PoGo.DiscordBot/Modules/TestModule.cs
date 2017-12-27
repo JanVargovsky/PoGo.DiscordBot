@@ -7,7 +7,7 @@ namespace PoGo.DiscordBot.Modules
     [RequireOwner]
     public class TestModule : ModuleBase<SocketCommandContext>
     {
-        private readonly ILogger<TestModule> logger;
+        readonly ILogger<TestModule> logger;
 
         public TestModule(ILogger<TestModule> logger)
         {

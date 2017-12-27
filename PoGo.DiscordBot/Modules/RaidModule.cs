@@ -328,5 +328,20 @@ namespace PoGo.DiscordBot.Modules
 
             await ReplyAsync(sb.ToString());
         }
+
+        [Command("list", RunMode = RunMode.Async)]
+        [Summary("Vrátí seznam aktivních raidů včetně indexů.")]
+        public async Task RaidList()
+        {
+            var channelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raids = raidStorageService.GetActiveRaidsWithIndexes(Context.Guild.Id, channelId);
+            if (!raids.Any())
+            {
+                await ReplyAsync("Nejsou aktivní žádné raidy.");
+                return;
+            }
+            string message = string.Join(Environment.NewLine, raids.Select(t => $"{t.Index} - {t.Raid.ToSimpleString()}").Reverse());
+            await ReplyAsync($"```{message}```");
+        }
     }
 }

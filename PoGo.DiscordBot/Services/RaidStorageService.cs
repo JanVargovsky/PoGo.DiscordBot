@@ -1,5 +1,6 @@
 ﻿using PoGo.DiscordBot.Dto;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PoGo.DiscordBot.Services
@@ -48,6 +49,18 @@ namespace PoGo.DiscordBot.Services
             raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
             raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages) &&
             raidMessages.RaidMessages.TryRemove(messageId, out _);
+
+        public IEnumerable<(int Index, RaidInfoDto Raid)> GetActiveRaidsWithIndexes(ulong guildId, ulong channelId)
+        {
+            if (raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
+                raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages))
+                return raidMessages.RaidMessages.Values
+                    .OrderByDescending(t => t.CreatedAt)
+                    .Select((t, i) => (i, t))
+                    .Where(t => !t.t.IsExpired);
+
+            return Enumerable.Empty<(int, RaidInfoDto)>();
+        }
 
         class RaidGuildMapping
         {
