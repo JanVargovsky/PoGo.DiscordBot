@@ -52,7 +52,8 @@ namespace PoGo.DiscordBot.Modules
         [Alias("lvl")]
         [TeamPrecondition]
         [Summary("Nastaví level.")]
-        public async Task SetLevel(int level)
+        public async Task SetLevel(
+            [Summary("Aktuální level (1-40)")]int level)
         {
             if (!(Context.User is SocketGuildUser user))
                 return;
@@ -78,6 +79,16 @@ namespace PoGo.DiscordBot.Modules
 
                 t.Nickname = $"{name} ({level})";
             });
+        }
+
+        [Command("set")]
+        [Summary("Nastaví team a level.")]
+        public async Task SetBasicInfo(
+            [Summary("Zvolený team (roli).")]PokemonTeam team,
+            [Summary("Aktuální level (1-40).")]int level)
+        {
+            await SetTeam(team);
+            await SetLevel(level);
         }
     }
 }

@@ -56,9 +56,7 @@ namespace PoGo.DiscordBot.Modules
         [Summary("Vypíše informace o levelech hráčů.")]
         public async Task LevelStatistics()
         {
-            var players = Context.Guild.Users
-                .Where(t => !t.IsBot)
-                .Select(t => userService.GetPlayer(t))
+            var players = userService.GetPlayers(Context.Guild.Users)
                 .Where(t => t?.Team != null && t?.Level != null)
                 .ToList();
 
