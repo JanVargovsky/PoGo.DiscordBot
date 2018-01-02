@@ -16,8 +16,10 @@ namespace PoGo.DiscordBot.Services
             raidBosses = options.Value.RaidBosses.ToDictionary(t => t.Key.ToLower(), t => new RaidBossDto
             {
                 BossName = t.Key,
-                MinCP = t.Value.MinCP,
-                MaxCP = t.Value.MaxCP,
+                Type = t.Value.Type,
+                CPs = t.Value.CP,
+                Weakness = t.Value.Weakness,
+                ChargeAttacks = t.Value.ChargeAttacks,
                 Counters = t.Value.Counters,
             });
         }

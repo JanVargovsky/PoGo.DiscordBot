@@ -295,10 +295,12 @@ namespace PoGo.DiscordBot.Modules
             var countersField = string.Join(", ", countersWithEmojis);
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .WithTitle(bossMention)
-                .AddInlineField($"Min. CP", boss.MinCP)
-                .AddInlineField($"Max. CP", boss.MaxCP);
+                .AddInlineField("Type", string.Join(", ", boss.Type))
+                .AddInlineField("Weakness", string.Join(", ", boss.Weakness))
+                .AddField("CP", string.Join(Environment.NewLine, boss.CPs.Select(t => $"{t.Key}: {t.Value}")))
+                .AddField($"Charge attack{(boss.ChargeAttacks.Length > 1 ? "s" : string.Empty)}", string.Join(Environment.NewLine, boss.ChargeAttacks));
             if (!string.IsNullOrEmpty(countersField))
-                embedBuilder.AddInlineField($"Protipokémoni", countersField);
+                embedBuilder.AddField($"Counters", countersField);
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }

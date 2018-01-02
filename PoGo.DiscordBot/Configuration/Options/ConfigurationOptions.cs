@@ -30,8 +30,10 @@ namespace PoGo.DiscordBot.Configuration.Options
 
     public class RaidBossOptions
     {
-        public int MinCP { get; set; }
-        public int MaxCP { get; set; }
+        public string[] Type { get; set; }
+        public Dictionary<string, string> CP { get; set; }
+        public string[] Weakness { get; set; }
+        public string[] ChargeAttacks { get; set; }
         public string[] Counters { get; set; }
     }
 

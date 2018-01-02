@@ -2,333 +2,750 @@
   "Prefix": "!",
   "RaidBosses": {
     // Level 3
-    "Arcanine": {
-      "MinCP": 1546,
-      "MaxCP": 1622,
+    "Ninetales": {
+      "Type": [ "Fire" ],
+      "CP": {
+        "LVL 20": "1167 - 1233",
+        "LVL 25 - Clear": "1459 - 1541"
+      },
+      "ChargeAttacks": [
+        "Heat wave (fire)",
+        "Solar beam (grass)",
+        "Overheat (fire)"
+      ],
+      "Weakness": [
+        "Water",
+        "Rock",
+        "Ground"
+      ],
       "Counters": [
-        "Rhydon",
+        "Sharpedo",
+        "Gyarados",
+        "Salamence",
+        "Groudon",
         "Golem",
-        "Mewtwo",
-        "Vaporeon",
+        "Omastar",
         "Feraligatr",
-        "Dragonite",
-        "Tyranitar",
-        "Omastar"
+        "Sharingan"
       ]
     },
     "Alakazam": {
-      "MinCP": 1569,
-      "MaxCP": 1649,
+      "Type": [ "Psychic" ],
+      "CP": {
+        "LVL 20": "1569 - 1649",
+        "LVL 25 - Windy": "1961 - 2062"
+      },
+      "ChargeAttacks": [
+        "Shadow ball (ghost)",
+        "Focus blast (fighting)",
+        "Future sight (psychic)"
+      ],
+      "Weakness": [
+        "Bug",
+        "Dark",
+        "Ghost"
+      ],
       "Counters": [
+        "Gengar",
         "Mewtwo",
         "Tyranitar",
-        "Alakazam",
-        "Scizor",
-        "Pinsir",
+        "Absol",
+        "Banette",
         "Houndoom",
-        "Dragonite",
-        "Gyarados",
-        "Snorlax",
-        "Gengar"
+        "Èínské hùlky"
       ]
     },
     "Machamp": {
-      "MinCP": 1574,
-      "MaxCP": 1650,
+      "Type": [ "Fighting" ],
+      "CP": {
+        "LVL 20": "1574 - 1650",
+        "LVL 25 - Cloudy": "1967 - 2063"
+      },
+      "ChargeAttacks": [
+        "Close combat (fighting)",
+        "Dynamic punch (fighting)",
+        "Heavy slam (steel)"
+      ],
+      "Weakness": [
+        "Fairy",
+        "Flying",
+        "Psychic"
+      ],
       "Counters": [
         "Mewtwo",
-        "Lugia",
-        "Moltres",
         "Alakazam",
         "Espeon",
+        "Gardevoir",
+        "Metagross",
         "Dragonite",
-        "Exeggutor",
-        "Gengar",
-        "Charizard"
+        "Doctor Octopus"
       ]
     },
     "Gengar": {
-      "MinCP": 1420,
-      "MaxCP": 1496,
+      "Type": [
+        "Ghost",
+        "Poison"
+      ],
+      "CP": {
+        "LVL 20": "1420 - 1496",
+        "LVL 25 - Fog, cloudy": "1776 - 1870"
+      },
+      "ChargeAttacks": [
+        "Shadow ball (ghost)",
+        "Sludge bomb (poison)",
+        "Focus blast (fighting)"
+      ],
+      "Weakness": [
+        "Dark",
+        "Ground",
+        "Ghost",
+        "Psychic"
+      ],
       "Counters": [
-        "Tyranitar",
         "Mewtwo",
-        "Lugia",
-        "Houndoom",
-        "Rhydon",
-        "Golem",
-        "Dragonite",
-        "Gyarados",
+        "Gengar",
         "Alakazam",
         "Espeon",
-        "Exeggutor",
-        "Gengar",
-        "Snorlax"
+        "Banette",
+        "Gardevoir",
+        "Ghostbusters"
       ]
     },
-    //"Vaporeon": {
-    //  "MinCP": 1724,
-    //  "MaxCP": 1804,
-    //  "Counters": [
-    //    "Raikou",
-    //    "Zapdos",
-    //    "Jolteon",
-    //    "Exeggutor",
-    //    "Venusaur",
-    //    "Victreebel"
-    //  ]
-    //},
-    //"Jolteon": {
-    //  "MinCP": 1484,
-    //  "MaxCP": 1560,
-    //  "Counters": [
-    //    "Rhydon",
-    //    "Golem",
-    //    "Sandslash",
-    //    "Donphan",
-    //    "Nidoking",
-    //    "Tyranitar"
-    //  ]
-    //},
-    //"Flareon": {
-    //  "MinCP": 1581,
-    //  "MaxCP": 1659,
-    //  "Counters": [
-    //    "Vaporeon",
-    //    "Omastar",
-    //    "Golem",
-    //    "Rhydon",
-    //    "Tyranitar",
-    //    "Gyarados"
-    //  ]
-    //},
-    // Level 4
-    "Venusaur": {
-      "MinCP": 1395,
-      "MaxCP": 1467,
-      "Counters": [
-        "Moltres",
-        "Flareon",
-        "Arcanine",
-        "Mewtwo",
-        "Alakazam",
-        "Espeon"
-      ]
-    },
-    "Charizard": {
-      "MinCP": 1461,
-      "MaxCP": 1535,
+    "Scyther": {
+      "Type": [
+        "Bug",
+        "Flying"
+      ],
+      "CP": {
+        "LVL 20": "1337 - 1408",
+        "LVL 25 - Rain, windy": "1671 - 1760"
+      },
+      "ChargeAttacks": [
+        "Night slash (dark)",
+        "X-scissor (bug)",
+        "Aerial ace (flying)"
+      ],
+      "Weakness": [
+        "Rock",
+        "Fire",
+        "Flying",
+        "Ice",
+        "Electric"
+      ],
       "Counters": [
         "Golem",
         "Omastar",
-        "Tyranitar",
-        "Vaporeon",
-        "Zapdos",
-        "Jolteon"
+        "Moltres",
+        "Flareon",
+        "Blaziken",
+        "Entei",
+        "Lunatone",
+        "Støihoruký Edward"
       ]
     },
-    "Blastoise": {
-      "MinCP": 1241,
-      "MaxCP": 1309,
-      "Counters": [
-        "Raikou",
-        "Zapdos",
-        "Jolteon",
-        "Exeggutor",
-        "Venusaur",
-        "Victreebel"
-      ]
-    },
-    "Rhydon": {
-      "MinCP": 1804,
-      "MaxCP": 1886,
-      "Counters": [
-        "Vaporeon",
-        "Gyarados",
-        "Starmie",
-        "Exeggutor",
-        "Venusaur",
-        "Victreebel"
-      ]
-    },
-    "Lapras": {
-      "MinCP": 1414,
-      "MaxCP": 1487,
+    "Porygon": {
+      "Type": [ "Normal" ],
+      "CP": {
+        "LVL 20": "840 - 895",
+        "LVL 25 - Partly cloudy": "1050 - 1120"
+      },
+      "ChargeAttacks": [
+        "Hyper beam (normal)",
+        "Solar beam (grass)",
+        "Zap cannon (electric)"
+      ],
+      "Weakness": [
+        "Fighting"
+      ],
       "Counters": [
         "Machamp",
+        "Breloom",
+        "Blaziken",
         "Heracross",
-        "Jolteon",
-        "Magneton",
         "Mewtwo",
-        "Alakazam"
+        "Hariyama",
+        "Antivir"
       ]
     },
-    "Snorlax": {
-      "MinCP": 1833,
-      "MaxCP": 1917,
+    "Omastar": {
+      "Type": [
+        "Water",
+        "Rock"
+      ],
+      "CP": {
+        "LVL 20": "1460 - 1534",
+        "LVL 25 - Rain, partly cloudy": "1825 - 1918"
+      },
+      "ChargeAttacks": [
+        "Ancient power (rock)",
+        "Hydro pump (water)",
+        "Rock blast (rock)"
+      ],
+      "Weakness": [
+        "Grass",
+        "Ground",
+        "Fighting",
+        "Electric"
+      ],
       "Counters": [
-        "Machamp",
-        "Heracross",
-        "Dragonite",
-        "Tyranitar",
+        "Exeguttor",
+        "Victreebel",
+        "Venosaur",
+        "Groudon",
+        "Vileplume",
+        "Sceptile",
+        "Tangela",
+        "Shiftry"
+      ]
+    },
+    // Level 4
+    "Nidoqueen": {
+      "Type": [
+        "Ground",
+        "Poison"
+      ],
+      "CP": {
+        "LVL 20": "1267 - 1336",
+        "LVL 25 - Clear, cloudy": "1584 - 1670"
+      },
+      "ChargeAttacks": [
+        "Sludge wave (poison)",
+        "Stone edge (rock)",
+        "Earthquake (ground)"
+      ],
+      "Weakness": [
+        "Water",
+        "Ground",
+        "Ice",
+        "Psychic"
+      ],
+      "Counters": [
+        "Mewtwo",
+        "Alakazam",
         "Espeon",
-        "Alakazam"
+        "Sharpedo",
+        "Gyarados",
+        "Gardevoir",
+        "Metagross"
       ]
     },
-    "Tyranitar": {
-      "MinCP": 2011,
-      "MaxCP": 2097,
+    "Nidoking": {
+      "Type": [
+        "Ground",
+        "Poison"
+      ],
+      "CP": {
+        "LVL 20": "1294 - 1363",
+        "LVL 25 - Clear, cloudy": "1618 - 1704"
+      },
+      "ChargeAttacks": [
+        "Sludge wave (poison)",
+        "Megahorn (bug)",
+        "Earthquake (ground)"
+      ],
+      "Weakness": [
+        "Water",
+        "Ground",
+        "Ice",
+        "Psychic"
+      ],
       "Counters": [
-        "Machamp",
-        "Heracross",
-        "Hitmonchan",
-        "Hitmonlee",
-        "Vaporeon",
+        "Mewtwo",
+        "Alakazam",
+        "Espeon",
+        "Sharpedo",
         "Gyarados",
-        "Exeggutor",
-        "Venusaur"
+        "Gardevoir",
+        "Metagross"
       ]
     },
-    "Golem": {
-      "MinCP": 1589,
-      "MaxCP": 1666,
+    "Poliwrath": {
+      "Type": [
+        "Water",
+        "Fighting"
+      ],
+      "CP": {
+        "LVL 20": "1325 - 1395",
+        "LVL 25 - Rain, cloudy": "1657 - 1744"
+      },
+      "ChargeAttacks": [
+        "Hydro pump (water)",
+        "Ice punch (ice)",
+        "Dynamic punch (fighting)"
+      ],
+      "Weakness": [
+        "Fairy",
+        "Grass",
+        "Electric",
+        "Flying",
+        "Psychic"
+      ],
       "Counters": [
+        "Mewtwo",
+        "Alakazam",
+        "Espeon",
         "Exeggutor",
-        "Venusaur",
-        "Vaporeon",
-        "Gyarados",
-        "Machamp",
-        "Rhydon"
+        "Raikou",
+        "Gardevoir",
+        "Zapdos",
+        "Legolas"
       ]
     },
     "Victreebel": {
-      "MinCP": 1228,
-      "MaxCP": 1296
-    },
-    "Poliwrath": {
-      "MinCP": 1325,
-      "MaxCP": 1395,
-      "Counters": []
-    },
-    "Nidoqueen": {
-      "MinCP": 1267,
-      "MaxCP": 1336,
-      "Counters": []
-    },
-    "Nidoking": {
-      "MinCP": 1294,
-      "MaxCP": 1363,
-      "Counters": []
-    },
-    // Level 5
-    "Articuno": {
-      "MinCP": 1599,
-      "MaxCP": 1676,
+      "Type": [
+        "Grass",
+        "Poison"
+      ],
+      "CP": {
+        "LVL 20": "1228 - 1296",
+        "LVL 25 - Clear, cloudy": "1535 - 1620"
+      },
+      "ChargeAttacks": [
+        "Leaf blade (grass)",
+        "Solar beam (grass)",
+        "Sludge bomb (poison)"
+      ],
+      "Weakness": [
+        "Fire",
+        "Flying",
+        "Ice",
+        "Psychic"
+      ],
       "Counters": [
-        "Golem",
-        "Omastar",
+        "Mewtwo",
+        "Alakazam",
+        "Espeon",
         "Moltres",
         "Flareon",
+        "Blaziken",
+        "Entei",
+        "Krteèek"
+      ]
+    },
+    "Golem": {
+      "Type": [
+        "Ground",
+        "Rock"
+      ],
+      "CP": {
+        "LVL 20": "1589 - 1666",
+        "LVL 25 - Clear, partly cloudy": "1987 - 2083"
+      },
+      "ChargeAttacks": [
+        "Stone edge (rock)",
+        "Rock blast (rock)",
+        "Earthquake (ground)"
+      ],
+      "Weakness": [
+        "Water",
+        "Grass",
+        "Ice",
+        "Ground",
+        "Steel",
+        "Fighting"
+      ],
+      "Counters": [
+        "Gyarados",
+        "Sharpedo",
+        "Exeggutor",
+        "Victreebel",
+        "Groudon",
+        "Sceptile",
+        "Vileplume",
+        "Venusaur",
+        "Indiana Jones"
+      ]
+    },
+    "Lapras": {
+      "Type": [
+        "Water",
+        "Ice"
+      ],
+      "CP": {
+        "LVL 20": "1414 - 1487",
+        "LVL 25 - Rain, snow": "1768 - 1859"
+      },
+      "ChargeAttacks": [
+        "Blizzard (ice)",
+        "Hydro pump (water)",
+        "Surf (water)"
+      ],
+      "Weakness": [
+        "Fighting",
+        "Grass",
+        "Rock",
+        "Electric"
+      ],
+      "Counters": [
+        "Machamp",
+        "Breloom",
+        "Blaziken",
+        "Raikou",
+        "Zapdos",
+        "Exeggutor",
+        "Hariyama"
+      ]
+    },
+    "Snorlax": {
+      "Type": [ "Normal" ],
+      "CP": {
+        "LVL 20": "1833 - 1917",
+        "LVL 25 - Partly cloudy": "2292 - 2396"
+      },
+      "ChargeAttacks": [
+        "Hyper beam (normal)",
+        "Heavy slam (steel)",
+        "Earthquake (ground)"
+      ],
+      "Weakness": [
+        "Fighting"
+      ],
+      "Counters": [
+        "Breloom",
+        "Machamp",
+        "Blaziken",
+        "Mewtwo",
+        "Hariyama",
+        "Heracross",
+        "Ukolébavka"
+      ]
+    },
+    "Tyranitar": {
+      "Type": [
+        "Rock",
+        "Dark"
+      ],
+      "CP": {
+        "LVL 20": "2011 - 2097",
+        "LVL 25 - Partly cloudy, fog": "2514 - 2621"
+      },
+      "ChargeAttacks": [
+        "Fire blast (fire)",
+        "Stone edge (rock)",
+        "Crunch (dark)"
+      ],
+      "Weakness": [
+        "Fighting",
+        "Fairy",
+        "Ground",
+        "Bug",
+        "Steel",
+        "Water",
+        "Grass"
+      ],
+      "Counters": [
+        "Breloom",
+        "Machamp",
+        "Blaziken",
+        "Hariyama",
+        "Heracross",
+        "Primeape"
+      ]
+    },
+    "Absol": {
+      "Type": [ "Dark" ],
+      "CP": {
+        "LVL 20": "1232 - 1303",
+        "LVL 25 - Fog": "1540 - 1629"
+      },
+      "ChargeAttacks": [
+        "Dark pulse (dark)",
+        "Thunder (electric)",
+        "Megahorn (bug)"
+      ],
+      "Weakness": [
+        "Fairy",
+        "Fighting",
+        "Bug"
+      ],
+      "Counters": [
+        "Breloom",
+        "Machamp",
+        "Blaziken",
+        "Hariyama",
+        "Heracross",
+        "Primeape"
+      ]
+    },
+    // Level 5
+    "Groudon": {
+      "Type": [ "Ground" ],
+      "CP": {
+        "LVL 20": "2236 - 2328",
+        "LVL 25 - Clear": "2796 - 2910"
+      },
+      "ChargeAttacks": [
+        "Fire blast (fire)",
+        "Solar beam (grass)",
+        "Earthquake (ground)"
+      ],
+      "Weakness": [
+        "Water",
+        "Grass",
+        "Ice"
+      ],
+      "Counters": [
+        "Gyarados",
+        "Sceptile",
+        "Exeggutor",
+        "HoOh",
+        "Groudon",
+        "Articuno",
+        "Vaporeon",
+        "Venusaur",
+        "Vodní aerobik"
+      ]
+    },
+    "Articuno": {
+      "Type": [
+        "Ice",
+        "Flying"
+      ],
+      "CP": {
+        "LVL 20": "1599 - 1676",
+        "LVL 25 - Snow, Windy": "1999 - 2095"
+      },
+      "ChargeAttacks": [
+        "Ice beam (ice)",
+        "Icy wind (ice)",
+        "Blizzard (ice)"
+      ],
+      "Weakness": [
+        "Rock",
+        "Electric",
+        "Fire",
+        "Steel"
+      ],
+      "Counters": [
+        "Omastar",
+        "Flareon",
+        "Arcanine",
+        "Typhlosion",
         "Tyranitar",
-        "Arcanice"
+        "Scizor",
+        "Napalm"
       ]
     },
     "Zapdos": {
-      "MinCP": 1820,
-      "MaxCP": 1902,
+      "Type": [
+        "Electric",
+        "Flying"
+      ],
+      "CP": {
+        "LVL 20": "1820 - 1902",
+        "LVL 25 - Rain, Windy": "2275 - 2378"
+      },
+      "ChargeAttacks": [
+        "Thunderbolt (electric)",
+        "Thunder (electric)",
+        "Zap cannon (electric)"
+      ],
+      "Weakness": [
+        "Ice",
+        "Rock"
+      ],
       "Counters": [
-        "Piloswine",
         "Golem",
-        "Tyranitar",
+        "Piloswine",
         "Dragonite",
-        "Alakazam",
-        "Gengar"
+        "Tyranitar",
+        "Jynx",
+        "Rhydon",
+        "Gumáky"
       ]
     },
     "Moltres": {
-      "MinCP": 1788,
-      "MaxCP": 1870,
+      "Type": [
+        "Fire",
+        "Flying"
+      ],
+      "CP": {
+        "LVL 20": "1788 - 1870",
+        "LVL 25 - Clear, Windy": "2235 - 2337"
+      },
+      "ChargeAttacks": [
+        "Fire blast (fire)",
+        "Heat Wave (fire)",
+        "Overheat (fire)"
+      ],
+      "Weakness": [
+        "Rock",
+        "Electric",
+        "Water"
+      ],
       "Counters": [
         "Golem",
-        "Omastar",
         "Tyranitar",
         "Vaporeon",
-        "Zapdos",
-        "Jolteon"
+        "Gyarados",
+        "Omastar",
+        "Feraligatr",
+        "Klícka"
       ]
     },
     "Lugia": {
-      "MinCP": 1969,
-      "MaxCP": 2056,
+      "Type": [
+        "Psychic",
+        "Flying"
+      ],
+      "CP": {
+        "LVL 20": "1969 - 2056",
+        "LVL 25 - Windy": "2462 - 2570"
+      },
+      "ChargeAttacks": [
+        "Hydro pump (water)",
+        "Sky attack (flying)",
+        "Future sigh (psychic)"
+      ],
+      "Weakness": [
+        "Dark",
+        "Rock",
+        "Ice",
+        "Ghost",
+        "Electric"
+      ],
       "Counters": [
-        "Golem",
         "Tyranitar",
-        "Omastar",
-        "Zapdos",
-        "Jolteon"
+        "Golem",
+        "Jolteon",
+        "Magneton",
+        "Jynx",
+        "Gengar",
+        "Anti-air rakety"
       ]
     },
     "Entei": {
-      "MinCP": 1847,
-      "MaxCP": 1930,
+      "Type": [ "Fire" ],
+      "CP": {
+        "LVL 20": "1847 - 1930",
+        "LVL 25 - Clear": "2309 - 2412"
+      },
+      "ChargeAttacks": [
+        "Flamethrower (fire)",
+        "Overheat (fire)",
+        "Fire blast (fire)"
+      ],
+      "Weakness": [
+        "Water",
+        "Ground",
+        "Rock"
+      ],
       "Counters": [
-        "Vaporeon",
         "Omastar",
+        "Vaporeon",
         "Golem",
-        "Rhydon",
         "Tyranitar",
-        "Gyarados"
+        "Gyarados",
+        "Kindra",
+        "Koupání"
       ]
     },
     "Suicune": {
-      "MinCP": 1538,
-      "MaxCP": 1613,
+      "Type": [ "Water" ],
+      "CP": {
+        "LVL 20": "1538 - 1613",
+        "LVL 25 - Rain": "1922 - 2016"
+      },
+      "ChargeAttacks": [
+        "Hydro pump (water)",
+        "Bubble beam (water)",
+        "Water pulse (water)"
+      ],
+      "Weakness": [
+        "Electric",
+        "Grass"
+      ],
       "Counters": [
         "Raikou",
         "Zapdos",
-        "Jolteon",
         "Exeggutor",
+        "Dragonite",
         "Venusaur",
-        "Victreebel"
+        "Vileplume",
+        "Jolteon",
+        "Fén ve vodì"
       ]
     },
     "Raikou": {
-      "MinCP": 1813,
-      "MaxCP": 1913,
+      "Type": [ "Electric" ],
+      "CP": {
+        "LVL 20": "1831 - 1913",
+        "LVL 25 - Rain": "2286 - 2392"
+      },
+      "ChargeAttacks": [
+        "Wild charge (electric)",
+        "Thunder (electric)",
+        "Thunderbolt (electric)"
+      ],
+      "Weakness": [
+        "Ground"
+      ],
       "Counters": [
-        "Golem",
         "Rhydon",
-        "MewTwo",
+        "Golem",
         "Donphan",
-        "Dragonite",
-        "Exeggutor",
+        "Tyranitar",
+        "Sandslash",
         "Nidoking",
-        "Machamp"
+        "Gumídci"
       ]
     },
     "MewTwo": {
-      "MinCP": 2184,
-      "MaxCP": 2275,
+      "Type": [ "Psychic" ],
+      "CP": {
+        "LVL 20": "2184 - 2275",
+        "LVL 25 - Windy": "2730 - 2844"
+      },
+      "ChargeAttacks": [
+        "Psychic (psychic)",
+        "Shadow ball (ghost)",
+        "Hyper beam (normal)",
+        "Focus blast (fighting)"
+      ],
+      "Weakness": [
+        "Dark",
+        "Bug",
+        "Ghost"
+      ],
       "Counters": [
-        "MewTwo",
         "Tyranitar",
-        "Lugia",
-        "Dragonite",
+        "MewTwo",
+        "Houndoom",
+        "Scizor",
         "Gyarados",
-        "Gengar"
+        "Pinsir",
+        "Gengar",
+        "Bohnice"
       ]
     },
     "HoOh": {
-      "MinCP": 2133,
-      "MaxCP": 2222,
+      "Type": [
+        "Fire",
+        "Flying"
+      ],
+      "CP": {
+        "LVL 20": "2133 - 2222",
+        "LVL 25 - Clear, Windy": "2667 - 2778"
+      },
+      "ChargeAttacks": [
+        "Fire blast (fire)",
+        "Solar beam (grass)",
+        "Brave bird (flying)"
+      ],
+      "Weakness": [
+        "Rock",
+        "Electric",
+        "Water"
+      ],
       "Counters": [
-        "Vaporeon",
         "Omastar",
         "Golem",
         "Raikou",
         "Tyranitar",
         "Zapdos",
-        "Gyarados"
+        "Gyarados",
+        "Vaporeon",
+        "Zrní"
       ]
     }
   }
