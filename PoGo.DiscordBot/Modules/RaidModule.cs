@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace PoGo.DiscordBot.Modules
     [RequireContext(ContextType.Guild)]
     [Group("raid")]
     [Alias("r")]
-    public class RaidModule : ModuleBase<SocketCommandContext>
+    public class RaidModule : InteractiveBase<SocketCommandContext>
     {
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly TeamService teamService;
@@ -266,6 +267,11 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
+            var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raid.ToSimpleString()}'? [y]");
+            var responseMessage = await NextMessageAsync();
+            if (responseMessage == null || responseMessage.Content.ToLower() != "y")
+                return;
+
             foreach (var player in raid.Players.Values)
             {
                 var user = player.User;
@@ -273,6 +279,7 @@ namespace PoGo.DiscordBot.Modules
             }
 
             await raid.Message.DeleteAsync();
+            await questionMessage.AddReactionAsync(Emojis.Check);
         }
 
         [Command("info", RunMode = RunMode.Async)]

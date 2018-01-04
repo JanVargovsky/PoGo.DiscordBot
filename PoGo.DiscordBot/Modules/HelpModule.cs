@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
-    public class HelpModule : ModuleBase<SocketCommandContext>
+    public class HelpModule : InteractiveBase<SocketCommandContext>
     {
         readonly CommandService commandService;
         readonly IServiceProvider serviceProvider;
@@ -24,14 +25,17 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("help")]
+        [Summary("Vypíše seznam příkazů.")]
         public async Task Help()
         {
-            var builder = new EmbedBuilder()
-                .WithColor(Color.Blue);
-
-            HashSet<string> commands = new HashSet<string>();
+            var groupCommands = new Dictionary<string, List<string>>();
 
             foreach (var module in commandService.Modules)
+            {
+                string key = module.Aliases.FirstOrDefault() ?? string.Empty;
+                if (!groupCommands.TryGetValue(key, out var commands))
+                    groupCommands[key] = commands = new List<string>();
+
                 foreach (var cmd in module.Commands)
                 {
                     var result = await cmd.CheckPreconditionsAsync(Context, serviceProvider);
@@ -40,24 +44,78 @@ namespace PoGo.DiscordBot.Modules
                         string s = $"{prefix}{cmd.Aliases.First()}";
                         if (!string.IsNullOrEmpty(cmd.Summary))
                             s += $" ({ cmd.Summary})";
+
                         commands.Add(s);
                     }
                 }
+            }
 
-            string orderedCommandsString = string.Join(Environment.NewLine, commands.OrderBy(t => t));
-            builder.AddField("Dostupné příkazy", orderedCommandsString);
+            EmbedBuilder EmbedPageBuilder() => new EmbedBuilder()
+                .WithColor(Color.Blue);
 
-            builder.AddField("Nápověda ke konkrétnímu příkazu", "Pro detailnější nápovědu k příkazu napiš **!help <příkaz>** kde příkaz je jeden z výše uvedených příkazů.");
+            string CommandsToString(IEnumerable<string> commands) =>
+                string.Join(Environment.NewLine, commands.OrderBy(t => t));
 
-            builder.AddField("Použití příkazu",
-                $"BOT reaguje na všechny zprávy, které začínají nějakým znakem." +
-                $" V našem případě je to znak **{prefix}**." +
-                $" Pokud tedy přijde zpráva např. **!raid create**, tak je předána k zpracování." +
-                $" Každý příkaz má přesně dané parametry - **ty je nutné dodržovat, jinak se příkaz vůbec nevykoná**." +
-                $" Jestliže má tedy příkaz **raid create** 3 parametry - bossName, location a time, je nutné je všechny předat." +
-                $" Napíšu tedy tohle: **!raid create Tyranitar Stoun 15:30**");
+            Embed BuildFirstPage(IEnumerable<string> commands)
+            {
+                return EmbedPageBuilder()
+                    .AddField("Dostupné příkazy", CommandsToString(commands))
+                    .AddField("Nápověda ke konkrétnímu příkazu", "Pro detailnější nápovědu k příkazu napiš **!help <příkaz>** kde příkaz je jeden z výše uvedených příkazů.")
+                    .AddField("Použití příkazu",
+                        $"BOT reaguje na všechny zprávy, které začínají nějakým znakem." +
+                        $" V našem případě je to znak **{prefix}**." +
+                        $" Pokud tedy přijde zpráva např. **!raid create**, tak je předána k zpracování." +
+                        $" Každý příkaz má přesně dané parametry - **ty je nutné dodržovat, jinak se příkaz vůbec nevykoná**." +
+                        $" Jestliže má tedy příkaz **raid create** 3 parametry - bossName, location a time, je nutné je všechny předat." +
+                        $" Napíšu tedy tohle: **!raid create Tyranitar Stoun 15:30**")
+                    .Build();
+            }
 
-            await ReplyAsync(string.Empty, embed: builder.Build());
+            var commandPages = new List<List<string>>();
+            // Commands with module that has alias equal to "" are without any group
+            // and they are on first page without any other group commands
+            if (groupCommands.TryGetValue(string.Empty, out var globalCommands))
+                commandPages.Add(globalCommands);
+
+            const int MaxCommandsPerPage = 15;
+            List<string> currentPageCommands = new List<string>();
+
+            foreach (var c in groupCommands.OrderBy(t => t.Key))
+            {
+                if (c.Key == string.Empty) continue;
+
+                // future hint for division
+                // c.Value.Count / MaxCommandsPerPage > 1 ... then divide it into N pages
+
+                if (currentPageCommands.Count + c.Value.Count > MaxCommandsPerPage)
+                {
+                    // We cannot add more commands
+                    commandPages.Add(currentPageCommands);
+                    currentPageCommands = new List<string>(c.Value);
+                    continue;
+                }
+
+                currentPageCommands.AddRange(c.Value);
+            }
+            if (currentPageCommands.Any())
+                commandPages.Add(currentPageCommands);
+            var pages = commandPages.Select(CommandsToString).ToList();
+
+            if (pages.Count > 1)
+                await PagedReplyAsync(new PaginatedMessage
+                {
+                    Color = Color.Blue,
+                    Options = new PaginatedAppearanceOptions
+                    {
+                        JumpDisplayOptions = JumpDisplayOptions.Never,
+                        DisplayInformationIcon = false,
+                        Timeout = TimeSpan.FromMinutes(1),
+                    },
+                    Title = "Dostupné příkazy",
+                    Pages = pages,
+                });
+            else if (pages.Any())
+                await ReplyAsync($"```{pages.First()}```");
         }
 
         private enum CommandInfoSignature
@@ -67,6 +125,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("help")]
+        [Summary("Vypíše nápovědu pro konkrétní příkaz.")]
         public async Task Help([Remainder] string command)
         {
             var result = commandService.Search(Context, command);

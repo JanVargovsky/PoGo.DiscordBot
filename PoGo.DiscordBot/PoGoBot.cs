@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +50,7 @@ namespace PoGo.DiscordBot
             commands = new CommandService(new CommandServiceConfig
             {
                 LogLevel = logSeverity,
+                DefaultRunMode = RunMode.Async,
             });
 
             ServiceProvider = ConfigureServices();
@@ -159,8 +161,9 @@ namespace PoGo.DiscordBot
             services.Configure<ConfigurationOptions>(Configuration);
 
             services.AddLogging();
-            services.AddSingleton<IDiscordClient>(client);
+            services.AddSingleton(client);
             services.AddSingleton<ConfigurationService>();
+            services.AddSingleton<InteractiveService>();
 
             services.AddSingleton<RaidService>();
             services.AddSingleton<TeamService>();
