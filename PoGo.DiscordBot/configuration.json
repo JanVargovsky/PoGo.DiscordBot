@@ -1,6 +1,27 @@
 ﻿{
   "Prefix": "!",
   "RaidBosses": {
+    // Level 1
+    "Metapod": {
+      "Type": [ "Bug" ],
+      "CP": {
+        "LVL 20": "221 - 239",
+        "LVL 25 - Rainy": "277 - 299"
+      },
+      "ChargeAttacks": [
+        "Struggle (normal)"
+      ],
+      "Weakness": [
+        "Fire",
+        "Rock",
+        "Flying"
+      ],
+      "Counters": [
+        "Škaredý pohled",
+        "Lupa",
+        "Biolit"
+      ]
+    },
     // Level 3
     "Ninetales": {
       "Type": [ "Fire" ],
@@ -52,7 +73,7 @@
         "Absol",
         "Banette",
         "Houndoom",
-        "Èínské hùlky"
+        "Čínské hůlky"
       ]
     },
     "Machamp": {
@@ -140,7 +161,7 @@
         "Blaziken",
         "Entei",
         "Lunatone",
-        "Støihoruký Edward"
+        "Střihoruký Edward"
       ]
     },
     "Porygon": {
@@ -319,7 +340,7 @@
         "Flareon",
         "Blaziken",
         "Entei",
-        "Krteèek"
+        "Krteček"
       ]
     },
     "Golem": {
@@ -663,7 +684,7 @@
         "Venusaur",
         "Vileplume",
         "Jolteon",
-        "Fén ve vodì"
+        "Fén ve vodě"
       ]
     },
     "Raikou": {
@@ -746,6 +767,31 @@
         "Gyarados",
         "Vaporeon",
         "Zrní"
+      ]
+    },
+    "Kyogre": {
+      "Type": [ "Water" ],
+      "CP": {
+        "LVL 20": "2236 - 2328",
+        "LVL 25 - Rainy": "2796 - 2910"
+      },
+      "ChargeAttacks": [
+        "Hydro pump (water)",
+        "Thunder (electric)",
+        "Blizzard (ice)"
+      ],
+      "Weakness": [
+        "Grass",
+        "Electric"
+      ],
+      "Counters": [
+        "Raikou",
+        "Zapdos",
+        "Exeggutor",
+        "Victreebel",
+        "Jolteon",
+        "Sceptile",
+        "Japonští rybáři"
       ]
     }
   }
