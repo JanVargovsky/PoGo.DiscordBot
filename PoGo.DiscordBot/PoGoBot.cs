@@ -217,7 +217,14 @@ namespace PoGo.DiscordBot
             if (!result.IsSuccess)
             {
                 if (result.Error == CommandError.BadArgCount)
-                    await context.Channel.SendMessageAsync("Nesedí počet parametrů - nechybí ti tam uvozovky?");
+                {
+                    const string TooFewArgs = "The input text has too few parameters.";
+                    const string TooManyArgs = "The input text has too many parameters.";
+                    if (result.ErrorReason == TooFewArgs)
+                        await context.Channel.SendMessageAsync("Chybí některý z parametrů.");
+                    else if (result.ErrorReason == TooManyArgs)
+                        await context.Channel.SendMessageAsync("Hodně parametrů - nechybí ti tam uvozovky?");
+                }
                 else if (result.Error == CommandError.ParseFailed)
                     await context.Channel.SendMessageAsync("Špatné parametry.");
                 else if (result is TeamPreconditionResult teamResult)
