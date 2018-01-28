@@ -50,26 +50,8 @@ namespace PoGo.DiscordBot.Modules
                 }
             }
 
-            EmbedBuilder EmbedPageBuilder() => new EmbedBuilder()
-                .WithColor(Color.Blue);
-
             string CommandsToString(IEnumerable<string> commands) =>
                 string.Join(Environment.NewLine, commands.OrderBy(t => t));
-
-            Embed BuildFirstPage(IEnumerable<string> commands)
-            {
-                return EmbedPageBuilder()
-                    .AddField("Dostupné příkazy", CommandsToString(commands))
-                    .AddField("Nápověda ke konkrétnímu příkazu", "Pro detailnější nápovědu k příkazu napiš **!help <příkaz>** kde příkaz je jeden z výše uvedených příkazů.")
-                    .AddField("Použití příkazu",
-                        $"BOT reaguje na všechny zprávy, které začínají nějakým znakem." +
-                        $" V našem případě je to znak **{prefix}**." +
-                        $" Pokud tedy přijde zpráva např. **!raid create**, tak je předána k zpracování." +
-                        $" Každý příkaz má přesně dané parametry - **ty je nutné dodržovat, jinak se příkaz vůbec nevykoná**." +
-                        $" Jestliže má tedy příkaz **raid create** 3 parametry - bossName, location a time, je nutné je všechny předat." +
-                        $" Napíšu tedy tohle: **!raid create Tyranitar Stoun 15:30**")
-                    .Build();
-            }
 
             var commandPages = new List<List<string>>();
             // Commands with module that has alias equal to "" are without any group
