@@ -1,4 +1,5 @@
 ﻿using Discord;
+using PoGo.DiscordBot.Configuration.Options;
 
 namespace PoGo.DiscordBot.Dto
 {
@@ -6,6 +7,6 @@ namespace PoGo.DiscordBot.Dto
     {
         public ITextChannel Channel { get; set; }
         public IMentionable Mention { get; set; }
-        public bool AllowScheduledRaids { get; set; }
+        public RaidChannelType RaidChannelType { get; set; }
     }
 }

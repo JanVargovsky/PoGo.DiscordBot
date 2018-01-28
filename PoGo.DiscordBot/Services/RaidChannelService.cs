@@ -15,14 +15,14 @@ namespace PoGo.DiscordBot.Services
             public ITextChannel From { get; }
             public ITextChannel To { get; }
             public IMentionable Mention { get; set; }
-            public bool ScheduledRaids { get; set; }
+            public RaidChannelType RaidChannelType { get; set; }
 
-            public RaidChannelBinding(ITextChannel from, ITextChannel to, IMentionable mention, bool scheduledRaids)
+            public RaidChannelBinding(ITextChannel from, ITextChannel to, IMentionable mention, RaidChannelType raidChannelType)
             {
                 From = from;
                 To = to;
                 Mention = mention;
-                ScheduledRaids = scheduledRaids;
+                RaidChannelType = raidChannelType;
             }
         }
 
@@ -59,39 +59,40 @@ namespace PoGo.DiscordBot.Services
 
         public bool IsKnown(ulong guildId) => guilds.ContainsKey(guildId);
 
-        public bool IsKnown(ulong guildId, ulong textChannelId) =>
-            TryGetRaidChannelBinding(guildId, textChannelId) != null;
+        public bool IsKnown(ulong guildId, ulong textChannelId, RaidChannelType raidChannelType) =>
+            TryGetRaidChannelBinding(guildId, textChannelId, raidChannelType) != null;
 
         public IEnumerable<ITextChannel> GetRaidChannels(ulong guildId) => guilds[guildId].Select(t => t.To);
 
         /// <summary>
         /// Returns raid channel for the raid poll based on the channel where the command came from.
         /// </summary>
-        public RaidChannelBindingDto TryGetRaidChannelBinding(ulong guildId, ulong fromTextChannelId)
+        public RaidChannelBindingDto TryGetRaidChannelBinding(ulong guildId, ulong fromTextChannelId, RaidChannelType raidChannelType)
         {
             if (guilds.TryGetValue(guildId, out var raidChannelBindings))
                 foreach (var channel in raidChannelBindings)
-                    if (channel.From == null || channel.From.Id == fromTextChannelId)
+                    if ((channel.From == null || channel.From.Id == fromTextChannelId) &&
+                        channel.RaidChannelType.HasFlag(raidChannelType))
                         return new RaidChannelBindingDto
                         {
                             Channel = channel.To,
                             Mention = channel.Mention,
-                            AllowScheduledRaids = channel.ScheduledRaids,
+                            RaidChannelType = channel.RaidChannelType,
                         };
 
             return null;
         }
 
-        public RaidChannelBindingDto TryGetRaidChannelBindingTo(ulong guildId, ulong toTextChannelId)
+        public RaidChannelBindingDto TryGetRaidChannelBindingTo(ulong guildId, ulong toTextChannelId, RaidChannelType raidChannelType)
         {
             if (guilds.TryGetValue(guildId, out var raidChannelBindings))
                 foreach (var channel in raidChannelBindings)
-                    if (channel.To.Id == toTextChannelId)
+                    if (channel.To.Id == toTextChannelId && channel.RaidChannelType.HasFlag(raidChannelType))
                         return new RaidChannelBindingDto
                         {
                             Channel = channel.To,
                             Mention = channel.Mention,
-                            AllowScheduledRaids = channel.ScheduledRaids,
+                            RaidChannelType = channel.RaidChannelType,
                         };
 
             return null;
@@ -121,7 +122,7 @@ namespace PoGo.DiscordBot.Services
                     logger.LogError($"Unknown role '{channelOptions.Mention}'");
             }
 
-            channelBindings.Add(new RaidChannelBinding(channelFrom, channelTo, mention, channelOptions.ScheduledRaids));
+            channelBindings.Add(new RaidChannelBinding(channelFrom, channelTo, mention, channelOptions.Type));
         }
     }
 }

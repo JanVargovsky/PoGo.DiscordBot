@@ -25,7 +25,7 @@ namespace PoGo.DiscordBot.Configuration.Options
         public string Mention { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public bool ScheduledRaids { get; set; }
+        public RaidChannelType Type { get; set; }
     }
 
     public class RaidBossOptions
@@ -42,5 +42,12 @@ namespace PoGo.DiscordBot.Configuration.Options
         public string Name { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
+    }
+
+    public enum RaidChannelType
+    {
+        Normal = 1 << 1,
+        Scheduled = 1 << 2,
+        Both = Normal | Scheduled,
     }
 }

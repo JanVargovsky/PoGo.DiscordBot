@@ -3,6 +3,7 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
@@ -44,7 +45,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("create", RunMode = RunMode.Async)]
         [Alias("c")]
         [Summary("Vytvoří raid anketu do speciálního kanálu.")]
-        [RaidChannelPrecondition]
+        [RaidChannelPrecondition(RaidChannelType.Normal)]
         public async Task StartRaid(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
@@ -64,7 +65,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
+            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id, RaidChannelType.Normal);
 
             var raidInfo = new RaidInfoDto(RaidType.Normal)
             {
@@ -98,14 +99,14 @@ namespace PoGo.DiscordBot.Modules
         [Command("schedule", RunMode = RunMode.Async)]
         [Alias("s")]
         [Summary("Vytvoří plánovanou raid anketu do speciálního kanálu.")]
-        [RaidChannelPrecondition]
+        [RaidChannelPrecondition(RaidChannelType.Scheduled)]
         public async Task StartScheduledRaid(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
             [Remainder][Summary("Datum (" + RaidInfoDto.DateTimeFormat + ").")]string dateTime)
         {
-            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
-            if (raidChannelBinding == null || !raidChannelBinding.AllowScheduledRaids)
+            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id, RaidChannelType.Scheduled);
+            if (raidChannelBinding == null)
                 return;
 
             var parsedDateTime = RaidInfoDto.ParseDateTime(dateTime);
@@ -138,9 +139,9 @@ namespace PoGo.DiscordBot.Modules
             raidStorageService.AddRaid(Context.Guild.Id, raidChannelBinding.Channel.Id, message.Id, raidInfo);
         }
 
-        RaidInfoDto GetRaid(int skip)
+        RaidInfoDto GetRaid(int skip, RaidChannelType raidChannelType)
         {
-            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id, raidChannelType).Channel.Id;
             var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
             return raid;
         }
@@ -148,13 +149,13 @@ namespace PoGo.DiscordBot.Modules
         [Command("time", RunMode = RunMode.Async)]
         [Alias("t")]
         [Summary("Přenastaví čas raidu.")]
-        [RaidChannelPrecondition]
+        [RaidChannelPrecondition(RaidChannelType.Normal)] // TODO add scheduled
         public async Task AdjustRaidTime(
             [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
             // TODO scheduled raid
-            var raid = GetRaid(skip);
+            var raid = GetRaid(skip, RaidChannelType.Normal);
 
             if (raid == null)
             {
@@ -195,12 +196,12 @@ namespace PoGo.DiscordBot.Modules
         [Command("boss", RunMode = RunMode.Async)]
         [Alias("b")]
         [Summary("Přenastaví bosse raidu.")]
-        [RaidChannelPrecondition]
+        [RaidChannelPrecondition(RaidChannelType.Both)]
         public async Task AdjustRaidBoss(
             [Summary("Přenastaví bosse raidu.")]string boss,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = GetRaid(skip);
+            var raid = GetRaid(skip, RaidChannelType.Both);
 
             if (raid == null)
             {
@@ -226,12 +227,12 @@ namespace PoGo.DiscordBot.Modules
         [Command("mention", RunMode = RunMode.Async)]
         [Alias("m")]
         [Summary("Označí lidi, kteří jsou zapsáni na raid.")]
-        [RaidChannelPrecondition]
+        [RaidChannelPrecondition(RaidChannelType.Both)]
         public async Task MentionRaidPlayers(
             [Summary("Počet anket odspodu.")] int skip = 0,
             [Remainder][Summary("Text")]string text = null)
         {
-            var raid = GetRaid(skip);
+            var raid = GetRaid(skip, RaidChannelType.Both);
 
             if (raid == null)
             {
@@ -255,11 +256,11 @@ namespace PoGo.DiscordBot.Modules
         [Command("delete", RunMode = RunMode.Async)]
         [Alias("d")]
         [Summary("Smaže raid.")]
-        [RaidChannelPrecondition]
+        [RaidChannelPrecondition(RaidChannelType.Both)]
         public async Task DeleteRaid(
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            var raid = GetRaid(skip);
+            var raid = GetRaid(skip, RaidChannelType.Both);
 
             if (raid == null)
             {
@@ -342,7 +343,7 @@ namespace PoGo.DiscordBot.Modules
         [Summary("Vrátí seznam aktivních raidů včetně indexů.")]
         public async Task RaidList()
         {
-            var channelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var channelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id, RaidChannelType.Both).Channel.Id;
             var raids = raidStorageService.GetActiveRaidsWithIndexes(Context.Guild.Id, channelId);
             if (!raids.Any())
             {
