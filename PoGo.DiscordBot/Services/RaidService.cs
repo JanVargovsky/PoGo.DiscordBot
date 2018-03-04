@@ -163,7 +163,8 @@ namespace PoGo.DiscordBot.Services
 
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
             var user = socketGuildChannel.GetUser(reaction.UserId);
-
+            if (user.IsBot)
+                return;
             if (!IsValidReactionEmote(reaction.Emote.Name))
             {
                 await raidMessage.RemoveReactionAsync(reaction.Emote, user, retryOptions);
