@@ -1,27 +1,6 @@
 ﻿{
   "Prefix": "!",
   "RaidBosses": {
-    // Level 1
-    "Metapod": {
-      "Type": [ "Bug" ],
-      "CP": {
-        "LVL 20": "221 - 239",
-        "LVL 25 - Rainy": "277 - 299"
-      },
-      "ChargeAttacks": [
-        "Struggle (normal)"
-      ],
-      "Weakness": [
-        "Fire",
-        "Rock",
-        "Flying"
-      ],
-      "Counters": [
-        "Škaredý pohled",
-        "Lupa",
-        "Biolit"
-      ]
-    },
     // Level 3
     "Ninetales": {
       "Type": [ "Fire" ],
@@ -46,8 +25,7 @@
         "Groudon",
         "Golem",
         "Omastar",
-        "Feraligatr",
-        "Sharingan"
+        "Feraligatr"
       ]
     },
     "Alakazam": {
@@ -72,8 +50,7 @@
         "Tyranitar",
         "Absol",
         "Banette",
-        "Houndoom",
-        "Čínské hůlky"
+        "Houndoom"
       ]
     },
     "Machamp": {
@@ -98,8 +75,7 @@
         "Espeon",
         "Gardevoir",
         "Metagross",
-        "Dragonite",
-        "Doctor Octopus"
+        "Dragonite"
       ]
     },
     "Gengar": {
@@ -128,8 +104,7 @@
         "Alakazam",
         "Espeon",
         "Banette",
-        "Gardevoir",
-        "Ghostbusters"
+        "Gardevoir"
       ]
     },
     "Scyther": {
@@ -160,8 +135,7 @@
         "Flareon",
         "Blaziken",
         "Entei",
-        "Lunatone",
-        "Střihoruký Edward"
+        "Lunatone"
       ]
     },
     "Porygon": {
@@ -184,8 +158,7 @@
         "Blaziken",
         "Heracross",
         "Mewtwo",
-        "Hariyama",
-        "Antivir"
+        "Hariyama"
       ]
     },
     "Omastar": {
@@ -217,6 +190,99 @@
         "Sceptile",
         "Tangela",
         "Shiftry"
+      ]
+    },
+    "Jynx": {
+      "Type": [
+        "Ice",
+        "Psychic"
+      ],
+      "CP": {
+        "LVL 20": "1363 - 1435",
+        "LVL 25 - Windy, snow": "1704 - 1794"
+      },
+      "ChargeAttacks": [
+        "Draining Kiss (fairy)",
+        "Avalanche (ice)",
+        "Psyshock (psychic)"
+      ],
+      "Weakness": [
+        "Fire",
+        "Dark",
+        "Steel",
+        "Rock",
+        "Ghost",
+        "Bug"
+      ],
+      "Counters": [
+        "Entei",
+        "Moltres",
+        "Tyranitar",
+        "Mewtwo",
+        "Flareon",
+        "Gengar",
+        "Blaziken",
+        "Metagross"
+      ]
+    },
+    "Azumarill": {
+      "Type": [
+        "Fairy",
+        "Water"
+      ],
+      "CP": {
+        "LVL 20": "803 - 858",
+        "LVL 25 - Rainy, cloudy": "1004 - 1073"
+      },
+      "ChargeAttacks": [
+        "Play Rough (fairy)",
+        "Ice Beam (ice)",
+        "Hydro Pump (water)"
+      ],
+      "Weakness": [
+        "Electric",
+        "Grass",
+        "Posion"
+      ],
+      "Counters": [
+        "Raikou",
+        "Zapdos",
+        "Exeggutor",
+        "Groudon",
+        "Venusaur",
+        "Ho-Oh",
+        "Jolteon"
+      ]
+    },
+    "Piloswine": {
+      "Type": [
+        "Ground",
+        "Ice"
+      ],
+      "CP": {
+        "LVL 20": "1238 - 1305",
+        "LVL 25 - Sunny, snow": "1547 - 1631"
+      },
+      "ChargeAttacks": [
+        "Bulldoze (ground)",
+        "Avalanche (ice)",
+        "Stone Edge (rock)"
+      ],
+      "Weakness": [
+        "Fire",
+        "Steel",
+        "Fighting",
+        "Grass",
+        "Water"
+      ],
+      "Counters": [
+        "Entei",
+        "Kyogre",
+        "Moltres",
+        "Machamp",
+        "Hariyama",
+        "Ho-Oh",
+        "Mewtwo"
       ]
     },
     // Level 4
@@ -308,8 +374,7 @@
         "Exeggutor",
         "Raikou",
         "Gardevoir",
-        "Zapdos",
-        "Legolas"
+        "Zapdos"
       ]
     },
     "Victreebel": {
@@ -339,8 +404,7 @@
         "Moltres",
         "Flareon",
         "Blaziken",
-        "Entei",
-        "Krteček"
+        "Entei"
       ]
     },
     "Golem": {
@@ -373,8 +437,7 @@
         "Groudon",
         "Sceptile",
         "Vileplume",
-        "Venusaur",
-        "Indiana Jones"
+        "Venusaur"
       ]
     },
     "Lapras": {
@@ -427,8 +490,7 @@
         "Blaziken",
         "Mewtwo",
         "Hariyama",
-        "Heracross",
-        "Ukolébavka"
+        "Heracross"
       ]
     },
     "Tyranitar": {
@@ -488,6 +550,58 @@
         "Primeape"
       ]
     },
+    "Feraligatr": {
+      "Type": [ "Water" ],
+      "CP": {
+        "LVL 20": "1481 - 1554",
+        "LVL 25 - Rainy": "1851 - 1943"
+      },
+      "ChargeAttacks": [
+        "Crunch (dark)",
+        "Hydro Pump (water)",
+        "Ice Beam (ice)"
+      ],
+      "Weakness": [
+        "Electric",
+        "Grass"
+      ],
+      "Counters": [
+        "Raikou",
+        "Zapdos",
+        "Groudon",
+        "Exeggutor",
+        "Jolteon",
+        "Sceptile"
+      ]
+    },
+    "Aggron": {
+      "Type": [
+        "Steel",
+        "Rock"
+      ],
+      "CP": {
+        "LVL 20": "1636 - 1716",
+        "LVL 25 - Snow, Partly Cloudy": "2045 - 2145"
+      },
+      "ChargeAttacks": [
+        "Stone Edge (rock)",
+        "Thunder (electric)",
+        "Heavy Slam (steel)"
+      ],
+      "Weakness": [
+        "Fighting",
+        "Ground",
+        "Water"
+      ],
+      "Counters": [
+        "Machamp",
+        "Hariyama",
+        "Groudon",
+        "Blaziken",
+        "Heracross",
+        "Rhydon"
+      ]
+    },
     // Level 5
     "Groudon": {
       "Type": [ "Ground" ],
@@ -513,8 +627,7 @@
         "Groudon",
         "Articuno",
         "Vaporeon",
-        "Venusaur",
-        "Vodní aerobik"
+        "Venusaur"
       ]
     },
     "Articuno": {
@@ -543,8 +656,7 @@
         "Arcanine",
         "Typhlosion",
         "Tyranitar",
-        "Scizor",
-        "Napalm"
+        "Scizor"
       ]
     },
     "Zapdos": {
@@ -571,8 +683,7 @@
         "Dragonite",
         "Tyranitar",
         "Jynx",
-        "Rhydon",
-        "Gumáky"
+        "Rhydon"
       ]
     },
     "Moltres": {
@@ -600,8 +711,7 @@
         "Vaporeon",
         "Gyarados",
         "Omastar",
-        "Feraligatr",
-        "Klícka"
+        "Feraligatr"
       ]
     },
     "Lugia": {
@@ -631,8 +741,7 @@
         "Jolteon",
         "Magneton",
         "Jynx",
-        "Gengar",
-        "Anti-air rakety"
+        "Gengar"
       ]
     },
     "Entei": {
@@ -657,8 +766,7 @@
         "Golem",
         "Tyranitar",
         "Gyarados",
-        "Kindra",
-        "Koupání"
+        "Kindra"
       ]
     },
     "Suicune": {
@@ -683,8 +791,7 @@
         "Dragonite",
         "Venusaur",
         "Vileplume",
-        "Jolteon",
-        "Fén ve vodě"
+        "Jolteon"
       ]
     },
     "Raikou": {
@@ -707,8 +814,7 @@
         "Donphan",
         "Tyranitar",
         "Sandslash",
-        "Nidoking",
-        "Gumídci"
+        "Nidoking"
       ]
     },
     "MewTwo": {
@@ -735,8 +841,7 @@
         "Scizor",
         "Gyarados",
         "Pinsir",
-        "Gengar",
-        "Bohnice"
+        "Gengar"
       ]
     },
     "HoOh": {
@@ -765,8 +870,7 @@
         "Tyranitar",
         "Zapdos",
         "Gyarados",
-        "Vaporeon",
-        "Zrní"
+        "Vaporeon"
       ]
     },
     "Kyogre": {
@@ -790,8 +894,32 @@
         "Exeggutor",
         "Victreebel",
         "Jolteon",
-        "Sceptile",
-        "Japonští rybáři"
+        "Sceptile"
+      ]
+    },
+    "Rayquaza": {
+      "Type": [ "Dragon", "Flying" ],
+      "CP": {
+        "LVL 20": "1995 - 2083",
+        "LVL 25 - Windy": "2494 - 2604"
+      },
+      "ChargeAttacks": [
+        "Outrage (dragon)",
+        "Aerial Ace (flying)",
+        "Ancient Power (rock)"
+      ],
+      "Weakness": [
+        "Ice",
+        "Dragon",
+        "Fairy",
+        "Rock"
+      ],
+      "Counters": [
+        "Articuno",
+        "Dragonite",
+        "Kyogre",
+        "Tyranitar",
+        "Lapras"
       ]
     }
   }
