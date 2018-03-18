@@ -73,8 +73,12 @@ namespace PoGo.DiscordBot.Services
 
             raidStorageService.AddRaid(guild.Id, message.Channel.Id, message.Id, raidInfo);
             // Adjust user count
-            var usersWithThumbsUp = await message.GetReactionUsersAsync(UnicodeEmojis.ThumbsUp);
-            foreach (var user in usersWithThumbsUp.Where(t => !t.IsBot))
+            var allUsersWithThumbsUp = await message.GetReactionUsersAsync(UnicodeEmojis.ThumbsUp);
+            var usersWithThumbsUp = allUsersWithThumbsUp
+                .Where(t => !t.IsBot)
+                .Select(t => guild.GetUser(t.Id))
+                .Where(t => t != null);
+            foreach (var user in usersWithThumbsUp)
                 raidInfo.Players[user.Id] = userService.GetPlayer(guild.GetUser(user.Id));
 
             // Extra players
