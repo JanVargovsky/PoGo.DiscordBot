@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -66,7 +67,7 @@ namespace PoGo.DiscordBot.Services
         async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
             var raidInfo = RaidInfoDto.Parse(message);
-            if (raidInfo == null || raidInfo.IsExpired)
+            if (raidInfo == null)
                 return false;
 
             logger.LogInformation($"Updating raid message '{message.Id}'");
@@ -188,6 +189,22 @@ namespace PoGo.DiscordBot.Services
                 raidInfo.ExtraPlayers.Add((reaction.UserId, count));
                 await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
             }
+        }
+
+        public async Task UpdateRaidMessages()
+        {
+            var toRemove = new List<(ulong guildId, ulong channelId, ulong messageId)>();
+
+            foreach (var (guildId, channelId, messageId, raidInfo) in raidStorageService.GetAll())
+            {
+                await raidInfo.Message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+
+                if (raidInfo.IsExpired)
+                    toRemove.Add((guildId, channelId, messageId));
+            }
+
+            foreach (var (guildId, channelId, messageId) in toRemove)
+                raidStorageService.TryRemove(guildId, channelId, messageId);
         }
     }
 }

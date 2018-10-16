@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot
 {
@@ -9,7 +10,7 @@ namespace PoGo.DiscordBot
             using (var bot = new PoGoBot())
             {
                 await bot.RunAsync();
-                await Task.Delay(-1);
+                await Task.Delay(Timeout.Infinite);
             }
         }
     }

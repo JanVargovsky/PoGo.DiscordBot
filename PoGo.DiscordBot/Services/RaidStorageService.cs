@@ -62,6 +62,14 @@ namespace PoGo.DiscordBot.Services
             return Enumerable.Empty<(int, RaidInfoDto)>();
         }
 
+        public IEnumerable<(ulong guildId, ulong channelId, ulong messageId, RaidInfoDto raidInfo)> GetAll()
+        {
+            foreach (var guild in raidGuilds.GuildRaids)
+                foreach (var channel in guild.Value.RaidChannels)
+                    foreach (var raidMessage in channel.Value.RaidMessages)
+                        yield return (guild.Key, channel.Key, raidMessage.Key, raidMessage.Value);
+        }
+
         class RaidGuildMapping
         {
             // <guildId, RaidChannels>

@@ -22,7 +22,6 @@ namespace PoGo.DiscordBot.Dto
         public string BossName { get; set; }
         public string Location { get; set; }
         public DateTime DateTime { get; set; }
-        public int? MinimumPlayers { get; set; }
         public IDictionary<ulong, PlayerDto> Players { get; set; } // <userId, PlayerDto>
         public List<(ulong UserId, int Count)> ExtraPlayers { get; set; }
         public bool IsExpired => DateTime < DateTime.Now;
@@ -35,7 +34,6 @@ namespace PoGo.DiscordBot.Dto
             RaidType = raidType;
             CreatedAt = DateTime.UtcNow;
             Players = new Dictionary<ulong, PlayerDto>();
-            MinimumPlayers = raidType == RaidType.Normal ? (int?)4 : null;
             ExtraPlayers = new List<(ulong UserId, int Count)>();
         }
 
@@ -43,15 +41,18 @@ namespace PoGo.DiscordBot.Dto
         {
             Color GetColor()
             {
-                if (!MinimumPlayers.HasValue)
-                    return new Color(191, 155, 48);
+                if (RaidType == RaidType.Scheduled)
+                {
+                    return !IsExpired ? new Color(191, 155, 48) : Color.Red;
+                }
 
-                int playersCount = Players.Count + ExtraPlayers.Sum(t => t.Count);
-                if (playersCount >= MinimumPlayers)
-                    return Color.Green;
-                if (playersCount >= MinimumPlayers / 2)
+                var remainingTime = DateTime - DateTime.Now;
+
+                if (remainingTime.TotalMinutes <= 0)
+                    return Color.Red;
+                if (remainingTime.TotalMinutes <= 15)
                     return Color.Orange;
-                return Color.Red;
+                return Color.Green;
             }
 
             EmbedBuilder embedBuilder = new EmbedBuilder();

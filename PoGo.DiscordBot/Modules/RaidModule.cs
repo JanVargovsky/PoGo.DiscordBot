@@ -48,8 +48,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task StartRaid(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
-            [Summary("Čas (" + RaidInfoDto.TimeFormat + ").")]string time,
-            [Summary("Doporučený minimální počet hráčů.")]int minimumPlayers = 4)
+            [Summary("Čas (" + RaidInfoDto.TimeFormat + ").")]string time)
         {
             var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
@@ -71,7 +70,6 @@ namespace PoGo.DiscordBot.Modules
                 BossName = bossName,
                 Location = location,
                 DateTime = parsedTime.Value,
-                MinimumPlayers = minimumPlayers,
             };
 
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
@@ -106,7 +104,10 @@ namespace PoGo.DiscordBot.Modules
         {
             var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
             if (raidChannelBinding == null || !raidChannelBinding.AllowScheduledRaids)
+            {
+                await ReplyAsync($"Z tohoto kanálu není možné vytvořit plánovanou raid anketu.");
                 return;
+            }
 
             var parsedDateTime = RaidInfoDto.ParseDateTime(dateTime);
             if (!parsedDateTime.HasValue)
@@ -126,7 +127,6 @@ namespace PoGo.DiscordBot.Modules
                 BossName = bossName,
                 Location = location,
                 DateTime = parsedDateTime.Value,
-                MinimumPlayers = null,
             };
 
             var message = await raidChannelBinding.Channel.SendMessageAsync(string.Empty, embed: raidInfo.ToEmbed());

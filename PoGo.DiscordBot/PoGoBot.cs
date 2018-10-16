@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot
@@ -27,6 +28,7 @@ namespace PoGo.DiscordBot
         readonly CommandService commands;
         readonly ILogger logger;
         readonly ConfigurationOptions configuration;
+        readonly Timer updateRaidsTimer;
 
         public PoGoBot()
         {
@@ -62,6 +64,12 @@ namespace PoGo.DiscordBot
                 .CreateLogger<PoGoBot>();
 
             configuration = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value;
+
+            updateRaidsTimer = new Timer(async state =>
+            {
+                var raidService = (RaidService)state;
+                await raidService.UpdateRaidMessages();
+            }, ServiceProvider.GetService<RaidService>(), Timeout.Infinite, Timeout.Infinite);
 
             Init();
         }
@@ -145,11 +153,13 @@ namespace PoGo.DiscordBot
         {
             logger.LogInformation("Connected");
             await client.SetGameAsync(Debugger.IsAttached ? "Debugging" : "Pokémon GO");
+            updateRaidsTimer.Change(TimeSpan.FromSeconds(120 - DateTime.Now.Second), TimeSpan.FromMinutes(1));
         }
 
         Task Disconnected(Exception exception)
         {
             logger.LogInformation(exception, "Disconnected");
+            updateRaidsTimer.Change(Timeout.Infinite, Timeout.Infinite);
             return Task.CompletedTask;
         }
 
@@ -180,6 +190,7 @@ namespace PoGo.DiscordBot
         public void Dispose()
         {
             client?.Dispose();
+            updateRaidsTimer?.Dispose();
         }
 
         public async Task RunAsync()

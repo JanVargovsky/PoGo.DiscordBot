@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <LangVersion>Latest</LangVersion>
     <UserSecretsId>PoGo.DiscordBot-1DC2398C-B5BB-4713-BC2A-1DBB0391E8BB</UserSecretsId>
   </PropertyGroup>
@@ -41,5 +41,5 @@
       <DependentUpon>configuration.json</DependentUpon>
     </None>
   </ItemGroup>
-
+  
 </Project>
