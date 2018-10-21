@@ -15,12 +15,12 @@ Discord BOT focused on internal communication within players of the Pokemon Go
 
 # How to run
 ### Prerequisites
-- .NET Core SDK 2.0 ([download here](https://www.microsoft.com/net/download/windows))
+- .NET Core SDK 2.1 ([download here](https://www.microsoft.com/net/download/windows))
 - created bot with a token and joined in a guild (Discord server)
 
 ### Setup
 1. Clone repository
-2. Choose environment - Development/Production in environment.txt
+2. Set environment variable *PoGoEnvironment* with environment type (e.g. Development or Production)
 3. Configure configuration.\<environment\>.json  
 4. dotnet run
 
