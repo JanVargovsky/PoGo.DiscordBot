@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddRoleSummary" xml:space="preserve">
+    <value>Přidá uživateli roli</value>
+  </data>
+  <data name="AdjustRaidTimeSummary" xml:space="preserve">
+    <value>Přenastaví čas raidu</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Dostupné příkazy</value>
+  </data>
+  <data name="BadTimeFormat" xml:space="preserve">
+    <value>Čas není ve validním formátu</value>
+  </data>
+  <data name="BasicUse" xml:space="preserve">
+    <value>Základní použití</value>
+  </data>
+  <data name="BossName" xml:space="preserve">
+    <value>Název bosse</value>
+  </data>
+  <data name="CheckTeamSummary" xml:space="preserve">
+    <value>Zkontroluje zda má uživatel nastavený team. Jestliže ne, tak mu přijde zpráva s informacemi jak ho nastavit</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>Příkaz</value>
+  </data>
+  <data name="CommandNotFound" xml:space="preserve">
+    <value>Žádný příkaz **{0}** jsem nemohl najít</value>
+  </data>
+  <data name="ControlledUser" xml:space="preserve">
+    <value>Kontrolovaný uživatel</value>
+  </data>
+  <data name="CurrentLevel" xml:space="preserve">
+    <value>Aktuální level (1-40)</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>datum</value>
+  </data>
+  <data name="DateNotValid" xml:space="preserve">
+    <value>Datum není ve validním formátu</value>
+  </data>
+  <data name="DeleteAllMessagesSummary" xml:space="preserve">
+    <value>Smaže všechny zprávy (omezeno počtem)</value>
+  </data>
+  <data name="DeleteLastMessageSummary" xml:space="preserve">
+    <value>Maže zprávy označeného uživatele (omezeno počtem)</value>
+  </data>
+  <data name="DeleteRaidSummary" xml:space="preserve">
+    <value>Smaže raid.</value>
+  </data>
+  <data name="DeleteYourMessageSummary" xml:space="preserve">
+    <value>Smaže tvoje zprávy (omezeno počtem)</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Popis</value>
+  </data>
+  <data name="FullUse" xml:space="preserve">
+    <value>Plné použití</value>
+  </data>
+  <data name="HelpSummary" xml:space="preserve">
+    <value>Vypíše seznam příkazů.</value>
+  </data>
+  <data name="InTeam" xml:space="preserve">
+    <value>Už jsi v teamu</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Volitelný, výchozí hodnota je</value>
+  </data>
+  <data name="OtherPlayers" xml:space="preserve">
+    <value>Další hráči (bez Discordu, 2. mobil atd</value>
+  </data>
+  <data name="ParameterDescription" xml:space="preserve">
+    <value>Popis parametrů</value>
+  </data>
+  <data name="Parameters" xml:space="preserve">
+    <value>Parametry</value>
+  </data>
+  <data name="PastRaid" xml:space="preserve">
+    <value>Vážně chceš vytvořit raid v minulosti?</value>
+  </data>
+  <data name="Place" xml:space="preserve">
+    <value>Místo</value>
+  </data>
+  <data name="PlayAnotherGame" xml:space="preserve">
+    <value>Asi hraje jinou hru ... povolený level je 1-40</value>
+  </data>
+  <data name="Players" xml:space="preserve">
+    <value>Hráči</value>
+  </data>
+  <data name="PossibleValues" xml:space="preserve">
+    <value>Možné jsou jenom tyhle hodnoty</value>
+  </data>
+  <data name="RaidBossInfoSummary" xml:space="preserve">
+    <value>Vypíše základní info o bossovi</value>
+  </data>
+  <data name="RaidNotFound" xml:space="preserve">
+    <value>Raid nenalezen.</value>
+  </data>
+  <data name="RaidNotPossible" xml:space="preserve">
+    <value>Z tohoto kanálu není možné vytvořit naplánovanou raid anketu</value>
+  </data>
+  <data name="SelectedTeam" xml:space="preserve">
+    <value>Zvolený team (roli)</value>
+  </data>
+  <data name="SetBasicInfoSummary" xml:space="preserve">
+    <value>Nastaví team a level</value>
+  </data>
+  <data name="SetLevelSummary" xml:space="preserve">
+    <value>Nastaví level</value>
+  </data>
+  <data name="SetTeamSummary" xml:space="preserve">
+    <value>Sets the team</value>
+  </data>
+  <data name="StartRaidSummary" xml:space="preserve">
+    <value>Vytvoří raid anketu do speciálního kanálu.</value>
+  </data>
+  <data name="StartScheduledRaidSummary" xml:space="preserve">
+    <value>Vytvoří plánovanou raid anketu do speciálního kanálu</value>
+  </data>
+  <data name="SupportDevelopment" xml:space="preserve">
+    <value>V případě, že byste chtěli podpořit vývoj, tak se ozvěte Pako#3904</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Čas</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>Kde</value>
+  </data>
+  <data name="WithoutTeam" xml:space="preserve">
+    <value>Bez teamu</value>
+  </data>
+</root>

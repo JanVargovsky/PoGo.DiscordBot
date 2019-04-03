@@ -43,23 +43,23 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("create", RunMode = RunMode.Async)]
         [Alias("c")]
-        [Summary("Vytvoří raid anketu do speciálního kanálu.")]
+        [Summary("StartRaidSummary")]
         [RaidChannelPrecondition]
         public async Task StartRaid(
-            [Summary("Název bosse.")]string bossName,
-            [Summary("Místo.")]string location,
-            [Summary("Čas (" + RaidInfoDto.TimeFormat + ").")]string time)
+            [Summary("BossName")]string bossName,
+            [Summary("Place")]string location,
+            [Summary("Time (" + RaidInfoDto.TimeFormat + ").")]string time)
         {
             var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
             {
-                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat} 24H).");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("BadTimeFormat") + $"({RaidInfoDto.TimeFormat} 24H).");
                 return;
             }
 
             if (parsedTime < DateTime.Now)
             {
-                await ReplyAsync($"Vážně chceš vytvořit raid v minulosti?");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("PastRaid"));
                 return;
             }
 
@@ -95,30 +95,30 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("schedule", RunMode = RunMode.Async)]
         [Alias("s")]
-        [Summary("Vytvoří plánovanou raid anketu do speciálního kanálu.")]
+        [Summary("StartScheduledRaidSummary")]
         [RaidChannelPrecondition]
         public async Task StartScheduledRaid(
-            [Summary("Název bosse.")]string bossName,
-            [Summary("Místo.")]string location,
-            [Remainder][Summary("Datum (" + RaidInfoDto.DateTimeFormat + ").")]string dateTime)
+            [Summary("BossName")]string bossName,
+            [Summary("Place")]string location,
+            [Remainder][Summary("Date (" + RaidInfoDto.DateTimeFormat + ").")]string dateTime)
         {
             var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
             if (raidChannelBinding == null || !raidChannelBinding.AllowScheduledRaids)
             {
-                await ReplyAsync($"Z tohoto kanálu není možné vytvořit plánovanou raid anketu.");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("RaidNotPossible"));
                 return;
             }
 
             var parsedDateTime = RaidInfoDto.ParseDateTime(dateTime);
             if (!parsedDateTime.HasValue)
             {
-                await ReplyAsync($"Datum není ve validním formátu ({RaidInfoDto.DateTimeFormat} 24H).");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("DateNotValid") + $"({RaidInfoDto.DateTimeFormat} 24H).");
                 return;
             }
 
             if (parsedDateTime < DateTime.Now)
             {
-                await ReplyAsync($"Vážně chceš vytvořit plánovaný raid v minulosti?");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("PastRaid"));
                 return;
             }
 
@@ -147,7 +147,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("time", RunMode = RunMode.Async)]
         [Alias("t")]
-        [Summary("Přenastaví čas raidu.")]
+        [Summary("AdjustRaidTimeSummary")]
         [RaidChannelPrecondition]
         public async Task AdjustRaidTime(
             [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
@@ -158,7 +158,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (raid == null)
             {
-                await ReplyAsync("Raid nenalezen.");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("RaidNotFound"));
                 return;
             }
 
@@ -204,7 +204,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (raid == null)
             {
-                await ReplyAsync("Raid nenalezen.");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("RaidNotFound"));
                 return;
             }
 
@@ -235,7 +235,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (raid == null)
             {
-                await ReplyAsync("Raid nenalezen.");
+                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("RaidNotFound"));
                 return;
             }
 
@@ -254,7 +254,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("delete", RunMode = RunMode.Async)]
         [Alias("d")]
-        [Summary("Smaže raid.")]
+        [Summary("DeleteRaidSummary")]
         [RaidChannelPrecondition]
         public async Task DeleteRaid(
             [Summary("Počet anket odspodu.")] int skip = 0)
@@ -269,7 +269,7 @@ namespace PoGo.DiscordBot.Modules
 
             var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raid.ToSimpleString()}'? [y]");
             var responseMessage = await NextMessageAsync();
-            if (responseMessage == null || responseMessage.Content.ToLower() != "y")
+            if (responseMessage == null || !string.Equals(responseMessage.Content, "y", StringComparison.OrdinalIgnoreCase))
                 return;
 
             foreach (var player in raid.Players.Values)
@@ -284,7 +284,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("info", RunMode = RunMode.Async)]
         [Alias("i")]
-        [Summary("Vypíše základní info o bossovi.")]
+        [Summary("RaidBossInfoSummary")]
         public async Task RaidBossInfo(
             [Summary("Název bosse.")] string bossName)
         {

@@ -3,9 +3,11 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
+using PoGo.DiscordBot.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +27,7 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("help")]
-        [Summary("Vypíše seznam příkazů.")]
+        [Summary("ListCommandsSummary")]
         public async Task Help()
         {
             var groupCommands = new Dictionary<string, List<string>>();
@@ -64,7 +66,7 @@ namespace PoGo.DiscordBot.Modules
 
             foreach (var c in groupCommands.OrderBy(t => t.Key))
             {
-                if (c.Key == string.Empty) continue;
+                if (c.Key?.Length == 0) continue;
 
                 // future hint for division
                 // c.Value.Count / MaxCommandsPerPage > 1 ... then divide it into N pages
@@ -79,11 +81,12 @@ namespace PoGo.DiscordBot.Modules
 
                 currentPageCommands.AddRange(c.Value);
             }
-            if (currentPageCommands.Any())
+            if (currentPageCommands.Count > 0)
                 commandPages.Add(currentPageCommands);
             var pages = commandPages.Select(CommandsToString).ToList();
 
             if (pages.Count > 1)
+            {
                 await PagedReplyAsync(new PaginatedMessage
                 {
                     Color = Color.Blue,
@@ -93,10 +96,11 @@ namespace PoGo.DiscordBot.Modules
                         DisplayInformationIcon = false,
                         Timeout = TimeSpan.FromMinutes(1),
                     },
-                    Title = "Dostupné příkazy",
+                    Title = LocalizationService.Instance.GetStringFromResources("AvailableCommands"),
                     Pages = pages,
                 });
-            else if (pages.Any())
+            }
+            else if (pages.Count > 0)
                 await ReplyAsync($"```{pages.First()}```");
         }
 
@@ -114,7 +118,9 @@ namespace PoGo.DiscordBot.Modules
 
             if (!result.IsSuccess)
             {
-                await ReplyAsync($"Žádný příkaz **{command}** jsem nemohl najít.");
+                string reply = String.Format(LocalizationService.Instance.GetStringFromResources("CommandNotFound"),command);
+
+                await ReplyAsync(reply);
                 return;
             }
 
@@ -130,13 +136,13 @@ namespace PoGo.DiscordBot.Modules
                 sb.Append(info.Name);
 
                 if (!string.IsNullOrEmpty(info.Summary))
-                    sb.Append($" - {info.Summary}");
+                    sb.Append($" - {LocalizationService.Instance.GetStringFromResources(info.Summary)}");
 
                 if (info.Type.IsEnum)
-                    sb.Append($" Možné jsou jenom tyhle hodnoty ({string.Join(" | ", Enum.GetNames(info.Type))})!");
+                    sb.Append(LocalizationService.Instance.GetStringFromResources("PossibleValues") + $" ({string.Join(" | ", Enum.GetNames(info.Type))})!");
 
                 if (info.IsOptional)
-                    sb.Append($" (Volitelný, výchozí hodnota je {info.DefaultValue})");
+                    sb.Append(LocalizationService.Instance.GetStringFromResources("Optional") +  $" ({info.DefaultValue})");
 
                 return sb.ToString();
             }
@@ -145,11 +151,11 @@ namespace PoGo.DiscordBot.Modules
             {
                 StringBuilder sb = new StringBuilder()
                     .Append(prefix)
-                    .Append(ci.Aliases.First());
+                    .Append(ci.Aliases[0]);
 
                 string FormatParameter(ParameterInfo pi) => $"<{pi.Name}>";
 
-                if (ci.Parameters.Any())
+                if (ci.Parameters.Count > 0)
                 {
                     var parameters = ci.Parameters.AsEnumerable();
 
@@ -166,26 +172,26 @@ namespace PoGo.DiscordBot.Modules
             {
                 var cmd = match.Command;
                 StringBuilder sb = new StringBuilder()
-                    .AppendLine($"Popis: {cmd.Summary}")
+                    .Append(LocalizationService.Instance.GetStringFromResources("Description")).Append(':').AppendLine(cmd.Summary)
                     .AppendLine()
-                    .AppendLine($"Základní použití: **{CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Basic)}**");
+                    .Append(LocalizationService.Instance.GetStringFromResources("BasicUse")).Append(":**").Append(CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Basic)).AppendLine("**");
 
                 if (cmd.Parameters.Any(t => t.IsOptional))
-                    sb.AppendLine($"Plné použití: {CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Full)}");
+                    sb.AppendLine(LocalizationService.Instance.GetStringFromResources("FullUse") + $": {CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Full)}");
 
                 sb.AppendLine();
-                if (cmd.Parameters.Any())
+                if (cmd.Parameters.Count > 0)
                 {
                     string parameters = string.Join(", ", cmd.Parameters.Select(ParameterInfoToString));
                     string detailedParameters = string.Join(Environment.NewLine, cmd.Parameters.Select(ParameterInfoToDetailedString));
 
                     sb
-                        .AppendLine($"Parametry: {parameters}")
-                        .AppendLine("Popis parametrů:")
+                        .Append(LocalizationService.Instance.GetStringFromResources("Parameters")).Append(": ").AppendLine(parameters)
+                        .AppendLine(LocalizationService.Instance.GetStringFromResources("ParameterDescription"))
                         .AppendLine(detailedParameters);
                 }
 
-                builder.AddField($"Příkaz{(cmd.Aliases.Count > 1 ? "y" : "")}: {string.Join(", ", cmd.Aliases)}", sb);
+                builder.AddField(LocalizationService.Instance.GetStringFromResources("Command") + $"{(cmd.Aliases.Count > 1 ? "y" : "")}: {string.Join(", ", cmd.Aliases)}", sb);
             }
 
             await ReplyAsync(string.Empty, false, builder.Build());

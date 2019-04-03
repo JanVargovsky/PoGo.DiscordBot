@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Modules
     public class CleanModule : ModuleBase
     {
         [Command("hardclean", RunMode = RunMode.Async)]
-        [Summary("Smaže všechny zprávy (omezeno počtem).")]
+        [Summary("DeleteAllMessagesSummary")]
         public async Task FullClean([Summary("Počet zpráv.")]int count = 10)
         {
             var batchMessages = AsyncEnumerable.ToEnumerable(Context.Channel.GetMessagesAsync(count));
@@ -18,15 +18,15 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("clean", RunMode = RunMode.Async)]
-        [Summary("Smaže tvoje zprávy (omezeno počtem).")]
+        [Summary("DeleteYourMessageSummary")]
         public async Task DeleteLastMessagesFromCurrentUser([Summary("Počet zpráv.")]int count = 5)
         {
             await DeleteMessagesAsync(Context.User.Id, count);
         }
 
         [Command("clean", RunMode = RunMode.Async)]
-        [Summary("Smaže zprávy označeného uživatele (omezeno počtem).")]
-        public async Task DeleteLastMessages([Summary("Uživatel.")]IUser user, 
+        [Summary("DeleteLastMessageSummary")]
+        public async Task DeleteLastMessages([Summary("Uživatel.")]IUser user,
             [Summary("Počet zpráv.")]int count = 5)
         {
             ulong userId = user != null ? user.Id : Context.User.Id;
@@ -36,7 +36,7 @@ namespace PoGo.DiscordBot.Modules
 
         async Task DeleteMessagesAsync(ulong userId, int count)
         {
-            foreach (var messages in AsyncEnumerable.ToEnumerable(Context.Channel.GetMessagesAsync()))
+            foreach (var messages in Context.Channel.GetMessagesAsync().ToEnumerable())
             {
                 var messagesToDelete = messages.Where(t => t.Author.Id == userId).Take(count);
                 if (messagesToDelete != null)

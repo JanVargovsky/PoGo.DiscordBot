@@ -1,8 +1,11 @@
 ﻿using Discord;
+using Microsoft.Extensions.Localization;
 using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 
 namespace PoGo.DiscordBot.Dto
 {
@@ -16,6 +19,10 @@ namespace PoGo.DiscordBot.Dto
     {
         public const string TimeFormat = "H:mm";
         public const string DateTimeFormat = "d.M.yyyy H:mm";
+
+        public readonly static string DateWord = LocalizationService.Instance.GetStringFromResources("Date");
+
+        public readonly static string TimeWord = LocalizationService.Instance.GetStringFromResources("Time");
 
         public IUserMessage Message { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -59,23 +66,23 @@ namespace PoGo.DiscordBot.Dto
             embedBuilder
                 .WithColor(GetColor())
                 .AddInlineField("Boss", BossName)
-                .AddInlineField("Kde", Location)
-                .AddInlineField(RaidType == RaidType.Normal ? "Čas" : "Datum", DateTimeAsString)
+                .AddInlineField(LocalizationService.Instance.GetStringFromResources("Where"), Location)
+                .AddInlineField(RaidType == RaidType.Normal ? TimeWord : DateWord, DateTimeAsString)
                 ;
 
-            if (Players.Any())
+            if (Players.Count > 0)
             {
                 string playerFieldValue = Players.Count >= 10 ?
                     PlayersToGroupString(Players.Values) :
                     PlayersToString(Players.Values);
 
-                embedBuilder.AddField($"Hráči ({Players.Count})", playerFieldValue);
+                embedBuilder.AddField(LocalizationService.Instance.GetStringFromResources("Players") + $"({Players.Count})", playerFieldValue);
             }
 
-            if (ExtraPlayers.Any())
+            if (ExtraPlayers.Count > 0)
             {
                 string extraPlayersFieldValue = string.Join(" + ", ExtraPlayers.Select(t => t.Count));
-                embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
+                embedBuilder.AddField(LocalizationService.Instance.GetStringFromResources("OtherPlayers") +  $"({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
             }
 
             return embedBuilder.Build();
@@ -87,7 +94,7 @@ namespace PoGo.DiscordBot.Dto
 
         string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
         {
-            string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : "Bez teamu";
+            string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : LocalizationService.Instance.GetStringFromResources("WithoutTeam");
 
             List<string> formatterGroupedPlayers = new List<string>();
 
@@ -95,7 +102,7 @@ namespace PoGo.DiscordBot.Dto
             foreach (PokemonTeam? team in teams)
             {
                 var players = allPlayers.Where(t => t.Team == team).ToList();
-                if (players.Any())
+                if (players.Count > 0)
                     formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}) - {PlayersToString(players)}");
             }
 
@@ -140,7 +147,7 @@ namespace PoGo.DiscordBot.Dto
 
             RaidInfoDto result = null;
 
-            if (embed.Fields[2].Name == "Čas")
+            if (embed.Fields[2].Name.Equals(TimeWord,StringComparison.OrdinalIgnoreCase))
             {
                 var time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
                 if (!time.HasValue)
@@ -155,7 +162,7 @@ namespace PoGo.DiscordBot.Dto
                     DateTime = time.Value,
                 };
             }
-            else if (embed.Fields[2].Name == "Datum")
+            else if (embed.Fields[2].Name.Equals(DateWord,StringComparison.OrdinalIgnoreCase))
             {
                 var dateTime = ParseDateTime(embed.Fields[2].Value);
                 if (!dateTime.HasValue)

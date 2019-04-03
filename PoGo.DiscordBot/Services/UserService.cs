@@ -22,15 +22,18 @@ namespace PoGo.DiscordBot.Services
             this.teamService = teamService;
         }
 
-        public int? GetPlayerLevel(SocketGuildUser user)
+        public static int? GetPlayerLevel(SocketGuildUser user)
         {
             var name = user.Nickname ?? user.Username;
             var result = Regex.Match(name, @"\(\d+\)");
             var stringLevel = result.Captures.LastOrDefault()?.Value;
-            if (stringLevel != null &&
-                int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out var level) &&
-                level >= 1 && level <= 40)
+            if (stringLevel != null
+                && int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out var level)
+                && level >= 1 && level <= 40)
+            {
                 return level;
+            }
+
             return null;
         }
 
@@ -39,8 +42,12 @@ namespace PoGo.DiscordBot.Services
             var teamRoles = teamService.GuildTeamRoles[user.Guild.Id].RoleTeams;
 
             foreach (var role in user.Roles)
+            {
                 if (teamRoles.TryGetValue(role.Id, out var team))
+                {
                     return team;
+                }
+            }
 
             return null;
         }

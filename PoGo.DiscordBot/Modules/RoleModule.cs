@@ -29,7 +29,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("add")]
         [Alias("a")]
-        [Summary("Přidá uživateli roli.")]
+        [Summary("AddRoleSummary")]
         public async Task AddRole([Summary("Název role")]string roleName)
         {
             if (!(Context.User is SocketGuildUser user))

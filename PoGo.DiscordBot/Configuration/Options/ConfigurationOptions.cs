@@ -14,6 +14,7 @@ namespace PoGo.DiscordBot.Configuration.Options
     {
         public string Name { get; set; }
         public ulong Id { get; set; }
+        public string Language { get; set; }
         public bool IgnoreMention { get; set; }
         public string[] FreeRoles { get; set; }
         public ChannelOptions[] Channels { get; set; }
