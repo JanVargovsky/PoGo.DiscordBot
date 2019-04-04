@@ -3,11 +3,11 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
-using PoGo.DiscordBot.Services;
+using PoGo.DiscordBot.Properties;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,9 +15,11 @@ namespace PoGo.DiscordBot.Modules
 {
     public class HelpModule : InteractiveBase<SocketCommandContext>
     {
-        readonly CommandService commandService;
-        readonly IServiceProvider serviceProvider;
-        readonly char prefix;
+        private readonly CommandService commandService;
+        private readonly IServiceProvider serviceProvider;
+        private readonly char prefix;
+        //TODO Load the current culture info from guild
+        readonly CultureInfo cultureInfo = CultureInfo.GetCultureInfo("cs-CS");
 
         public HelpModule(CommandService commandService, IServiceProvider serviceProvider, IOptions<ConfigurationOptions> config)
         {
@@ -30,22 +32,22 @@ namespace PoGo.DiscordBot.Modules
         [Summary("ListCommandsSummary")]
         public async Task Help()
         {
-            var groupCommands = new Dictionary<string, List<string>>();
+            Dictionary<string, List<string>> groupCommands = new Dictionary<string, List<string>>();
 
-            foreach (var module in commandService.Modules)
+            foreach (ModuleInfo module in commandService.Modules)
             {
                 string key = module.Aliases.FirstOrDefault() ?? string.Empty;
-                if (!groupCommands.TryGetValue(key, out var commands))
+                if (!groupCommands.TryGetValue(key, out List<string> commands))
                     groupCommands[key] = commands = new List<string>();
 
-                foreach (var cmd in module.Commands)
+                foreach (CommandInfo cmd in module.Commands)
                 {
-                    var result = await cmd.CheckPreconditionsAsync(Context, serviceProvider);
+                    PreconditionResult result = await cmd.CheckPreconditionsAsync(Context, serviceProvider);
                     if (result.IsSuccess)
                     {
-                        string s = $"{prefix}{cmd.Aliases.First()}";
+                        string s = $"{prefix}{cmd.Aliases[0]}";
                         if (!string.IsNullOrEmpty(cmd.Summary))
-                            s += $" ({ cmd.Summary})";
+                            s += $" ({ Resources.ResourceManager.GetString(cmd.Summary,cultureInfo)})";
 
                         commands.Add(s);
                     }
@@ -55,16 +57,16 @@ namespace PoGo.DiscordBot.Modules
             string CommandsToString(IEnumerable<string> commands) =>
                 string.Join(Environment.NewLine, commands.OrderBy(t => t));
 
-            var commandPages = new List<List<string>>();
+            List<List<string>> commandPages = new List<List<string>>();
             // Commands with module that has alias equal to "" are without any group
             // and they are on first page without any other group commands
-            if (groupCommands.TryGetValue(string.Empty, out var globalCommands))
+            if (groupCommands.TryGetValue(string.Empty, out List<string> globalCommands))
                 commandPages.Add(globalCommands);
 
             const int MaxCommandsPerPage = 15;
             List<string> currentPageCommands = new List<string>();
 
-            foreach (var c in groupCommands.OrderBy(t => t.Key))
+            foreach (KeyValuePair<string, List<string>> c in groupCommands.OrderBy(t => t.Key))
             {
                 if (c.Key?.Length == 0) continue;
 
@@ -83,7 +85,7 @@ namespace PoGo.DiscordBot.Modules
             }
             if (currentPageCommands.Count > 0)
                 commandPages.Add(currentPageCommands);
-            var pages = commandPages.Select(CommandsToString).ToList();
+            List<string> pages = commandPages.Select(CommandsToString).ToList();
 
             if (pages.Count > 1)
             {
@@ -96,12 +98,12 @@ namespace PoGo.DiscordBot.Modules
                         DisplayInformationIcon = false,
                         Timeout = TimeSpan.FromMinutes(1),
                     },
-                    Title = LocalizationService.Instance.GetStringFromResources("AvailableCommands"),
+                    Title = Resources.AllCommands,
                     Pages = pages,
                 });
             }
             else if (pages.Count > 0)
-                await ReplyAsync($"```{pages.First()}```");
+                await ReplyAsync($"```{pages[0]}```");
         }
 
         private enum CommandInfoSignature
@@ -111,20 +113,20 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("help")]
-        [Summary("Vypíše nápovědu pro konkrétní příkaz.")]
+        [Summary("HelpSummary")]
         public async Task Help([Remainder] string command)
         {
-            var result = commandService.Search(Context, command);
+            SearchResult result = commandService.Search(Context, command);
 
             if (!result.IsSuccess)
             {
-                string reply = String.Format(LocalizationService.Instance.GetStringFromResources("CommandNotFound"),command);
+                string reply = string.Format(Resources.CommandNotFound, command);
 
                 await ReplyAsync(reply);
                 return;
             }
 
-            var builder = new EmbedBuilder()
+            EmbedBuilder builder = new EmbedBuilder()
                 .WithColor(Color.Blue);
 
             string ParameterInfoToString(ParameterInfo info) => !info.IsOptional ? info.Name : $"[{info.Name}]";
@@ -136,13 +138,13 @@ namespace PoGo.DiscordBot.Modules
                 sb.Append(info.Name);
 
                 if (!string.IsNullOrEmpty(info.Summary))
-                    sb.Append($" - {LocalizationService.Instance.GetStringFromResources(info.Summary)}");
+                    sb.Append($" - {Resources.ResourceManager.GetString(info.Summary,cultureInfo)}");
 
                 if (info.Type.IsEnum)
-                    sb.Append(LocalizationService.Instance.GetStringFromResources("PossibleValues") + $" ({string.Join(" | ", Enum.GetNames(info.Type))})!");
+                    sb.Append(Resources.PossibleValues + $" ({string.Join(" | ", Enum.GetNames(info.Type))})!");
 
                 if (info.IsOptional)
-                    sb.Append(LocalizationService.Instance.GetStringFromResources("Optional") +  $" ({info.DefaultValue})");
+                    sb.Append(Resources.Optional + $" ({info.DefaultValue})");
 
                 return sb.ToString();
             }
@@ -157,7 +159,7 @@ namespace PoGo.DiscordBot.Modules
 
                 if (ci.Parameters.Count > 0)
                 {
-                    var parameters = ci.Parameters.AsEnumerable();
+                    IEnumerable<ParameterInfo> parameters = ci.Parameters.AsEnumerable();
 
                     if (signature == HelpModule.CommandInfoSignature.Basic)
                         parameters = parameters.Where(pi => !pi.IsOptional);
@@ -168,16 +170,16 @@ namespace PoGo.DiscordBot.Modules
                 return sb.ToString();
             }
 
-            foreach (var match in result.Commands)
+            foreach (CommandMatch match in result.Commands)
             {
-                var cmd = match.Command;
+                CommandInfo cmd = match.Command;
                 StringBuilder sb = new StringBuilder()
-                    .Append(LocalizationService.Instance.GetStringFromResources("Description")).Append(':').AppendLine(cmd.Summary)
+                    .Append(Resources.Description).Append(':').AppendLine(cmd.Summary)
                     .AppendLine()
-                    .Append(LocalizationService.Instance.GetStringFromResources("BasicUse")).Append(":**").Append(CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Basic)).AppendLine("**");
+                    .Append(Resources.BasicUse).Append(":**").Append(CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Basic)).AppendLine("**");
 
                 if (cmd.Parameters.Any(t => t.IsOptional))
-                    sb.AppendLine(LocalizationService.Instance.GetStringFromResources("FullUse") + $": {CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Full)}");
+                    sb.AppendLine(Resources.FullUse + $": {CommandInfoSignature(cmd, HelpModule.CommandInfoSignature.Full)}");
 
                 sb.AppendLine();
                 if (cmd.Parameters.Count > 0)
@@ -186,12 +188,12 @@ namespace PoGo.DiscordBot.Modules
                     string detailedParameters = string.Join(Environment.NewLine, cmd.Parameters.Select(ParameterInfoToDetailedString));
 
                     sb
-                        .Append(LocalizationService.Instance.GetStringFromResources("Parameters")).Append(": ").AppendLine(parameters)
-                        .AppendLine(LocalizationService.Instance.GetStringFromResources("ParameterDescription"))
+                        .Append(Resources.Parameters).Append(": ").AppendLine(parameters)
+                        .AppendLine(Resources.ParameterDescription)
                         .AppendLine(detailedParameters);
                 }
 
-                builder.AddField(LocalizationService.Instance.GetStringFromResources("Command") + $"{(cmd.Aliases.Count > 1 ? "y" : "")}: {string.Join(", ", cmd.Aliases)}", sb);
+                builder.AddField(Resources.Command + $"{(cmd.Aliases.Count > 1 ? "y" : "")}: {string.Join(", ", cmd.Aliases)}", sb);
             }
 
             await ReplyAsync(string.Empty, false, builder.Build());

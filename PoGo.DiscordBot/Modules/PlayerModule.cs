@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Modules.Preconditions;
+using PoGo.DiscordBot.Properties;
 using PoGo.DiscordBot.Services;
 using System.Threading.Tasks;
 
@@ -10,8 +11,8 @@ namespace PoGo.DiscordBot.Modules
     [RequireContext(ContextType.Guild)]
     public class PlayerModule : ModuleBase<SocketCommandContext>
     {
-        readonly UserService userService;
-        readonly TeamService teamService;
+        private readonly UserService userService;
+        private readonly TeamService teamService;
 
         public PlayerModule(UserService userService, TeamService teamService)
         {
@@ -32,18 +33,18 @@ namespace PoGo.DiscordBot.Modules
         public async Task SetTeam(
             [Summary("SelectedTeam")]PokemonTeam team)
         {
-            var contextUser = Context.User;
+            SocketUser contextUser = Context.User;
             if (!(contextUser is SocketGuildUser user))
                 return;
 
-            var userTeam = userService.GetTeam(user);
+            PokemonTeam? userTeam = userService.GetTeam(user);
             if (userTeam != null)
             {
-                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("InTeam"));
+                await ReplyAsync(Resources.InTeam);
                 return;
             }
 
-            var role = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles[team];
+            Discord.IRole role = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles[team];
             await user.AddRoleAsync(role);
         }
 
@@ -59,7 +60,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (!(level >= 1 && level <= 40))
             {
-                await ReplyAsync(LocalizationService.Instance.GetStringFromResources("PlayAnotherGame"));
+                await ReplyAsync(Resources.PlayAnotherGame);
                 return;
             }
 

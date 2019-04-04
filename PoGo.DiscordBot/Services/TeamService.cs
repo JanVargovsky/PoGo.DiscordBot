@@ -13,7 +13,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class TeamService
     {
-        readonly ILogger<TeamService> logger;
+        private readonly ILogger<TeamService> logger;
 
         public ConcurrentDictionary<ulong, TeamRolesDto> GuildTeamRoles { get; } // <guildId, roles>
 
@@ -28,9 +28,9 @@ namespace PoGo.DiscordBot.Services
             GuildTeamRoles[socketGuild.Id] = await GetTeamRoles(socketGuild);
         }
 
-        async Task<IRole> GetOrCreateRole(IGuild guild, PokemonTeam pokemonTeam)
+        private async Task<IRole> GetOrCreateRole(IGuild guild, PokemonTeam pokemonTeam)
         {
-            var role = guild.Roles.FirstOrDefault(t => Enum.TryParse<PokemonTeam>(t.Name, out var team) && pokemonTeam == team);
+            IRole role = guild.Roles.FirstOrDefault(t => Enum.TryParse<PokemonTeam>(t.Name, out PokemonTeam team) && pokemonTeam == team);
             if (role == null)
             {
                 logger.LogInformation($"Creating new role for team {pokemonTeam}");
@@ -44,14 +44,14 @@ namespace PoGo.DiscordBot.Services
             return role;
         }
 
-        async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
+        private async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
         {
-            var roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
-            var teamToRole = new Dictionary<PokemonTeam, IRole>();
+            Dictionary<ulong, PokemonTeam> roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
+            Dictionary<PokemonTeam, IRole> teamToRole = new Dictionary<PokemonTeam, IRole>();
 
             foreach (PokemonTeam team in Enum.GetValues(typeof(PokemonTeam)))
             {
-                var role = await GetOrCreateRole(guild, team);
+                IRole role = await GetOrCreateRole(guild, team);
 
                 roleIdtoTeam[role.Id] = team;
                 teamToRole[team] = role;

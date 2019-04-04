@@ -120,17 +120,29 @@
   <data name="AddRoleSummary" xml:space="preserve">
     <value>Adds a role to the user</value>
   </data>
+  <data name="AdjustRaidBossSummary" xml:space="preserve">
+    <value>Rebuilds boss raid</value>
+  </data>
   <data name="AdjustRaidTimeSummary" xml:space="preserve">
     <value>It will reset the raid time</value>
   </data>
+  <data name="AllCommands" xml:space="preserve">
+    <value>All Commands</value>
+  </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>Available commands</value>
+  </data>
+  <data name="BadParameters" xml:space="preserve">
+    <value>Bad parameters</value>
   </data>
   <data name="BadTimeFormat" xml:space="preserve">
     <value>Time is not in valid format</value>
   </data>
   <data name="BasicUse" xml:space="preserve">
     <value>Basic Use</value>
+  </data>
+  <data name="Boss" xml:space="preserve">
+    <value>Boss</value>
   </data>
   <data name="BossName" xml:space="preserve">
     <value>Name of the boss.</value>
@@ -175,10 +187,22 @@
     <value>Full Use</value>
   </data>
   <data name="HelpSummary" xml:space="preserve">
-    <value>Lists commands.</value>
+    <value>Lists help for a specific command</value>
   </data>
   <data name="InTeam" xml:space="preserve">
     <value>You're in the team</value>
+  </data>
+  <data name="InviteSummary" xml:space="preserve">
+    <value>Returns a link to the Discord invitation here</value>
+  </data>
+  <data name="ListCommandsSummary" xml:space="preserve">
+    <value>Lists Commands.</value>
+  </data>
+  <data name="MessageNumber" xml:space="preserve">
+    <value>Number Of Messages</value>
+  </data>
+  <data name="NoDefaultChannel" xml:space="preserve">
+    <value>none here</value>
   </data>
   <data name="Optional" xml:space="preserve">
     <value>Optional, default is</value>
@@ -239,6 +263,15 @@
   </data>
   <data name="Time" xml:space="preserve">
     <value>time</value>
+  </data>
+  <data name="TooFewArgs" xml:space="preserve">
+    <value>The input text has too few parameters</value>
+  </data>
+  <data name="TooManyArgs" xml:space="preserve">
+    <value>The input text has too many parameters</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
   </data>
   <data name="Where" xml:space="preserve">
     <value>Where</value>

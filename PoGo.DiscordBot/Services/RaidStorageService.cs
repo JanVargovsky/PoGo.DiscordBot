@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Services
     {
         // <guildId, <channelId, <messageId, RaidInfo>>>
         //readonly ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>> raids;
-        readonly RaidGuildMapping raidGuilds;
+        private readonly RaidGuildMapping raidGuilds;
 
         public RaidStorageService()
         {
@@ -18,15 +18,15 @@ namespace PoGo.DiscordBot.Services
 
         public void AddRaid(ulong guildId, ulong channelId, ulong messageId, RaidInfoDto raidInfoDto)
         {
-            var raidChannels = raidGuilds.GuildRaids.GetOrAdd(guildId, _ => new RaidChannelMapping());
-            var raidMessages = raidChannels.RaidChannels.GetOrAdd(channelId, _ => new RaidMessageMapping());
+            RaidChannelMapping raidChannels = raidGuilds.GuildRaids.GetOrAdd(guildId, _ => new RaidChannelMapping());
+            RaidMessageMapping raidMessages = raidChannels.RaidChannels.GetOrAdd(channelId, _ => new RaidMessageMapping());
             raidMessages.RaidMessages[messageId] = raidInfoDto;
         }
 
         public RaidInfoDto GetRaid(ulong guildId, ulong channelId, int skip)
         {
-            if (raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
-                raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages))
+            if (raidGuilds.GuildRaids.TryGetValue(guildId, out RaidChannelMapping raidChannels) &&
+                raidChannels.RaidChannels.TryGetValue(channelId, out RaidMessageMapping raidMessages))
                 return raidMessages.RaidMessages.Values
                     .OrderByDescending(t => t.CreatedAt)
                     .Skip(skip)
@@ -37,23 +37,25 @@ namespace PoGo.DiscordBot.Services
 
         public RaidInfoDto GetRaid(ulong guildId, ulong channelId, ulong messageId)
         {
-            if (raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
-                raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages) &&
-                raidMessages.RaidMessages.TryGetValue(messageId, out var raidInfoDto))
+            if (raidGuilds.GuildRaids.TryGetValue(guildId, out RaidChannelMapping raidChannels) &&
+                raidChannels.RaidChannels.TryGetValue(channelId, out RaidMessageMapping raidMessages) &&
+                raidMessages.RaidMessages.TryGetValue(messageId, out RaidInfoDto raidInfoDto))
                 return raidInfoDto;
 
             return null;
         }
 
-        public bool TryRemove(ulong guildId, ulong channelId, ulong messageId) =>
-            raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
-            raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages) &&
-            raidMessages.RaidMessages.TryRemove(messageId, out _);
+        public bool TryRemove(ulong guildId, ulong channelId, ulong messageId)
+        {
+            return raidGuilds.GuildRaids.TryGetValue(guildId, out RaidChannelMapping raidChannels) &&
+raidChannels.RaidChannels.TryGetValue(channelId, out RaidMessageMapping raidMessages) &&
+raidMessages.RaidMessages.TryRemove(messageId, out _);
+        }
 
         public IEnumerable<(int Index, RaidInfoDto Raid)> GetActiveRaidsWithIndexes(ulong guildId, ulong channelId)
         {
-            if (raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
-                raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages))
+            if (raidGuilds.GuildRaids.TryGetValue(guildId, out RaidChannelMapping raidChannels) &&
+                raidChannels.RaidChannels.TryGetValue(channelId, out RaidMessageMapping raidMessages))
                 return raidMessages.RaidMessages.Values
                     .OrderByDescending(t => t.CreatedAt)
                     .Select((t, i) => (i, t))
@@ -64,13 +66,13 @@ namespace PoGo.DiscordBot.Services
 
         public IEnumerable<(ulong guildId, ulong channelId, ulong messageId, RaidInfoDto raidInfo)> GetAll()
         {
-            foreach (var guild in raidGuilds.GuildRaids)
-                foreach (var channel in guild.Value.RaidChannels)
-                    foreach (var raidMessage in channel.Value.RaidMessages)
+            foreach (KeyValuePair<ulong, RaidChannelMapping> guild in raidGuilds.GuildRaids)
+                foreach (KeyValuePair<ulong, RaidMessageMapping> channel in guild.Value.RaidChannels)
+                    foreach (KeyValuePair<ulong, RaidInfoDto> raidMessage in channel.Value.RaidMessages)
                         yield return (guild.Key, channel.Key, raidMessage.Key, raidMessage.Value);
         }
 
-        class RaidGuildMapping
+        private class RaidGuildMapping
         {
             // <guildId, RaidChannels>
             public ConcurrentDictionary<ulong, RaidChannelMapping> GuildRaids { get; }
@@ -81,7 +83,7 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        class RaidChannelMapping
+        private class RaidChannelMapping
         {
             // <channelId, RaidMessages>
             public ConcurrentDictionary<ulong, RaidMessageMapping> RaidChannels { get; }
@@ -92,7 +94,7 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        class RaidMessageMapping
+        private class RaidMessageMapping
         {
             // <messageId, RaidInfo>
             public ConcurrentDictionary<ulong, RaidInfoDto> RaidMessages { get; }

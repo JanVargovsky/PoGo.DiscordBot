@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class GymLocationService
     {
-        readonly Dictionary<ulong, (string NormalizedName, GymInfoDto GymInfo)[]> gymsInfos; // <guildId, gymInfo[]>
+        private readonly Dictionary<ulong, (string NormalizedName, GymInfoDto GymInfo)[]> gymsInfos; // <guildId, gymInfo[]>
 
         public GymLocationService(IOptions<ConfigurationOptions> options)
         {
@@ -21,19 +21,22 @@ namespace PoGo.DiscordBot.Services
                     Latitude = g.Latitude,
                     Longitude = g.Longitude
                 })).ToArray());
-        }        
+        }
 
         public IEnumerable<GymInfoDto> Search(ulong guildId, string name)
         {
-            if (!gymsInfos.TryGetValue(guildId, out var gyms))
+            if (!gymsInfos.TryGetValue(guildId, out (string NormalizedName, GymInfoDto GymInfo)[] gyms))
                 return default;
 
-            var normalizedName = StringUtils.ToLowerWithoutDiacritics(name);
+            string normalizedName = StringUtils.ToLowerWithoutDiacritics(name);
             return gyms
                 .Where(t => t.NormalizedName.Contains(normalizedName))
                 .Select(t => t.GymInfo);
         }
 
-        public string GetMapUrl(GymInfoDto gymInfo) => $"http://maps.google.com/maps?q={gymInfo.Latitude},{gymInfo.Longitude}";
+        public string GetMapUrl(GymInfoDto gymInfo)
+        {
+            return $"http://maps.google.com/maps?q={gymInfo.Latitude},{gymInfo.Longitude}";
+        }
     }
 }

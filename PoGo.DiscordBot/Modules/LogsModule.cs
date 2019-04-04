@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,17 +11,17 @@ namespace PoGo.DiscordBot.Modules
     [RequireOwner]
     public class LogsModule : ModuleBase
     {
-        const string LogDirectory = "Logs";
+        private const string LogDirectory = "Logs";
 
         [Command("logs", RunMode = RunMode.Async)]
         public async Task GetLogsFiles()
         {
-            var di = new DirectoryInfo(LogDirectory);
+            DirectoryInfo di = new DirectoryInfo(LogDirectory);
 
-            var filenames = di.EnumerateFiles().Select(t => t.Name);
+            IEnumerable<string> filenames = di.EnumerateFiles().Select(t => t.Name);
             string content = string.Join(Environment.NewLine, filenames);
 
-            var embedBuilder = new EmbedBuilder()
+            EmbedBuilder embedBuilder = new EmbedBuilder()
                 .WithDescription(content);
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }
@@ -28,7 +29,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("log", RunMode = RunMode.Async)]
         public async Task GetLog()
         {
-            var fileInfo = new DirectoryInfo(LogDirectory)
+            FileInfo fileInfo = new DirectoryInfo(LogDirectory)
                 .EnumerateFiles()
                 .OrderByDescending(t => t.LastWriteTimeUtc)
                 .FirstOrDefault();
@@ -47,7 +48,7 @@ namespace PoGo.DiscordBot.Modules
         {
             string path = Path.Combine(LogDirectory, filename);
             if (!File.Exists(path))
-            { 
+            {
                 await ReplyAsync("Log does not exists.");
                 return;
             }

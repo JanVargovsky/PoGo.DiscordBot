@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace PoGo.DiscordBot.Configuration.Options
 {
@@ -14,7 +15,7 @@ namespace PoGo.DiscordBot.Configuration.Options
     {
         public string Name { get; set; }
         public ulong Id { get; set; }
-        public string Language { get; set; }
+        public CultureInfo Language { get; set; }
         public bool IgnoreMention { get; set; }
         public string[] FreeRoles { get; set; }
         public ChannelOptions[] Channels { get; set; }

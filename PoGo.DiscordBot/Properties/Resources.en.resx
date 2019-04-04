@@ -118,132 +118,165 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AddRoleSummary" xml:space="preserve">
-    <value>Přidá uživateli roli</value>
+    <value>Adds a role to the user</value>
+  </data>
+  <data name="AdjustRaidBossSummary" xml:space="preserve">
+    <value>Rebuilds boss raid</value>
   </data>
   <data name="AdjustRaidTimeSummary" xml:space="preserve">
-    <value>Přenastaví čas raidu</value>
+    <value>It will reset the raid time</value>
+  </data>
+  <data name="AllCommands" xml:space="preserve">
+    <value>All Commands</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>Dostupné příkazy</value>
+    <value>Available commands</value>
+  </data>
+  <data name="BadParameters" xml:space="preserve">
+    <value>Bad parameters</value>
   </data>
   <data name="BadTimeFormat" xml:space="preserve">
-    <value>Čas není ve validním formátu</value>
+    <value>Time is not in valid format</value>
   </data>
   <data name="BasicUse" xml:space="preserve">
-    <value>Základní použití</value>
+    <value>Basic Use</value>
+  </data>
+  <data name="Boss" xml:space="preserve">
+    <value>Boss</value>
   </data>
   <data name="BossName" xml:space="preserve">
-    <value>Název bosse</value>
+    <value>Name of the boss.</value>
   </data>
   <data name="CheckTeamSummary" xml:space="preserve">
-    <value>Zkontroluje zda má uživatel nastavený team. Jestliže ne, tak mu přijde zpráva s informacemi jak ho nastavit</value>
+    <value>Checks whether the user has a team set up. If not, he will receive a message with information on how to set it</value>
   </data>
   <data name="Command" xml:space="preserve">
-    <value>Příkaz</value>
+    <value>Command</value>
   </data>
   <data name="CommandNotFound" xml:space="preserve">
-    <value>Žádný příkaz **{0}** jsem nemohl najít</value>
+    <value>No command found {0}, I couldn't find it</value>
   </data>
   <data name="ControlledUser" xml:space="preserve">
-    <value>Kontrolovaný uživatel</value>
+    <value>Controlled user</value>
   </data>
   <data name="CurrentLevel" xml:space="preserve">
-    <value>Aktuální level (1-40)</value>
+    <value>Current Level (1-40)</value>
   </data>
   <data name="Date" xml:space="preserve">
-    <value>datum</value>
+    <value>date</value>
   </data>
   <data name="DateNotValid" xml:space="preserve">
-    <value>Datum není ve validním formátu</value>
+    <value>Date is not in valid format </value>
   </data>
   <data name="DeleteAllMessagesSummary" xml:space="preserve">
-    <value>Smaže všechny zprávy (omezeno počtem)</value>
+    <value>Deletes all messages (limited)</value>
   </data>
   <data name="DeleteLastMessageSummary" xml:space="preserve">
-    <value>Maže zprávy označeného uživatele (omezeno počtem)</value>
+    <value>Deletes tagged user messages (limited)</value>
   </data>
   <data name="DeleteRaidSummary" xml:space="preserve">
-    <value>Smaže raid.</value>
+    <value>Delete Raid</value>
   </data>
-  <data name="DeleteYourMessageSummary" xml:space="preserve">
-    <value>Smaže tvoje zprávy (omezeno počtem)</value>
+  <data name="DeleteYourMessagesSummary" xml:space="preserve">
+    <value>Deletes your messages (limited)</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Popis</value>
+    <value>Description</value>
   </data>
   <data name="FullUse" xml:space="preserve">
-    <value>Plné použití</value>
+    <value>Full Use</value>
   </data>
   <data name="HelpSummary" xml:space="preserve">
-    <value>Vypíše seznam příkazů.</value>
+    <value>Lists help for a specific command</value>
   </data>
   <data name="InTeam" xml:space="preserve">
-    <value>Už jsi v teamu</value>
+    <value>You're in the team</value>
+  </data>
+  <data name="InviteSummary" xml:space="preserve">
+    <value>Returns a link to the Discord invitation here</value>
+  </data>
+  <data name="ListsCommandsSummary" xml:space="preserve">
+    <value>Lists Commands</value>
+  </data>
+  <data name="MessageNumber" xml:space="preserve">
+    <value>Number Of Messages</value>
+  </data>
+  <data name="NoDefaultChannel" xml:space="preserve">
+    <value>None here</value>
   </data>
   <data name="Optional" xml:space="preserve">
-    <value>Volitelný, výchozí hodnota je</value>
+    <value>Optional, default is</value>
   </data>
   <data name="OtherPlayers" xml:space="preserve">
-    <value>Další hráči (bez Discordu, 2. mobil atd</value>
+    <value>Other players (without Discord, 2nd mobile, etc.)</value>
   </data>
   <data name="ParameterDescription" xml:space="preserve">
-    <value>Popis parametrů</value>
+    <value>Parameter Description</value>
   </data>
   <data name="Parameters" xml:space="preserve">
-    <value>Parametry</value>
+    <value>Parameters</value>
   </data>
   <data name="PastRaid" xml:space="preserve">
-    <value>Vážně chceš vytvořit raid v minulosti?</value>
+    <value>Do you really want to create a raid in the past?</value>
   </data>
   <data name="Place" xml:space="preserve">
-    <value>Místo</value>
+    <value>Place</value>
   </data>
   <data name="PlayAnotherGame" xml:space="preserve">
-    <value>Asi hraje jinou hru ... povolený level je 1-40</value>
+    <value>You probably play another game ... the allowed level is 1-40</value>
   </data>
   <data name="Players" xml:space="preserve">
-    <value>Hráči</value>
+    <value>Players</value>
   </data>
   <data name="PossibleValues" xml:space="preserve">
-    <value>Možné jsou jenom tyhle hodnoty</value>
+    <value>Only these values ​​are possible</value>
   </data>
   <data name="RaidBossInfoSummary" xml:space="preserve">
-    <value>Vypíše základní info o bossovi</value>
+    <value>Lists basic boss info</value>
   </data>
   <data name="RaidNotFound" xml:space="preserve">
-    <value>Raid nenalezen.</value>
+    <value>Raid not found.</value>
   </data>
   <data name="RaidNotPossible" xml:space="preserve">
-    <value>Z tohoto kanálu není možné vytvořit naplánovanou raid anketu</value>
+    <value>It is not possible to create a scheduled raid poll from this channel</value>
   </data>
   <data name="SelectedTeam" xml:space="preserve">
-    <value>Zvolený team (roli)</value>
+    <value>Selected team (role)</value>
   </data>
   <data name="SetBasicInfoSummary" xml:space="preserve">
-    <value>Nastaví team a level</value>
+    <value>Sets team and level</value>
   </data>
   <data name="SetLevelSummary" xml:space="preserve">
-    <value>Nastaví level</value>
+    <value>Sets the level</value>
   </data>
   <data name="SetTeamSummary" xml:space="preserve">
     <value>Sets the team</value>
   </data>
   <data name="StartRaidSummary" xml:space="preserve">
-    <value>Vytvoří raid anketu do speciálního kanálu.</value>
+    <value>Creates a raid poll in a special channel.</value>
   </data>
   <data name="StartScheduledRaidSummary" xml:space="preserve">
-    <value>Vytvoří plánovanou raid anketu do speciálního kanálu</value>
+    <value>Creates a scheduled raid poll in a special channel</value>
   </data>
   <data name="SupportDevelopment" xml:space="preserve">
-    <value>V případě, že byste chtěli podpořit vývoj, tak se ozvěte Pako#3904</value>
+    <value>If you would like to support the development, please contact Pako # 3904</value>
   </data>
   <data name="Time" xml:space="preserve">
-    <value>Čas</value>
+    <value>time</value>
+  </data>
+  <data name="TooFewArgs" xml:space="preserve">
+    <value>The input text has too few parameters</value>
+  </data>
+  <data name="TooManyArgs" xml:space="preserve">
+    <value>The input text has too many parameters</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
   </data>
   <data name="Where" xml:space="preserve">
-    <value>Kde</value>
+    <value>Where</value>
   </data>
   <data name="WithoutTeam" xml:space="preserve">
-    <value>Bez teamu</value>
+    <value>Without Team</value>
   </data>
 </root>

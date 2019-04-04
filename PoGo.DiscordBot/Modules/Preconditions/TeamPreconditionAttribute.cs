@@ -1,9 +1,9 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PoGo.DiscordBot.Modules.Preconditions
 {
@@ -14,10 +14,10 @@ namespace PoGo.DiscordBot.Modules.Preconditions
             if (!(context.User is SocketGuildUser guildUser))
                 return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);
 
-            var userService = services.GetService<UserService>();
-            var team = userService.GetTeam(guildUser);
+            UserService userService = services.GetService<UserService>();
+            Configuration.PokemonTeam? team = userService.GetTeam(guildUser);
 
-            if(team == null)
+            if (team == null)
                 return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);
 
             return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Success);

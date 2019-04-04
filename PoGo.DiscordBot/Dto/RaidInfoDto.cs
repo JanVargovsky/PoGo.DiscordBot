@@ -1,11 +1,9 @@
 ﻿using Discord;
-using Microsoft.Extensions.Localization;
 using PoGo.DiscordBot.Configuration;
-using PoGo.DiscordBot.Services;
+using PoGo.DiscordBot.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Resources;
 
 namespace PoGo.DiscordBot.Dto
 {
@@ -20,10 +18,6 @@ namespace PoGo.DiscordBot.Dto
         public const string TimeFormat = "H:mm";
         public const string DateTimeFormat = "d.M.yyyy H:mm";
 
-        public readonly static string DateWord = LocalizationService.Instance.GetStringFromResources("Date");
-
-        public readonly static string TimeWord = LocalizationService.Instance.GetStringFromResources("Time");
-
         public IUserMessage Message { get; set; }
         public DateTime CreatedAt { get; set; }
         public string BossName { get; set; }
@@ -34,7 +28,7 @@ namespace PoGo.DiscordBot.Dto
         public bool IsExpired => DateTime < DateTime.Now;
         public RaidType RaidType { get; set; }
 
-        string DateTimeAsString => DateTime.ToString(RaidType == RaidType.Normal ? TimeFormat : DateTimeFormat);
+        private string DateTimeAsString => DateTime.ToString(RaidType == RaidType.Normal ? TimeFormat : DateTimeFormat);
 
         public RaidInfoDto(RaidType raidType)
         {
@@ -53,7 +47,7 @@ namespace PoGo.DiscordBot.Dto
                     return !IsExpired ? new Color(191, 155, 48) : Color.Red;
                 }
 
-                var remainingTime = DateTime - DateTime.Now;
+                TimeSpan remainingTime = DateTime - DateTime.Now;
 
                 if (remainingTime.TotalMinutes <= 0)
                     return Color.Red;
@@ -65,9 +59,9 @@ namespace PoGo.DiscordBot.Dto
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder
                 .WithColor(GetColor())
-                .AddInlineField("Boss", BossName)
-                .AddInlineField(LocalizationService.Instance.GetStringFromResources("Where"), Location)
-                .AddInlineField(RaidType == RaidType.Normal ? TimeWord : DateWord, DateTimeAsString)
+                .AddInlineField(Resources.Boss, BossName)
+                .AddInlineField(Resources.Where, Location)
+                .AddInlineField(RaidType == RaidType.Normal ? Resources.Time : Resources.Date, DateTimeAsString)
                 ;
 
             if (Players.Count > 0)
@@ -76,32 +70,38 @@ namespace PoGo.DiscordBot.Dto
                     PlayersToGroupString(Players.Values) :
                     PlayersToString(Players.Values);
 
-                embedBuilder.AddField(LocalizationService.Instance.GetStringFromResources("Players") + $"({Players.Count})", playerFieldValue);
+                embedBuilder.AddField(Resources.Players + $"({Players.Count})", playerFieldValue);
             }
 
             if (ExtraPlayers.Count > 0)
             {
                 string extraPlayersFieldValue = string.Join(" + ", ExtraPlayers.Select(t => t.Count));
-                embedBuilder.AddField(LocalizationService.Instance.GetStringFromResources("OtherPlayers") +  $"({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
+                embedBuilder.AddField(Resources.OtherPlayers + $"({ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
             }
 
             return embedBuilder.Build();
         }
 
-        public string ToSimpleString() => $"{BossName} {Location} {DateTimeAsString}";
-
-        string PlayersToString(IEnumerable<PlayerDto> players) => string.Join(", ", players);
-
-        string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
+        public string ToSimpleString()
         {
-            string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : LocalizationService.Instance.GetStringFromResources("WithoutTeam");
+            return $"{BossName} {Location} {DateTimeAsString}";
+        }
+
+        private string PlayersToString(IEnumerable<PlayerDto> players)
+        {
+            return string.Join(", ", players);
+        }
+
+        private string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
+        {
+            string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : Resources.WithoutTeam;
 
             List<string> formatterGroupedPlayers = new List<string>();
 
-            var teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
+            PokemonTeam?[] teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
             foreach (PokemonTeam? team in teams)
             {
-                var players = allPlayers.Where(t => t.Team == team).ToList();
+                List<PlayerDto> players = allPlayers.Where(t => t.Team == team).ToList();
                 if (players.Count > 0)
                     formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}) - {PlayersToString(players)}");
             }
@@ -109,11 +109,14 @@ namespace PoGo.DiscordBot.Dto
             return string.Join(Environment.NewLine, formatterGroupedPlayers);
         }
 
-        public static DateTime? ParseTime(string time) => ParseTime(time, DateTime.Now.Date);
+        public static DateTime? ParseTime(string time)
+        {
+            return ParseTime(time, DateTime.Now.Date);
+        }
 
         public static DateTime? ParseTime(string time, DateTime date)
         {
-            var pieces = time.Split(' ', '.', ',', ':', ';', '\'');
+            string[] pieces = time.Split(' ', '.', ',', ':', ';', '\'');
 
             if (pieces.Length != 2 || !int.TryParse(pieces[0], out int hours) || !int.TryParse(pieces[1], out int minutes))
                 return null;
@@ -126,10 +129,10 @@ namespace PoGo.DiscordBot.Dto
             DateTime? result = null;
             try
             {
-                var tokens = dateTime.Split(new[] { ' ', '.', ',', ':', ';', '\'', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] tokens = dateTime.Split(new[] { ' ', '.', ',', ':', ';', '\'', '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (tokens.Length != 5)
                     throw new Exception($"Invalid date '{dateTime}'");
-                var intTokens = tokens.Select(int.Parse).ToArray();
+                int[] intTokens = tokens.Select(int.Parse).ToArray();
 
                 result = new DateTime(intTokens[2], intTokens[1], intTokens[0], intTokens[3], intTokens[4], 0);
             }
@@ -141,15 +144,15 @@ namespace PoGo.DiscordBot.Dto
 
         public static RaidInfoDto Parse(IUserMessage message)
         {
-            var embed = message.Embeds.FirstOrDefault();
+            IEmbed embed = message.Embeds.FirstOrDefault();
             if (embed == null || embed.Fields.Length < 3)
                 return null;
 
             RaidInfoDto result = null;
 
-            if (embed.Fields[2].Name.Equals(TimeWord,StringComparison.OrdinalIgnoreCase))
+            if (embed.Fields[2].Name.Equals(Resources.Time, StringComparison.OrdinalIgnoreCase))
             {
-                var time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
+                DateTime? time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
                 if (!time.HasValue)
                     return null;
 
@@ -162,9 +165,9 @@ namespace PoGo.DiscordBot.Dto
                     DateTime = time.Value,
                 };
             }
-            else if (embed.Fields[2].Name.Equals(DateWord,StringComparison.OrdinalIgnoreCase))
+            else if (embed.Fields[2].Name.Equals(Resources.Date, StringComparison.OrdinalIgnoreCase))
             {
-                var dateTime = ParseDateTime(embed.Fields[2].Value);
+                DateTime? dateTime = ParseDateTime(embed.Fields[2].Value);
                 if (!dateTime.HasValue)
                     return null;
 

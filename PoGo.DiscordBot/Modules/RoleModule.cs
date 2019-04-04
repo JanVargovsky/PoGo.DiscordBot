@@ -14,9 +14,9 @@ namespace PoGo.DiscordBot.Modules
     [Group("role")]
     public class RoleModule : ModuleBase<SocketCommandContext>
     {
-        readonly ILogger<RoleModule> logger;
-        readonly RoleService roleService;
-        readonly Dictionary<ulong, string[]> availableRoles; // <guildId, roles[]>
+        private readonly ILogger<RoleModule> logger;
+        private readonly RoleService roleService;
+        private readonly Dictionary<ulong, string[]> availableRoles; // <guildId, roles[]>
 
         public RoleModule(ILogger<RoleModule> logger, IOptions<ConfigurationOptions> options, RoleService roleService)
         {
@@ -35,10 +35,10 @@ namespace PoGo.DiscordBot.Modules
             if (!(Context.User is SocketGuildUser user))
                 return;
 
-            if (!availableRoles.TryGetValue(Context.Guild.Id, out var roles) || !roles.Contains(roleName))
+            if (!availableRoles.TryGetValue(Context.Guild.Id, out string[] roles) || !roles.Contains(roleName))
                 return;
 
-            var role = roleService.GetRoleByName(Context.Guild, roleName);
+            SocketRole role = roleService.GetRoleByName(Context.Guild, roleName);
             if (role == null)
             {
                 await ReplyAsync("Neznámá role.");
@@ -57,10 +57,10 @@ namespace PoGo.DiscordBot.Modules
             if (!(Context.User is SocketGuildUser user))
                 return;
 
-            if (!availableRoles.TryGetValue(Context.Guild.Id, out var roles) || !roles.Contains(roleName))
+            if (!availableRoles.TryGetValue(Context.Guild.Id, out string[] roles) || !roles.Contains(roleName))
                 return;
 
-            var role = roleService.GetRoleByName(Context.Guild, roleName);
+            SocketRole role = roleService.GetRoleByName(Context.Guild, roleName);
             if (role == null)
             {
                 await ReplyAsync("Neznámá role.");

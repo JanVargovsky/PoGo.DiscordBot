@@ -1,5 +1,9 @@
 ﻿using Discord.Commands;
+using Discord.Rest;
+using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Properties;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,7 +12,7 @@ namespace PoGo.DiscordBot.Modules
     [RequireContext(ContextType.Guild)]
     public class InviteModule : ModuleBase<SocketCommandContext>
     {
-        readonly ILogger<InviteModule> logger;
+        private readonly ILogger<InviteModule> logger;
 
         public InviteModule(ILogger<InviteModule> logger)
         {
@@ -17,22 +21,22 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("invite")]
         [Alias("inv")]
-        [Summary("Vrátí odkaz s pozvánkou sem na Discord.")]
+        [Summary("InviteSummary")]
         public async Task Invite()
         {
-            var invites = await Context.Guild.GetInvitesAsync();
-            var invite = invites.FirstOrDefault(t => !t.IsTemporary);
+            IReadOnlyCollection<RestInviteMetadata> invites = await Context.Guild.GetInvitesAsync();
+            RestInviteMetadata invite = invites.FirstOrDefault(t => !t.IsTemporary);
 
             if (invite == null)
             {
                 // TODO: call Context.Guild.DefaultChannel instead later on
-                var defaultChannel = Context.Guild.TextChannels
+                SocketTextChannel defaultChannel = Context.Guild.TextChannels
                     .OrderBy(c => c.Position)
                     .FirstOrDefault();
 
                 if (defaultChannel == null)
                 {
-                    await ReplyAsync("Sorry, žádný tu nemám :(");
+                    await ReplyAsync("Sorry," +  Resources.NoDefaultChannel + ":(");
                     return;
                 }
 

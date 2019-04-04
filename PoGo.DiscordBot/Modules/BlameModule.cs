@@ -12,8 +12,8 @@ namespace PoGo.DiscordBot.Modules
     [Group("blame")]
     public class BlameModule : ModuleBase<SocketCommandContext>
     {
-        readonly UserService userService;
-        readonly ILogger<BlameModule> logger;
+        private readonly UserService userService;
+        private readonly ILogger<BlameModule> logger;
 
         public BlameModule(UserService userService, ILogger<BlameModule> logger)
         {
@@ -24,7 +24,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("level")]
         public async Task ListPlayersWithoutLevel()
         {
-            var players = userService.GetPlayers(Context.Guild.Users)
+            System.Collections.Generic.IEnumerable<Dto.PlayerDto> players = userService.GetPlayers(Context.Guild.Users)
                 .Where(t => !t.Level.HasValue);
 
             string message = string.Join(", ", players);
@@ -34,7 +34,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("team")]
         public async Task ListPlayersWithoutTeam()
         {
-            var players = userService.GetPlayers(Context.Guild.Users)
+            System.Collections.Generic.IEnumerable<Dto.PlayerDto> players = userService.GetPlayers(Context.Guild.Users)
                 .Where(t => !t.Team.HasValue);
 
             string message = string.Join(", ", players);

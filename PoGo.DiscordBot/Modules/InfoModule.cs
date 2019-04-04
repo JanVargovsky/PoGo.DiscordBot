@@ -2,7 +2,7 @@
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
-using PoGo.DiscordBot.Services;
+using PoGo.DiscordBot.Properties;
 using System;
 using System.Threading.Tasks;
 
@@ -10,7 +10,7 @@ namespace PoGo.DiscordBot.Modules
 {
     public class InfoModule : ModuleBase
     {
-        readonly ConfigurationOptions configuration;
+        private readonly ConfigurationOptions configuration;
 
         public InfoModule(IOptions<ConfigurationOptions> configurationOptionsAccessor)
         {
@@ -37,7 +37,7 @@ Použití např.:
 {configuration.Prefix}raid Machamp Žirafa 12:00 2
 Pozn. Jestliže má jakýkoliv parametr mezery, je nutné ho obalit uvozovkami (""parametr s mezerou"")");
 
-            var embed = embedBuilder.Build();
+            Embed embed = embedBuilder.Build();
             await ReplyAsync(string.Empty, embed: embed);
         }
 
@@ -51,7 +51,7 @@ Pozn. Jestliže má jakýkoliv parametr mezery, je nutné ho obalit uvozovkami (
         [Command("donate", RunMode = RunMode.Async)]
         public async Task Donate()
         {
-            await ReplyAsync(LocalizationService.Instance.GetStringFromResources("SupportDevelopment"));
+            await ReplyAsync(Resources.SupportDevelopment);
         }
     }
 }
