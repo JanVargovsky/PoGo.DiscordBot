@@ -8,6 +8,7 @@ using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Properties;
 using PoGo.DiscordBot.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -226,7 +227,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("mention", RunMode = RunMode.Async)]
         [Alias("m")]
-        [Summary("Označí lidi, kteří jsou zapsáni na raid.")]
+        [Summary("MentionRaidPlayersSummary")]
         [RaidChannelPrecondition]
         public async Task MentionRaidPlayers(
             [Summary("Počet anket odspodu.")] int skip = 0,
@@ -240,7 +241,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            System.Collections.Generic.HashSet<PlayerDto> users = raid.Players.Values.ToHashSet();
+            HashSet<PlayerDto> users = raid.Players.Values.ToHashSet();
 
             if (users.Count > 0)
             {
@@ -264,7 +265,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (raid == null)
             {
-                await ReplyAsync("Raid nenalezen.");
+                await ReplyAsync(Resources.RaidNotFound);
                 return;
             }
 
@@ -299,7 +300,7 @@ namespace PoGo.DiscordBot.Modules
             }
 
             string bossMention = raidBossInfoService.GetBossNameWithEmoji(boss.BossName, Context.Guild);
-            System.Collections.Generic.IEnumerable<string> countersWithEmojis = boss.Counters?.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild)) ?? Enumerable.Empty<string>();
+            IEnumerable<string> countersWithEmojis = boss.Counters?.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild)) ?? Enumerable.Empty<string>();
             string countersField = string.Join(", ", countersWithEmojis);
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .WithTitle(bossMention)
@@ -315,20 +316,20 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("location", RunMode = RunMode.Async)]
         [Alias("l", "loc")]
-        [Summary("Vrátí lokaci gymu.")]
+        [Summary("RaidLocationSummary")]
         public async Task RaidLocation(
             [Remainder][Summary("Část názvu gymu")]string name)
         {
             if (string.IsNullOrEmpty(name) || name.Length < 3)
             {
-                await ReplyAsync("Moc krátký název.");
+                await ReplyAsync(Resources.VeryShortName);
                 return;
             }
 
-            System.Collections.Generic.IEnumerable<GymInfoDto> searchResult = gymLocationService.Search(Context.Guild.Id, name);
+            IEnumerable<GymInfoDto> searchResult = gymLocationService.Search(Context.Guild.Id, name);
             if (searchResult == null)
             {
-                await ReplyAsync("Server nepodporuje tenhle příkaz.");
+                await ReplyAsync(Resources.CommandNotSupported);
                 return;
             }
 
@@ -340,14 +341,14 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("list", RunMode = RunMode.Async)]
-        [Summary("Vrátí seznam aktivních raidů včetně indexů.")]
+        [Summary("RaidListSummary")]
         public async Task RaidList()
         {
             ulong channelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            System.Collections.Generic.IEnumerable<(int Index, RaidInfoDto Raid)> raids = raidStorageService.GetActiveRaidsWithIndexes(Context.Guild.Id, channelId);
+            IEnumerable<(int Index, RaidInfoDto Raid)> raids = raidStorageService.GetActiveRaidsWithIndexes(Context.Guild.Id, channelId);
             if (!raids.Any())
             {
-                await ReplyAsync("Nejsou aktivní žádné raidy.");
+                await ReplyAsync(Resources.NoActiveRaids);
                 return;
             }
             string message = string.Join(Environment.NewLine, raids.Select(t => $"{t.Index} - {t.Raid.ToSimpleString()}").Reverse());

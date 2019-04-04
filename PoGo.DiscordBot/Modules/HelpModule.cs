@@ -19,7 +19,7 @@ namespace PoGo.DiscordBot.Modules
         private readonly IServiceProvider serviceProvider;
         private readonly char prefix;
         //TODO Load the current culture info from guild
-        readonly CultureInfo cultureInfo = CultureInfo.GetCultureInfo("cs-CS");
+        private readonly CultureInfo cultureInfo = CultureInfo.GetCultureInfo("cs-CS");
 
         public HelpModule(CommandService commandService, IServiceProvider serviceProvider, IOptions<ConfigurationOptions> config)
         {

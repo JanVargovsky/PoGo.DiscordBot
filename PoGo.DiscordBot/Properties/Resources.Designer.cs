@@ -178,6 +178,15 @@ namespace PoGo.DiscordBot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Server does not support this command.
+        /// </summary>
+        public static string CommandNotSupported {
+            get {
+                return ResourceManager.GetString("CommandNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Controlled user.
         /// </summary>
         public static string ControlledUser {
@@ -304,11 +313,29 @@ namespace PoGo.DiscordBot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mark people who are enrolled on raid.
+        /// </summary>
+        public static string MentionRaidPlayersSummary {
+            get {
+                return ResourceManager.GetString("MentionRaidPlayersSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Number Of Messages.
         /// </summary>
         public static string MessageNumber {
             get {
                 return ResourceManager.GetString("MessageNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No raids active.
+        /// </summary>
+        public static string NoActiveRaids {
+            get {
+                return ResourceManager.GetString("NoActiveRaids", resourceCulture);
             }
         }
         
@@ -412,6 +439,24 @@ namespace PoGo.DiscordBot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Returns a list of active raids, including indexes.
+        /// </summary>
+        public static string RaidListSummary {
+            get {
+                return ResourceManager.GetString("RaidListSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Returns the location of the gym.
+        /// </summary>
+        public static string RaidLocationSummary {
+            get {
+                return ResourceManager.GetString("RaidLocationSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Raid not found..
         /// </summary>
         public static string RaidNotFound {
@@ -426,6 +471,15 @@ namespace PoGo.DiscordBot.Properties {
         public static string RaidNotPossible {
             get {
                 return ResourceManager.GetString("RaidNotPossible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete a role for the user.
+        /// </summary>
+        public static string RemoveRollSummary {
+            get {
+                return ResourceManager.GetString("RemoveRollSummary", resourceCulture);
             }
         }
         
@@ -520,11 +574,29 @@ namespace PoGo.DiscordBot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unknown Role.
+        /// </summary>
+        public static string UnknownRole {
+            get {
+                return ResourceManager.GetString("UnknownRole", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User.
         /// </summary>
         public static string User {
             get {
                 return ResourceManager.GetString("User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Very Short Name.
+        /// </summary>
+        public static string VeryShortName {
+            get {
+                return ResourceManager.GetString("VeryShortName", resourceCulture);
             }
         }
         
