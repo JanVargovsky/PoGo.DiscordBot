@@ -210,14 +210,14 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            SocketGuildUser currentUser = Context.User as SocketGuildUser;
+            var currentUser = Context.User as SocketGuildUser;
             logger.LogInformation($"User '{currentUser.Nickname ?? Context.User.Username}' with id '{Context.User.Id}'" +
                 $" changed raid with id '{raid.Message.Id}'" +
                 $" boss changed from {raid.BossName} to {boss}");
 
-            foreach (PlayerDto player in raid.Players.Values)
+            foreach (var player in raid.Players.Values)
             {
-                IGuildUser user = player.User;
+                var user = player.User;
                 await user.SendMessageAsync($"Změna raid bosse z '{raid.BossName}' na '{boss}'!");
             }
 
@@ -294,7 +294,7 @@ namespace PoGo.DiscordBot.Modules
 
             if (boss == null)
             {
-                string availableBosses = string.Join(", ", raidBossInfoService.GetAllKnownBossNames());
+                var availableBosses = string.Join(", ", raidBossInfoService.GetAllKnownBossNames());
                 await ReplyAsync($"Boss nenalezen - znám informace pouze o: {availableBosses}.");
                 return;
             }
