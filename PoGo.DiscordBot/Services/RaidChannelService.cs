@@ -94,8 +94,8 @@ namespace PoGo.DiscordBot.Services
 
         public RaidChannelBindingDto TryGetRaidChannelBindingTo(ulong guildId, ulong toTextChannelId)
         {
-            if (guilds.TryGetValue(guildId, out List<RaidChannelBinding> raidChannelBindings))
-                foreach (RaidChannelBinding channel in raidChannelBindings)
+            if (guilds.TryGetValue(guildId, out var raidChannelBindings))
+                foreach (var channel in raidChannelBindings)
                     if (channel.To.Id == toTextChannelId)
                         return new RaidChannelBindingDto
                         {

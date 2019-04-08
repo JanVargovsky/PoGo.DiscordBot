@@ -35,9 +35,9 @@ namespace PoGo.DiscordBot.Modules
             await DeleteMessagesAsync(userId, count);
         }
 
-        private async Task DeleteMessagesAsync(ulong userId, int count)
+        async Task DeleteMessagesAsync(ulong userId, int count)
         {
-            foreach (IReadOnlyCollection<IMessage> messages in Context.Channel.GetMessagesAsync().ToEnumerable())
+            foreach (var messages in Context.Channel.GetMessagesAsync().ToEnumerable())
             {
                 var messagesToDelete = messages.Where(t => t.Author.Id == userId).Take(count);
                 if (messagesToDelete != null)

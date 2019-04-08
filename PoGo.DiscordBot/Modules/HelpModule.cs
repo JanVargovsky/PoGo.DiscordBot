@@ -170,7 +170,7 @@ namespace PoGo.DiscordBot.Modules
                 return sb.ToString();
             }
 
-            foreach (CommandMatch match in result.Commands)
+            foreach (var match in result.Commands)
             {
                 var cmd = match.Command;
                 StringBuilder sb = new StringBuilder()

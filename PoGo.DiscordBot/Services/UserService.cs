@@ -53,11 +53,11 @@ namespace PoGo.DiscordBot.Services
         }
 
         public PlayerDto GetPlayer(SocketGuildUser user) => new PlayerDto
-            {
-                User = user,
-                Team = GetTeam(user),
-                Level = GetPlayerLevel(user),
-            };
+        {
+            User = user,
+            Team = GetTeam(user),
+            Level = GetPlayerLevel(user),
+        };
 
 
         public IEnumerable<PlayerDto> GetPlayers(IEnumerable<SocketGuildUser> users) => users

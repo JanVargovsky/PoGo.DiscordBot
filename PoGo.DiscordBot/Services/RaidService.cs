@@ -41,8 +41,8 @@ namespace PoGo.DiscordBot.Services
             try
             {
                 var channelBinding = raidChannelService.TryGetRaidChannelBindingTo(guild.Id, channel.Id);
-                bool mayContainScheduledRaids = channelBinding != null && channelBinding.AllowScheduledRaids;
-                DateTime dateTimeFrom = !mayContainScheduledRaids ? DateTime.UtcNow.AddHours(-2) : DateTime.UtcNow.AddDays(-14);
+                var mayContainScheduledRaids = channelBinding != null && channelBinding.AllowScheduledRaids;
+                var dateTimeFrom = !mayContainScheduledRaids ? DateTime.UtcNow.AddHours(-2) : DateTime.UtcNow.AddDays(-14);
 
                 var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
                     .ToList();
@@ -93,8 +93,8 @@ namespace PoGo.DiscordBot.Services
 
             await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
-           var allReactions = message.Reactions;
-           var invalidReactions = allReactions.Where(t => !IsValidReactionEmote(t.Key.Name)).ToList();
+            var allReactions = message.Reactions;
+            var invalidReactions = allReactions.Where(t => !IsValidReactionEmote(t.Key.Name)).ToList();
             // Remove invalid reactions
             foreach (var react in invalidReactions)
             {
@@ -130,7 +130,7 @@ namespace PoGo.DiscordBot.Services
             UnicodeEmojis.KeycapDigits.Contains(emote);
 
 
-       int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
+        int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
 
 
         public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
@@ -196,7 +196,7 @@ namespace PoGo.DiscordBot.Services
         {
             var toRemove = new List<(ulong guildId, ulong channelId, ulong messageId)>();
 
-            foreach (var(guildId,channelId, messageId,raidInfo) in raidStorageService.GetAll())
+            foreach (var (guildId, channelId, messageId, raidInfo) in raidStorageService.GetAll())
             {
                 await raidInfo.Message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
 
@@ -204,7 +204,7 @@ namespace PoGo.DiscordBot.Services
                     toRemove.Add((guildId, channelId, messageId));
             }
 
-            foreach (var(guildId,channelId,messageId) in toRemove)
+            foreach (var (guildId, channelId, messageId) in toRemove)
                 raidStorageService.TryRemove(guildId, channelId, messageId);
         }
     }

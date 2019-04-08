@@ -20,15 +20,15 @@ namespace PoGo.DiscordBot.Modules
     [Alias("r")]
     public class RaidModule : InteractiveBase<SocketCommandContext>
     {
-        private static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
-        private readonly TeamService teamService;
-        private readonly RaidService raidService;
-        private readonly ILogger<RaidModule> logger;
-        private readonly RaidChannelService raidChannelService;
-        private readonly ConfigurationService configuration;
-        private readonly RaidBossInfoService raidBossInfoService;
-        private readonly GymLocationService gymLocationService;
-        private readonly RaidStorageService raidStorageService;
+        static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
+        readonly TeamService teamService;
+        readonly RaidService raidService;
+        readonly ILogger<RaidModule> logger;
+        readonly RaidChannelService raidChannelService;
+        readonly ConfigurationService configuration;
+        readonly RaidBossInfoService raidBossInfoService;
+        readonly GymLocationService gymLocationService;
+        readonly RaidStorageService raidStorageService;
 
         public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
             ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService, RaidStorageService raidStorageService)
@@ -52,7 +52,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Place")]string location,
             [Summary("Time (" + RaidInfoDto.TimeFormat + ").")]string time)
         {
-            DateTime? parsedTime = RaidInfoDto.ParseTime(time);
+            var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
             {
                 await ReplyAsync(Resources.BadTimeFormat + $"({RaidInfoDto.TimeFormat} 24H).");
@@ -65,22 +65,22 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            RaidChannelBindingDto raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
+            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
 
-            RaidInfoDto raidInfo = new RaidInfoDto(RaidType.Normal)
+            var raidInfo = new RaidInfoDto(RaidType.Normal)
             {
                 BossName = bossName,
                 Location = location,
                 DateTime = parsedTime.Value,
             };
 
-            System.Collections.Generic.IEnumerable<IRole> roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
+            var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
             bool shouldMention = !(configuration.GetGuildOptions(Context.Guild.Id)?.IgnoreMention ?? false);
             string mention = string.Empty;
             if (shouldMention)
                 mention = raidChannelBinding.Mention == null ? string.Join(' ', roles.Select(t => t.Mention)) : raidChannelBinding.Mention.Mention;
 
-            IUserMessage message = await raidChannelBinding.Channel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
+            var message = await raidChannelBinding.Channel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
             logger.LogInformation($"New raid has been created '{bossName}' '{location}' '{parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
@@ -104,14 +104,14 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Place")]string location,
             [Remainder][Summary("Date (" + RaidInfoDto.DateTimeFormat + ").")]string dateTime)
         {
-            RaidChannelBindingDto raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
+            var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
             if (raidChannelBinding == null || !raidChannelBinding.AllowScheduledRaids)
             {
                 await ReplyAsync(Resources.RaidNotPossible);
                 return;
             }
 
-            DateTime? parsedDateTime = RaidInfoDto.ParseDateTime(dateTime);
+            var parsedDateTime = RaidInfoDto.ParseDateTime(dateTime);
             if (!parsedDateTime.HasValue)
             {
                 await ReplyAsync((Resources.DateNotValid) + $"({RaidInfoDto.DateTimeFormat} 24H).");
@@ -124,14 +124,14 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            RaidInfoDto raidInfo = new RaidInfoDto(RaidType.Scheduled)
+            var raidInfo = new RaidInfoDto(RaidType.Scheduled)
             {
                 BossName = bossName,
                 Location = location,
                 DateTime = parsedDateTime.Value,
             };
 
-            IUserMessage message = await raidChannelBinding.Channel.SendMessageAsync(string.Empty, embed: raidInfo.ToEmbed());
+            var message = await raidChannelBinding.Channel.SendMessageAsync(string.Empty, embed: raidInfo.ToEmbed());
             logger.LogInformation($"New scheduled raid has been created '{bossName}' '{location}' '{parsedDateTime.Value.ToString(RaidInfoDto.DateTimeFormat)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
@@ -140,10 +140,10 @@ namespace PoGo.DiscordBot.Modules
             raidStorageService.AddRaid(Context.Guild.Id, raidChannelBinding.Channel.Id, message.Id, raidInfo);
         }
 
-        private RaidInfoDto GetRaid(int skip)
+        RaidInfoDto GetRaid(int skip)
         {
-            ulong raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            RaidInfoDto raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
+            var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);
             return raid;
         }
 
@@ -156,7 +156,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
             // TODO scheduled raid
-            RaidInfoDto raid = GetRaid(skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -164,7 +164,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            DateTime? parsedTime = RaidInfoDto.ParseTime(time);
+            var parsedTime = RaidInfoDto.ParseTime(time);
             if (!parsedTime.HasValue)
             {
                 await ReplyAsync(Resources.BadTimeFormat + $" ({RaidInfoDto.TimeFormat} 24H).");
@@ -177,14 +177,14 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            SocketGuildUser currentUser = Context.User as SocketGuildUser;
+            var currentUser = Context.User as SocketGuildUser;
             logger.LogInformation($"User '{currentUser.Nickname ?? Context.User.Username}' with id '{Context.User.Id}'" +
                 $" changed raid with id '{raid.Message.Id}'" +
                 $" time changed from {raid.DateTime.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
 
-            foreach (PlayerDto player in raid.Players.Values)
+            foreach (var player in raid.Players.Values)
             {
-                IGuildUser user = player.User;
+                var user = player.User;
                 await user.SendMessageAsync(
                     $"Změna raid času z {raid.DateTime.ToString(RaidInfoDto.TimeFormat)} na {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}!" +
                     $" Jestli ti změna nevyhovuje, tak se odhlaš z raidu nebo se domluv s ostatními na jiném čase.");
@@ -202,7 +202,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Přenastaví bosse raidu.")]string boss,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            RaidInfoDto raid = GetRaid(skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -233,7 +233,7 @@ namespace PoGo.DiscordBot.Modules
             [Summary("Počet anket odspodu.")] int skip = 0,
             [Remainder][Summary("Text")]string text = null)
         {
-            RaidInfoDto raid = GetRaid(skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -241,7 +241,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            HashSet<PlayerDto> users = raid.Players.Values.ToHashSet();
+            var users = raid.Players.Values.ToHashSet();
 
             if (users.Count > 0)
             {
@@ -261,7 +261,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task DeleteRaid(
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
-            RaidInfoDto raid = GetRaid(skip);
+            var raid = GetRaid(skip);
 
             if (raid == null)
             {
@@ -269,14 +269,14 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            IUserMessage questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raid.ToSimpleString()}'? [y]");
-            SocketMessage responseMessage = await NextMessageAsync();
+            var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raid.ToSimpleString()}'? [y]");
+            var responseMessage = await NextMessageAsync();
             if (responseMessage == null || !string.Equals(responseMessage.Content, "y", StringComparison.OrdinalIgnoreCase))
                 return;
 
-            foreach (PlayerDto player in raid.Players.Values)
+            foreach (var player in raid.Players.Values)
             {
-                IGuildUser user = player.User;
+                var user = player.User;
                 await user.SendMessageAsync($"Raid {raid.ToSimpleString()} se ruší!");
             }
 
@@ -290,7 +290,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task RaidBossInfo(
             [Summary("Název bosse.")] string bossName)
         {
-            RaidBossDto boss = raidBossInfoService.GetBoss(bossName);
+            var boss = raidBossInfoService.GetBoss(bossName);
 
             if (boss == null)
             {
@@ -300,8 +300,8 @@ namespace PoGo.DiscordBot.Modules
             }
 
             string bossMention = raidBossInfoService.GetBossNameWithEmoji(boss.BossName, Context.Guild);
-            IEnumerable<string> countersWithEmojis = boss.Counters?.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild)) ?? Enumerable.Empty<string>();
-            string countersField = string.Join(", ", countersWithEmojis);
+            var countersWithEmojis = boss.Counters?.Select(c => raidBossInfoService.GetBossNameWithEmoji(c, Context.Guild)) ?? Enumerable.Empty<string>();
+            var countersField = string.Join(", ", countersWithEmojis);
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .WithTitle(bossMention)
                 .AddInlineField("Type", string.Join(", ", boss.Type))
@@ -326,15 +326,15 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            IEnumerable<GymInfoDto> searchResult = gymLocationService.Search(Context.Guild.Id, name);
+            var searchResult = gymLocationService.Search(Context.Guild.Id, name);
             if (searchResult == null)
             {
                 await ReplyAsync(Resources.CommandNotSupported);
                 return;
             }
 
-            StringBuilder sb = new StringBuilder();
-            foreach (GymInfoDto gymInfo in searchResult)
+            var sb = new StringBuilder();
+            foreach (var gymInfo in searchResult)
                 sb.AppendLine($"{gymInfo.Name}: {gymLocationService.GetMapUrl(gymInfo)}");
 
             await ReplyAsync(sb.ToString());
@@ -344,8 +344,8 @@ namespace PoGo.DiscordBot.Modules
         [Summary("RaidListSummary")]
         public async Task RaidList()
         {
-            ulong channelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
-            IEnumerable<(int Index, RaidInfoDto Raid)> raids = raidStorageService.GetActiveRaidsWithIndexes(Context.Guild.Id, channelId);
+            var channelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
+            var raids = raidStorageService.GetActiveRaidsWithIndexes(Context.Guild.Id, channelId);
             if (!raids.Any())
             {
                 await ReplyAsync(Resources.NoActiveRaids);
