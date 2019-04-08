@@ -42,12 +42,8 @@ namespace PoGo.DiscordBot.Services
             var teamRoles = teamService.GuildTeamRoles[user.Guild.Id].RoleTeams;
 
             foreach (var role in user.Roles)
-            {
                 if (teamRoles.TryGetValue(role.Id, out var team))
-                {
                     return team;
-                }
-            }
 
             return null;
         }

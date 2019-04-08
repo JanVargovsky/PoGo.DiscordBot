@@ -17,7 +17,7 @@ namespace PoGo.DiscordBot.Modules.Preconditions
             var userService = services.GetService<UserService>();
             var team = userService.GetTeam(guildUser);
 
-            if (team == null)
+            if(team == null)
                 return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);
 
             return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Success);
