@@ -32,7 +32,7 @@ namespace PoGo.DiscordBot.Modules
         [Summary("ListCommandsSummary")]
         public async Task Help()
         {
-            Dictionary<string, List<string>> groupCommands = new Dictionary<string, List<string>>();
+            var groupCommands = new Dictionary<string, List<string>>();
 
             foreach (var module in commandService.Modules)
             {
@@ -85,7 +85,7 @@ namespace PoGo.DiscordBot.Modules
             }
             if (currentPageCommands.Count > 0)
                 commandPages.Add(currentPageCommands);
-            List<string> pages = commandPages.Select(CommandsToString).ToList();
+            var pages = commandPages.Select(CommandsToString).ToList();
 
             if (pages.Count > 1)
             {

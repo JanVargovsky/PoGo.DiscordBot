@@ -118,7 +118,7 @@ namespace PoGo.DiscordBot
             var guildOptions = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value.Guilds;
             raidChannelService.OnNewGuild(guild, guildOptions);
 
-            RaidService raidService = ServiceProvider.GetService<RaidService>();
+            var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
         }
 
@@ -128,7 +128,7 @@ namespace PoGo.DiscordBot
             await raidService.OnReactionRemoved(message, channel, reaction);
         }
 
-        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
             var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnReactionAdded(message, channel, reaction);
@@ -168,7 +168,7 @@ namespace PoGo.DiscordBot
 
         public IServiceProvider ConfigureServices()
         {
-            ServiceCollection services = new ServiceCollection();
+            var services = new ServiceCollection();
 
             services.AddOptions();
             services.Configure<ConfigurationOptions>(Configuration);
@@ -207,7 +207,7 @@ namespace PoGo.DiscordBot
 
         async Task InitCommands()
         {
-           var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
             logger.LogDebug("Loading modules");
             foreach (var module in modules)
                 logger.LogDebug($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");

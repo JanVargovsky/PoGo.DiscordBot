@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot
 {
-    internal class Program
+    class Program
     {
-        private static async Task Main(string[] args)
+        static async Task Main(string[] args)
         {
             using (var bot = new PoGoBot())
             {

@@ -143,7 +143,7 @@ namespace PoGo.DiscordBot.Dto
 
             if (embed.Fields[2].Name.Equals(Resources.Time, StringComparison.OrdinalIgnoreCase))
             {
-                DateTime? time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
+                var time = ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
                 if (!time.HasValue)
                     return null;
 
@@ -158,7 +158,7 @@ namespace PoGo.DiscordBot.Dto
             }
             else if (embed.Fields[2].Name.Equals(Resources.Date, StringComparison.OrdinalIgnoreCase))
             {
-                DateTime? dateTime = ParseDateTime(embed.Fields[2].Value);
+                var dateTime = ParseDateTime(embed.Fields[2].Value);
                 if (!dateTime.HasValue)
                     return null;
 

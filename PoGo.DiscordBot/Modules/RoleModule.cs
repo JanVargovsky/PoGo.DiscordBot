@@ -58,7 +58,7 @@ namespace PoGo.DiscordBot.Modules
             if (!(Context.User is SocketGuildUser user))
                 return;
 
-            if (!availableRoles.TryGetValue(Context.Guild.Id, out string[] roles) || !roles.Contains(roleName))
+            if (!availableRoles.TryGetValue(Context.Guild.Id, out var roles) || !roles.Contains(roleName))
                 return;
 
             var role = roleService.GetRoleByName(Context.Guild, roleName);

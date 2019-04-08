@@ -29,7 +29,7 @@ namespace PoGo.DiscordBot.Services
              .OrderBy(t => t);
 
         public RaidBossDto GetBoss(string bossName) =>
-            raidBosses.TryGetValue(bossName.ToLower(), out RaidBossDto dto) ? dto : null;
+            raidBosses.TryGetValue(bossName.ToLower(), out var dto) ? dto : null;
 
         public string GetBossNameWithEmoji(string bossName, SocketGuild guild)
         {

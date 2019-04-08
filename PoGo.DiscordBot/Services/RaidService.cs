@@ -98,7 +98,7 @@ namespace PoGo.DiscordBot.Services
             // Remove invalid reactions
             foreach (var react in invalidReactions)
             {
-                IReadOnlyCollection<IUser> users = await message.GetReactionUsersAsync(react.Key.Name, options: retryOptions);
+                var users = await message.GetReactionUsersAsync(react.Key.Name, options: retryOptions);
                 foreach (var user in users)
                     await message.RemoveReactionAsync(react.Key, user, options: retryOptions);
             }
@@ -168,7 +168,7 @@ namespace PoGo.DiscordBot.Services
                 return;
 
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
-            SocketGuildUser user = socketGuildChannel.GetUser(reaction.UserId);
+            var user = socketGuildChannel.GetUser(reaction.UserId);
             if (user.IsBot)
                 return;
             if (!IsValidReactionEmote(reaction.Emote.Name))

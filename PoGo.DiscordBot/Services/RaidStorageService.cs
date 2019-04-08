@@ -45,12 +45,11 @@ namespace PoGo.DiscordBot.Services
             return null;
         }
 
-        public bool TryRemove(ulong guildId, ulong channelId, ulong messageId)
-        {
-            return raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
-raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages) &&
-raidMessages.RaidMessages.TryRemove(messageId, out _);
-        }
+        public bool TryRemove(ulong guildId, ulong channelId, ulong messageId) =>
+            raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&
+            raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages) &&
+            raidMessages.RaidMessages.TryRemove(messageId, out _);
+
 
         public IEnumerable<(int Index, RaidInfoDto Raid)> GetActiveRaidsWithIndexes(ulong guildId, ulong channelId)
         {

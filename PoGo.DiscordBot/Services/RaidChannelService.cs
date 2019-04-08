@@ -10,7 +10,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class RaidChannelService
     {
-        private class RaidChannelBinding
+        class RaidChannelBinding
         {
             public ITextChannel From { get; }
             public ITextChannel To { get; }

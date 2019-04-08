@@ -43,7 +43,7 @@ namespace PoGo.DiscordBot.Services
 
             foreach (var role in user.Roles)
             {
-                if (teamRoles.TryGetValue(role.Id, out PokemonTeam team))
+                if (teamRoles.TryGetValue(role.Id, out var team))
                 {
                     return team;
                 }

@@ -7,8 +7,8 @@ namespace PoGo.DiscordBot.Common
     {
         public static string ToLowerWithoutDiacritics(string text)
         {
-            string normalizedString = text.Normalize(NormalizationForm.FormD);
-            StringBuilder stringBuilder = new StringBuilder(text.Length);
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder(text.Length);
 
             foreach (var c in normalizedString)
             {
