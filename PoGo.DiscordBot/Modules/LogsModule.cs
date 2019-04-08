@@ -11,17 +11,17 @@ namespace PoGo.DiscordBot.Modules
     [RequireOwner]
     public class LogsModule : ModuleBase
     {
-        private const string LogDirectory = "Logs";
+        const string LogDirectory = "Logs";
 
         [Command("logs", RunMode = RunMode.Async)]
         public async Task GetLogsFiles()
         {
-            DirectoryInfo di = new DirectoryInfo(LogDirectory);
+            var di = new DirectoryInfo(LogDirectory);
 
-            IEnumerable<string> filenames = di.EnumerateFiles().Select(t => t.Name);
+            var filenames = di.EnumerateFiles().Select(t => t.Name);
             string content = string.Join(Environment.NewLine, filenames);
 
-            EmbedBuilder embedBuilder = new EmbedBuilder()
+            var embedBuilder = new EmbedBuilder()
                 .WithDescription(content);
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }
@@ -29,7 +29,7 @@ namespace PoGo.DiscordBot.Modules
         [Command("log", RunMode = RunMode.Async)]
         public async Task GetLog()
         {
-            FileInfo fileInfo = new DirectoryInfo(LogDirectory)
+            var fileInfo = new DirectoryInfo(LogDirectory)
                 .EnumerateFiles()
                 .OrderByDescending(t => t.LastWriteTimeUtc)
                 .FirstOrDefault();

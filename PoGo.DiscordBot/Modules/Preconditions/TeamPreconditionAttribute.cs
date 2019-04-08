@@ -14,8 +14,8 @@ namespace PoGo.DiscordBot.Modules.Preconditions
             if (!(context.User is SocketGuildUser guildUser))
                 return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);
 
-            UserService userService = services.GetService<UserService>();
-            Configuration.PokemonTeam? team = userService.GetTeam(guildUser);
+            var userService = services.GetService<UserService>();
+            var team = userService.GetTeam(guildUser);
 
             if (team == null)
                 return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);

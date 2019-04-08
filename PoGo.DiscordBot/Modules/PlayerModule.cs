@@ -11,8 +11,8 @@ namespace PoGo.DiscordBot.Modules
     [RequireContext(ContextType.Guild)]
     public class PlayerModule : ModuleBase<SocketCommandContext>
     {
-        private readonly UserService userService;
-        private readonly TeamService teamService;
+        readonly UserService userService;
+        readonly TeamService teamService;
 
         public PlayerModule(UserService userService, TeamService teamService)
         {
@@ -33,18 +33,18 @@ namespace PoGo.DiscordBot.Modules
         public async Task SetTeam(
             [Summary("SelectedTeam")]PokemonTeam team)
         {
-            SocketUser contextUser = Context.User;
+            var contextUser = Context.User;
             if (!(contextUser is SocketGuildUser user))
                 return;
 
-            PokemonTeam? userTeam = userService.GetTeam(user);
+            var userTeam = userService.GetTeam(user);
             if (userTeam != null)
             {
                 await ReplyAsync(Resources.InTeam);
                 return;
             }
 
-            Discord.IRole role = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles[team];
+            var role = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles[team];
             await user.AddRoleAsync(role);
         }
 

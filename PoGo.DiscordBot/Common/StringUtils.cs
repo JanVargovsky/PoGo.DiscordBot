@@ -10,9 +10,9 @@ namespace PoGo.DiscordBot.Common
             string normalizedString = text.Normalize(NormalizationForm.FormD);
             StringBuilder stringBuilder = new StringBuilder(text.Length);
 
-            foreach (char c in normalizedString)
+            foreach (var c in normalizedString)
             {
-                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
                 if (unicodeCategory != UnicodeCategory.NonSpacingMark)
                 {
                     stringBuilder.Append(char.ToLower(c));

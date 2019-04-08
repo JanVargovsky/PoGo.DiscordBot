@@ -12,11 +12,11 @@ namespace PoGo.DiscordBot.Modules
         [Command("ps")]
         public async Task ProcessInfo()
         {
-            Process proc = Process.GetCurrentProcess();
+            var proc = Process.GetCurrentProcess();
             double mem = proc.WorkingSet64;
-            TimeSpan cpu = proc.TotalProcessorTime;
+            var cpu = proc.TotalProcessorTime;
 
-            string[] suffixes = new[] { "", "K", "M", "G", "T" };
+            var suffixes = new[] { "", "K", "M", "G", "T" };
             int memoryIndex = 0;
             while (mem >= 1024)
             {
@@ -24,7 +24,7 @@ namespace PoGo.DiscordBot.Modules
                 memoryIndex++;
             }
 
-            TimeSpan totalTime = DateTime.Now - proc.StartTime;
+            var totalTime = DateTime.Now - proc.StartTime;
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .AddField("Time running", $"{totalTime}")

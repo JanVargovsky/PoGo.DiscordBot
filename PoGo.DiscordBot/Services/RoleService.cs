@@ -5,9 +5,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class RoleService
     {
-        public SocketRole GetRoleByName(SocketGuild guild, string name)
-        {
-            return guild.Roles.FirstOrDefault(t => t.Name == name);
-        }
+        public SocketRole GetRoleByName(SocketGuild guild, string name) => guild.Roles.FirstOrDefault(t => t.Name == name);
+
     }
 }

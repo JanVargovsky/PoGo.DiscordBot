@@ -6,16 +6,13 @@ namespace PoGo.DiscordBot.Services
 {
     public class ConfigurationService
     {
-        private readonly ConfigurationOptions configurationOptions;
+        readonly ConfigurationOptions configurationOptions;
 
         public ConfigurationService(IOptions<ConfigurationOptions> configurationOptions)
         {
             this.configurationOptions = configurationOptions.Value;
         }
 
-        public GuildOptions GetGuildOptions(ulong guildId)
-        {
-            return configurationOptions.Guilds.FirstOrDefault(t => t.Id == guildId);
-        }
+        public GuildOptions GetGuildOptions(ulong guildId) => configurationOptions.Guilds.FirstOrDefault(t => t.Id == guildId);
     }
 }

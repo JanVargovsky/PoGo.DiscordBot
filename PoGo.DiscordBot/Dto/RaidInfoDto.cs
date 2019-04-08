@@ -28,7 +28,7 @@ namespace PoGo.DiscordBot.Dto
         public bool IsExpired => DateTime < DateTime.Now;
         public RaidType RaidType { get; set; }
 
-        private string DateTimeAsString => DateTime.ToString(RaidType == RaidType.Normal ? TimeFormat : DateTimeFormat);
+        string DateTimeAsString => DateTime.ToString(RaidType == RaidType.Normal ? TimeFormat : DateTimeFormat);
 
         public RaidInfoDto(RaidType raidType)
         {
@@ -47,7 +47,7 @@ namespace PoGo.DiscordBot.Dto
                     return !IsExpired ? new Color(191, 155, 48) : Color.Red;
                 }
 
-                TimeSpan remainingTime = DateTime - DateTime.Now;
+                var remainingTime = DateTime - DateTime.Now;
 
                 if (remainingTime.TotalMinutes <= 0)
                     return Color.Red;
@@ -82,26 +82,20 @@ namespace PoGo.DiscordBot.Dto
             return embedBuilder.Build();
         }
 
-        public string ToSimpleString()
-        {
-            return $"{BossName} {Location} {DateTimeAsString}";
-        }
+        public string ToSimpleString() =>  $"{BossName} {Location} {DateTimeAsString}";
 
-        private string PlayersToString(IEnumerable<PlayerDto> players)
-        {
-            return string.Join(", ", players);
-        }
+        string PlayersToString(IEnumerable<PlayerDto> players) => string.Join(", ", players);
 
-        private string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
+        string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
         {
             string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : Resources.WithoutTeam;
 
             List<string> formatterGroupedPlayers = new List<string>();
 
-            PokemonTeam?[] teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
+            var teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
             foreach (PokemonTeam? team in teams)
             {
-                List<PlayerDto> players = allPlayers.Where(t => t.Team == team).ToList();
+                var players = allPlayers.Where(t => t.Team == team).ToList();
                 if (players.Count > 0)
                     formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}) - {PlayersToString(players)}");
             }
@@ -109,14 +103,11 @@ namespace PoGo.DiscordBot.Dto
             return string.Join(Environment.NewLine, formatterGroupedPlayers);
         }
 
-        public static DateTime? ParseTime(string time)
-        {
-            return ParseTime(time, DateTime.Now.Date);
-        }
+        public static DateTime? ParseTime(string time) =>  ParseTime(time, DateTime.Now.Date);
 
         public static DateTime? ParseTime(string time, DateTime date)
         {
-            string[] pieces = time.Split(' ', '.', ',', ':', ';', '\'');
+            var pieces = time.Split(' ', '.', ',', ':', ';', '\'');
 
             if (pieces.Length != 2 || !int.TryParse(pieces[0], out int hours) || !int.TryParse(pieces[1], out int minutes))
                 return null;
@@ -129,10 +120,10 @@ namespace PoGo.DiscordBot.Dto
             DateTime? result = null;
             try
             {
-                string[] tokens = dateTime.Split(new[] { ' ', '.', ',', ':', ';', '\'', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                var tokens = dateTime.Split(new[] { ' ', '.', ',', ':', ';', '\'', '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (tokens.Length != 5)
                     throw new Exception($"Invalid date '{dateTime}'");
-                int[] intTokens = tokens.Select(int.Parse).ToArray();
+                var intTokens = tokens.Select(int.Parse).ToArray();
 
                 result = new DateTime(intTokens[2], intTokens[1], intTokens[0], intTokens[3], intTokens[4], 0);
             }
@@ -144,7 +135,7 @@ namespace PoGo.DiscordBot.Dto
 
         public static RaidInfoDto Parse(IUserMessage message)
         {
-            IEmbed embed = message.Embeds.FirstOrDefault();
+            var embed = message.Embeds.FirstOrDefault();
             if (embed == null || embed.Fields.Length < 3)
                 return null;
 

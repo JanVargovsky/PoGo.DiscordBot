@@ -26,8 +26,8 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        private readonly Dictionary<ulong, List<RaidChannelBinding>> guilds; // <guildId, channels[]>
-        private readonly ILogger<RaidChannelService> logger;
+        readonly Dictionary<ulong, List<RaidChannelBinding>> guilds; // <guildId, channels[]>
+        readonly ILogger<RaidChannelService> logger;
 
         public RaidChannelService(ILogger<RaidChannelService> logger)
         {
@@ -37,7 +37,7 @@ namespace PoGo.DiscordBot.Services
 
         public void OnNewGuild(SocketGuild guild, GuildOptions[] guildOptions)
         {
-            GuildOptions guildConfig = guildOptions.FirstOrDefault(t => t.Id == guild.Id);
+            var guildConfig = guildOptions.FirstOrDefault(t => t.Id == guild.Id);
             if (guildConfig == null)
             {
                 logger.LogWarning($"Unknown guild with id '{guild.Id}', name '{guild.Name}'");
@@ -50,27 +50,21 @@ namespace PoGo.DiscordBot.Services
                 return;
             }
 
-            List<RaidChannelBinding> channelBindings = guilds[guild.Id] = new List<RaidChannelBinding>();
+            var channelBindings = guilds[guild.Id] = new List<RaidChannelBinding>();
 
             // go through configured channels and register them
-            foreach (ChannelOptions channel in guildConfig.Channels)
+            foreach (var channel in guildConfig.Channels)
                 AddBindingIfValid(channelBindings, guild, channel);
         }
 
-        public bool IsKnown(ulong guildId)
-        {
-            return guilds.ContainsKey(guildId);
-        }
+        public bool IsKnown(ulong guildId) => guilds.ContainsKey(guildId);
 
-        public bool IsKnown(ulong guildId, ulong textChannelId)
-        {
-            return TryGetRaidChannelBinding(guildId, textChannelId) != null;
-        }
 
-        public IEnumerable<ITextChannel> GetRaidChannels(ulong guildId)
-        {
-            return guilds[guildId].Select(t => t.To);
-        }
+        public bool IsKnown(ulong guildId, ulong textChannelId) =>
+            TryGetRaidChannelBinding(guildId, textChannelId) != null;
+
+
+        public IEnumerable<ITextChannel> GetRaidChannels(ulong guildId) => guilds[guildId].Select(t => t.To);
 
         /// <summary>
         /// Returns raid channel for the raid poll based on the channel where the command came from.
@@ -79,9 +73,9 @@ namespace PoGo.DiscordBot.Services
         /// <param name="fromTextChannelId">todo: describe fromTextChannelId parameter on TryGetRaidChannelBinding</param>
         public RaidChannelBindingDto TryGetRaidChannelBinding(ulong guildId, ulong fromTextChannelId)
         {
-            if (guilds.TryGetValue(guildId, out List<RaidChannelBinding> raidChannelBindings))
+            if (guilds.TryGetValue(guildId, out var raidChannelBindings))
             {
-                foreach (RaidChannelBinding channel in raidChannelBindings)
+                foreach (var channel in raidChannelBindings)
                 {
                     if (channel.From == null || channel.From.Id == fromTextChannelId)
                     {
@@ -113,10 +107,10 @@ namespace PoGo.DiscordBot.Services
             return null;
         }
 
-        private void AddBindingIfValid(List<RaidChannelBinding> channelBindings, SocketGuild guild, ChannelOptions channelOptions)
+        void AddBindingIfValid(List<RaidChannelBinding> channelBindings, SocketGuild guild, ChannelOptions channelOptions)
         {
-            SocketTextChannel channelFrom = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.From);
-            SocketTextChannel channelTo = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.To);
+            var channelFrom = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.From);
+            var channelTo = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.To);
 
             bool channelFromBinding = channelFrom == null && channelOptions.From != "*";
             bool channelToBinding = channelTo == null;

@@ -13,8 +13,8 @@ namespace PoGo.DiscordBot.Modules
         [Summary("DeleteAllMessagesSummary")]
         public async Task FullClean([Summary("MessageNumber")]int count = 10)
         {
-            IEnumerable<IReadOnlyCollection<IMessage>> batchMessages = AsyncEnumerable.ToEnumerable(Context.Channel.GetMessagesAsync(count));
-            foreach (IReadOnlyCollection<IMessage> messages in batchMessages)
+           var batchMessages = AsyncEnumerable.ToEnumerable(Context.Channel.GetMessagesAsync(count));
+            foreach (var messages in batchMessages)
                 await Context.Channel.DeleteMessagesAsync(messages);
         }
 
@@ -39,7 +39,7 @@ namespace PoGo.DiscordBot.Modules
         {
             foreach (IReadOnlyCollection<IMessage> messages in Context.Channel.GetMessagesAsync().ToEnumerable())
             {
-                IEnumerable<IMessage> messagesToDelete = messages.Where(t => t.Author.Id == userId).Take(count);
+                var messagesToDelete = messages.Where(t => t.Author.Id == userId).Take(count);
                 if (messagesToDelete != null)
                     await Context.Channel.DeleteMessagesAsync(messagesToDelete.Take(count));
             }

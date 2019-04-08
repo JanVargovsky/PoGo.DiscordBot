@@ -15,11 +15,11 @@ namespace PoGo.DiscordBot.Modules
 {
     public class HelpModule : InteractiveBase<SocketCommandContext>
     {
-        private readonly CommandService commandService;
-        private readonly IServiceProvider serviceProvider;
-        private readonly char prefix;
+        readonly CommandService commandService;
+        readonly IServiceProvider serviceProvider;
+        readonly char prefix;
         //TODO Load the current culture info from guild
-        private readonly CultureInfo cultureInfo = CultureInfo.GetCultureInfo("cs-CS");
+        readonly CultureInfo cultureInfo = CultureInfo.GetCultureInfo("cs-CS");
 
         public HelpModule(CommandService commandService, IServiceProvider serviceProvider, IOptions<ConfigurationOptions> config)
         {
@@ -34,15 +34,15 @@ namespace PoGo.DiscordBot.Modules
         {
             Dictionary<string, List<string>> groupCommands = new Dictionary<string, List<string>>();
 
-            foreach (ModuleInfo module in commandService.Modules)
+            foreach (var module in commandService.Modules)
             {
                 string key = module.Aliases.FirstOrDefault() ?? string.Empty;
-                if (!groupCommands.TryGetValue(key, out List<string> commands))
+                if (!groupCommands.TryGetValue(key, out var commands))
                     groupCommands[key] = commands = new List<string>();
 
-                foreach (CommandInfo cmd in module.Commands)
+                foreach (var cmd in module.Commands)
                 {
-                    PreconditionResult result = await cmd.CheckPreconditionsAsync(Context, serviceProvider);
+                    var result = await cmd.CheckPreconditionsAsync(Context, serviceProvider);
                     if (result.IsSuccess)
                     {
                         string s = $"{prefix}{cmd.Aliases[0]}";
@@ -57,16 +57,16 @@ namespace PoGo.DiscordBot.Modules
             string CommandsToString(IEnumerable<string> commands) =>
                 string.Join(Environment.NewLine, commands.OrderBy(t => t));
 
-            List<List<string>> commandPages = new List<List<string>>();
+            var commandPages = new List<List<string>>();
             // Commands with module that has alias equal to "" are without any group
             // and they are on first page without any other group commands
-            if (groupCommands.TryGetValue(string.Empty, out List<string> globalCommands))
+            if (groupCommands.TryGetValue(string.Empty, out var globalCommands))
                 commandPages.Add(globalCommands);
 
             const int MaxCommandsPerPage = 15;
             List<string> currentPageCommands = new List<string>();
 
-            foreach (KeyValuePair<string, List<string>> c in groupCommands.OrderBy(t => t.Key))
+            foreach (var c in groupCommands.OrderBy(t => t.Key))
             {
                 if (c.Key?.Length == 0) continue;
 
@@ -116,7 +116,7 @@ namespace PoGo.DiscordBot.Modules
         [Summary("HelpSummary")]
         public async Task Help([Remainder] string command)
         {
-            SearchResult result = commandService.Search(Context, command);
+            var result = commandService.Search(Context, command);
 
             if (!result.IsSuccess)
             {
@@ -126,7 +126,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            EmbedBuilder builder = new EmbedBuilder()
+            var builder = new EmbedBuilder()
                 .WithColor(Color.Blue);
 
             string ParameterInfoToString(ParameterInfo info) => !info.IsOptional ? info.Name : $"[{info.Name}]";
@@ -159,7 +159,7 @@ namespace PoGo.DiscordBot.Modules
 
                 if (ci.Parameters.Count > 0)
                 {
-                    IEnumerable<ParameterInfo> parameters = ci.Parameters.AsEnumerable();
+                    var parameters = ci.Parameters.AsEnumerable();
 
                     if (signature == HelpModule.CommandInfoSignature.Basic)
                         parameters = parameters.Where(pi => !pi.IsOptional);
@@ -172,7 +172,7 @@ namespace PoGo.DiscordBot.Modules
 
             foreach (CommandMatch match in result.Commands)
             {
-                CommandInfo cmd = match.Command;
+                var cmd = match.Command;
                 StringBuilder sb = new StringBuilder()
                     .Append(Resources.Description).Append(':').AppendLine(cmd.Summary)
                     .AppendLine()

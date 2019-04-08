@@ -9,9 +9,6 @@ namespace PoGo.DiscordBot.Dto
         public PokemonTeam? Team { get; set; }
         public int? Level { get; set; }
 
-        public override string ToString()
-        {
-            return User.Nickname ?? User.Username;
-        }
+        public override string ToString() => User.Nickname ?? User.Username;
     }
 }

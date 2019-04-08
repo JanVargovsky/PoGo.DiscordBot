@@ -10,7 +10,7 @@ namespace PoGo.DiscordBot.Modules
 {
     public class InfoModule : ModuleBase
     {
-        private readonly ConfigurationOptions configuration;
+        readonly ConfigurationOptions configuration;
 
         public InfoModule(IOptions<ConfigurationOptions> configurationOptionsAccessor)
         {
@@ -37,7 +37,7 @@ Použití např.:
 {configuration.Prefix}raid Machamp Žirafa 12:00 2
 Pozn. Jestliže má jakýkoliv parametr mezery, je nutné ho obalit uvozovkami (""parametr s mezerou"")");
 
-            Embed embed = embedBuilder.Build();
+            var embed = embedBuilder.Build();
             await ReplyAsync(string.Empty, embed: embed);
         }
 

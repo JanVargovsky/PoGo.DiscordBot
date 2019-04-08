@@ -10,7 +10,7 @@ namespace PoGo.DiscordBot.Modules.Preconditions
     {
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
-            RaidChannelService raidChannelService = services.GetService<RaidChannelService>();
+            var raidChannelService = services.GetService<RaidChannelService>();
 
             if (raidChannelService.IsKnown(context.Guild.Id, context.Channel.Id))
                 return Task.FromResult(PreconditionResult.FromSuccess());

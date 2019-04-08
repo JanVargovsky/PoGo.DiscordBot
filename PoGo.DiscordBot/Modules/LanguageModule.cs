@@ -7,8 +7,8 @@ namespace PoGo.DiscordBot.Modules
     //TODO Add a command to support changing the language in the config
     public class LanguageModule : ModuleBase<SocketCommandContext>
     {
-        private readonly ILogger<LanguageModule> logger;
-        private readonly ConfigurationService configService;
+        readonly ILogger<LanguageModule> logger;
+        readonly ConfigurationService configService;
 
         public LanguageModule(ILogger<LanguageModule> logger
                                 , ConfigurationService configService)

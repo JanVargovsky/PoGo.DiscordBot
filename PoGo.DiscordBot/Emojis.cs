@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot
         public const string ThumbsDown = "👎";
         public const string Check = "✅";
         public const string Cross = "❌";
-        private const char Border = '⃣';
+        const char Border = '⃣';
         public static readonly string[] KeycapDigits;
 
         static UnicodeEmojis()

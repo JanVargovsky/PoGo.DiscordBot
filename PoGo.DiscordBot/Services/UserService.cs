@@ -13,8 +13,8 @@ namespace PoGo.DiscordBot.Services
 {
     public class UserService
     {
-        private readonly ILogger<UserService> logger;
-        private readonly TeamService teamService;
+        readonly ILogger<UserService> logger;
+        readonly TeamService teamService;
 
         public UserService(ILogger<UserService> logger, TeamService teamService)
         {
@@ -22,11 +22,11 @@ namespace PoGo.DiscordBot.Services
             this.teamService = teamService;
         }
 
-        public static int? GetPlayerLevel(SocketGuildUser user)
+        public int? GetPlayerLevel(SocketGuildUser user)
         {
-            string name = user.Nickname ?? user.Username;
-            Match result = Regex.Match(name, @"\(\d+\)");
-            string stringLevel = result.Captures.LastOrDefault()?.Value;
+            var name = user.Nickname ?? user.Username;
+            var result = Regex.Match(name, @"\(\d+\)");
+            var stringLevel = result.Captures.LastOrDefault()?.Value;
             if (stringLevel != null
                 && int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out int level)
                 && level >= 1 && level <= 40)
@@ -39,9 +39,9 @@ namespace PoGo.DiscordBot.Services
 
         public PokemonTeam? GetTeam(SocketGuildUser user)
         {
-            IReadOnlyDictionary<ulong, PokemonTeam> teamRoles = teamService.GuildTeamRoles[user.Guild.Id].RoleTeams;
+            var teamRoles = teamService.GuildTeamRoles[user.Guild.Id].RoleTeams;
 
-            foreach (SocketRole role in user.Roles)
+            foreach (var role in user.Roles)
             {
                 if (teamRoles.TryGetValue(role.Id, out PokemonTeam team))
                 {
@@ -52,26 +52,22 @@ namespace PoGo.DiscordBot.Services
             return null;
         }
 
-        public PlayerDto GetPlayer(SocketGuildUser user)
-        {
-            return new PlayerDto
+        public PlayerDto GetPlayer(SocketGuildUser user) => new PlayerDto
             {
                 User = user,
                 Team = GetTeam(user),
                 Level = GetPlayerLevel(user),
             };
-        }
 
-        public IEnumerable<PlayerDto> GetPlayers(IEnumerable<SocketGuildUser> users)
-        {
-            return users
-.Where(t => !t.IsBot)
-.Select(GetPlayer);
-        }
+
+        public IEnumerable<PlayerDto> GetPlayers(IEnumerable<SocketGuildUser> users) => users
+                .Where(t => !t.IsBot)
+                .Select(GetPlayer);
+
 
         public async Task CheckTeam(SocketGuildUser user)
         {
-            PokemonTeam? team = GetTeam(user);
+            var team = GetTeam(user);
 
             if (team == null)
             {

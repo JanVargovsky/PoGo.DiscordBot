@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class RaidBossInfoService
     {
-        private readonly Dictionary<string, RaidBossDto> raidBosses; // <bossName, dto>
+        readonly Dictionary<string, RaidBossDto> raidBosses; // <bossName, dto>
 
         public RaidBossInfoService(IOptions<ConfigurationOptions> options)
         {
@@ -24,21 +24,16 @@ namespace PoGo.DiscordBot.Services
             });
         }
 
-        public IEnumerable<string> GetAllKnownBossNames()
-        {
-            return raidBosses.Values
-.Select(t => t.BossName)
-.OrderBy(t => t);
-        }
+        public IEnumerable<string> GetAllKnownBossNames() =>raidBosses.Values
+             .Select(t => t.BossName)
+             .OrderBy(t => t);
 
-        public RaidBossDto GetBoss(string bossName)
-        {
-            return raidBosses.TryGetValue(bossName.ToLower(), out RaidBossDto dto) ? dto : null;
-        }
+        public RaidBossDto GetBoss(string bossName) =>
+            raidBosses.TryGetValue(bossName.ToLower(), out RaidBossDto dto) ? dto : null;
 
         public string GetBossNameWithEmoji(string bossName, SocketGuild guild)
         {
-            Discord.GuildEmote emote = guild.Emotes.FirstOrDefault(t => string.Compare(t.Name, bossName, true) == 0);
+            var emote = guild.Emotes.FirstOrDefault(t => string.Compare(t.Name, bossName, true) == 0);
 
             if (emote != null)
                 return $"{bossName} {emote}";

@@ -25,11 +25,11 @@ namespace PoGo.DiscordBot
         public IServiceProvider ServiceProvider { get; }
         public IConfiguration Configuration { get; }
 
-        private readonly DiscordSocketClient client;
-        private readonly CommandService commands;
-        private readonly ILogger logger;
-        private readonly ConfigurationOptions configuration;
-        private readonly Timer updateRaidsTimer;
+        readonly DiscordSocketClient client;
+        readonly CommandService commands;
+        readonly ILogger logger;
+        readonly ConfigurationOptions configuration;
+        readonly Timer updateRaidsTimer;
 
         public PoGoBot()
         {
@@ -46,7 +46,7 @@ namespace PoGo.DiscordBot
                 .AddJsonFile($"appsettings.{environment}.json", false)
                 .Build();
 
-            LogSeverity logSeverity = Enum.Parse<LogSeverity>(Configuration["Logging:LogLevel:Discord"]);
+            var logSeverity = Enum.Parse<LogSeverity>(Configuration["Logging:LogLevel:Discord"]);
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = logSeverity,
@@ -70,14 +70,14 @@ namespace PoGo.DiscordBot
 
             updateRaidsTimer = new Timer(async state =>
             {
-                RaidService raidService = (RaidService)state;
+                var raidService = (RaidService)state;
                 await raidService.UpdateRaidMessages();
             }, ServiceProvider.GetService<RaidService>(), Timeout.Infinite, Timeout.Infinite);
 
             Init();
         }
 
-        private void Init()
+        void Init()
         {
             client.Log += Log;
             commands.Log += Log;
@@ -95,71 +95,71 @@ namespace PoGo.DiscordBot
             client.MessageDeleted += OnMessageDeleted;
         }
 
-        private async Task OnMessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
+        async Task OnMessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
         {
-            RaidService raidService = ServiceProvider.GetService<RaidService>();
+            var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnMessageDeleted(message, channel);
         }
 
-        private async Task OnUserJoined(SocketGuildUser user)
+        async Task OnUserJoined(SocketGuildUser user)
         {
-            UserService userService = ServiceProvider.GetService<UserService>();
+            var userService = ServiceProvider.GetService<UserService>();
             await userService.OnUserJoined(user);
         }
 
-        private async Task GuildAvailable(SocketGuild guild)
+        async Task GuildAvailable(SocketGuild guild)
         {
             logger.LogInformation($"New guild: '{guild.Name}'");
 
-            TeamService teamService = ServiceProvider.GetService<TeamService>();
+            var teamService = ServiceProvider.GetService<TeamService>();
             await teamService.OnNewGuild(guild);
 
-            RaidChannelService raidChannelService = ServiceProvider.GetService<RaidChannelService>();
-            GuildOptions[] guildOptions = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value.Guilds;
+            var raidChannelService = ServiceProvider.GetService<RaidChannelService>();
+            var guildOptions = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value.Guilds;
             raidChannelService.OnNewGuild(guild, guildOptions);
 
             RaidService raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
         }
 
-        private async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            RaidService raidService = ServiceProvider.GetService<RaidService>();
+            var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnReactionRemoved(message, channel, reaction);
         }
 
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            RaidService raidService = ServiceProvider.GetService<RaidService>();
+            var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnReactionAdded(message, channel, reaction);
         }
 
-        private async Task JoinedGuild(SocketGuild guild)
+        async Task JoinedGuild(SocketGuild guild)
         {
-            RaidService raidService = ServiceProvider.GetService<RaidService>();
+            var raidService = ServiceProvider.GetService<RaidService>();
             await raidService.OnNewGuild(guild);
         }
 
-        private Task LoggedIn()
+        Task LoggedIn()
         {
             logger.LogInformation("Logged in");
             return Task.CompletedTask;
         }
 
-        private Task LoggedOut()
+        Task LoggedOut()
         {
             logger.LogInformation("Logged out");
             return Task.CompletedTask;
         }
 
-        private async Task Connected()
+        async Task Connected()
         {
             logger.LogInformation("Connected");
             await client.SetGameAsync(Debugger.IsAttached ? "Debugging" : "Pokémon GO");
             updateRaidsTimer.Change(TimeSpan.FromSeconds(120 - DateTime.Now.Second), TimeSpan.FromMinutes(1));
         }
 
-        private Task Disconnected(Exception exception)
+        Task Disconnected(Exception exception)
         {
             logger.LogInformation(exception, "Disconnected");
             updateRaidsTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -205,16 +205,16 @@ namespace PoGo.DiscordBot
             await client.StartAsync();
         }
 
-        private async Task InitCommands()
+        async Task InitCommands()
         {
-            System.Collections.Generic.IEnumerable<ModuleInfo> modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+           var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
             logger.LogDebug("Loading modules");
-            foreach (ModuleInfo module in modules)
+            foreach (var module in modules)
                 logger.LogDebug($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
             logger.LogDebug("Modules loaded");
         }
 
-        private async Task HandleCommand(SocketMessage messageParam)
+        async Task HandleCommand(SocketMessage messageParam)
         {
             // Don't process the command if it was a System Message
             if (!(messageParam is SocketUserMessage message))
@@ -224,10 +224,10 @@ namespace PoGo.DiscordBot
             // Determine if the message is a command, based on if it starts with '!' or a mention prefix
             if (!(message.HasCharPrefix(configuration.Prefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos))) return;
             // Create a Command Context
-            SocketCommandContext context = new SocketCommandContext(client, message);
+            var context = new SocketCommandContext(client, message);
             // Execute the command. (result does not indicate a return value,
             // rather an object stating if the command executed succesfully)
-            IResult result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
+            var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
             {
                 if (result.Error == CommandError.BadArgCount)
@@ -249,7 +249,7 @@ namespace PoGo.DiscordBot
             // await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
-        private Task Log(LogMessage message)
+        Task Log(LogMessage message)
         {
             LogLevel logLevel = message.Severity.ToLogLevel();
             logger.Log(logLevel, 0, message, null, LogMessageFormatter);
@@ -260,7 +260,7 @@ namespace PoGo.DiscordBot
             return Task.CompletedTask;
         }
 
-        private string LogMessageFormatter(LogMessage message, Exception exception)
+        string LogMessageFormatter(LogMessage message, Exception exception)
         {
             return $"{message.Source}: {message.Message}";
         }
