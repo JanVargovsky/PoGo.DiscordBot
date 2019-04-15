@@ -26,7 +26,7 @@ namespace PoGo.DiscordBot.Services
         public IEnumerable<GymInfoDto> Search(ulong guildId, string name)
         {
             if (!gymsInfos.TryGetValue(guildId, out var gyms))
-                return default;
+                return null;
 
             var normalizedName = StringUtils.ToLowerWithoutDiacritics(name);
             return gyms

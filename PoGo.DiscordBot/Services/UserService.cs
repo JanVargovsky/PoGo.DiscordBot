@@ -37,6 +37,7 @@ namespace PoGo.DiscordBot.Services
             return null;
         }
 
+
         public PokemonTeam? GetTeam(SocketGuildUser user)
         {
             var teamRoles = teamService.GuildTeamRoles[user.Guild.Id].RoleTeams;

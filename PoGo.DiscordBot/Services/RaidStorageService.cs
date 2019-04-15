@@ -50,7 +50,6 @@ namespace PoGo.DiscordBot.Services
             raidChannels.RaidChannels.TryGetValue(channelId, out var raidMessages) &&
             raidMessages.RaidMessages.TryRemove(messageId, out _);
 
-
         public IEnumerable<(int Index, RaidInfoDto Raid)> GetActiveRaidsWithIndexes(ulong guildId, ulong channelId)
         {
             if (raidGuilds.GuildRaids.TryGetValue(guildId, out var raidChannels) &&

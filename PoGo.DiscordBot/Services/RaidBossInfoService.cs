@@ -25,8 +25,8 @@ namespace PoGo.DiscordBot.Services
         }
 
         public IEnumerable<string> GetAllKnownBossNames() => raidBosses.Values
-             .Select(t => t.BossName)
-             .OrderBy(t => t);
+           .Select(t => t.BossName)
+           .OrderBy(t => t);
 
         public RaidBossDto GetBoss(string bossName) =>
             raidBosses.TryGetValue(bossName.ToLower(), out var dto) ? dto : null;
