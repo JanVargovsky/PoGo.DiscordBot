@@ -27,16 +27,12 @@ namespace PoGo.DiscordBot.Services
             var name = user.Nickname ?? user.Username;
             var result = Regex.Match(name, @"\(\d+\)");
             var stringLevel = result.Captures.LastOrDefault()?.Value;
-            if (stringLevel != null
-                && int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out int level)
-                && level >= 1 && level <= 40)
-            {
+            if (stringLevel != null &&
+                int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out var level) &&
+                level >= 1 && level <= 40)
                 return level;
-            }
-
             return null;
         }
-
 
         public PokemonTeam? GetTeam(SocketGuildUser user)
         {
@@ -56,11 +52,9 @@ namespace PoGo.DiscordBot.Services
             Level = GetPlayerLevel(user),
         };
 
-
         public IEnumerable<PlayerDto> GetPlayers(IEnumerable<SocketGuildUser> users) => users
                 .Where(t => !t.IsBot)
                 .Select(GetPlayer);
-
 
         public async Task CheckTeam(SocketGuildUser user)
         {

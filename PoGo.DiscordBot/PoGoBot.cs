@@ -35,7 +35,14 @@ namespace PoGo.DiscordBot
         {
             string environment = Environment.GetEnvironmentVariable("PoGoEnvironment");
             if (string.IsNullOrEmpty(environment))
-                throw new Exception($"Unknown environment '{environment}'");
+            {
+#if DEBUG
+                    environment = "Development";
+#else
+                    environment = "Production";
+#endif
+            }
+            //throw new Exception($"Unknown environment '{environment}'");
             Console.WriteLine($"Environment: {environment}");
 
             Configuration = new ConfigurationBuilder()

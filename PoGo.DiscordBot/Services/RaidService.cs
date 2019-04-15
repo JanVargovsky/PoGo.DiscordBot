@@ -12,6 +12,7 @@ namespace PoGo.DiscordBot.Services
     public class RaidService
     {
         const ulong DefaultRaidChannelId = 348844165741936641;
+
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly ILogger<RaidService> logger;
         readonly UserService userService;
@@ -129,9 +130,7 @@ namespace PoGo.DiscordBot.Services
             emote == UnicodeEmojis.ThumbsDown ||
             UnicodeEmojis.KeycapDigits.Contains(emote);
 
-
         int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
-
 
         public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
