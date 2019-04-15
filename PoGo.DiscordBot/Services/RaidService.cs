@@ -49,7 +49,7 @@ namespace PoGo.DiscordBot.Services
                     .ToList();
                 var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > dateTimeFrom))
                     .ToList();
-                if (!latestMessages.Any())
+                if (latestMessages.Count == 0)
                     return;
 
                 logger.LogInformation($"start updating raid messages for channel '{channel.Name}'");

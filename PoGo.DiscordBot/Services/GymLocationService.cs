@@ -21,7 +21,7 @@ namespace PoGo.DiscordBot.Services
                     Latitude = g.Latitude,
                     Longitude = g.Longitude
                 })).ToArray());
-        }        
+        }
 
         public IEnumerable<GymInfoDto> Search(ulong guildId, string name)
         {

@@ -1,5 +1,9 @@
 ﻿using Discord.Commands;
+using Discord.Rest;
+using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Properties;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,7 +21,7 @@ namespace PoGo.DiscordBot.Modules
 
         [Command("invite")]
         [Alias("inv")]
-        [Summary("Vrátí odkaz s pozvánkou sem na Discord.")]
+        [Summary("InviteSummary")]
         public async Task Invite()
         {
             var invites = await Context.Guild.GetInvitesAsync();
@@ -32,7 +36,7 @@ namespace PoGo.DiscordBot.Modules
 
                 if (defaultChannel == null)
                 {
-                    await ReplyAsync("Sorry, žádný tu nemám :(");
+                    await ReplyAsync("Sorry," +  Resources.NoDefaultChannel + ":(");
                     return;
                 }
 

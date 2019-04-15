@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Modules.Preconditions;
+using PoGo.DiscordBot.Properties;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Diagnostics;
@@ -34,7 +35,14 @@ namespace PoGo.DiscordBot
         {
             string environment = Environment.GetEnvironmentVariable("PoGoEnvironment");
             if (string.IsNullOrEmpty(environment))
-                throw new Exception($"Unknown environment '{environment}'");
+            {
+#if DEBUG
+                    environment = "Development";
+#else
+                    environment = "Production";
+#endif
+            }
+            //throw new Exception($"Unknown environment '{environment}'");
             Console.WriteLine($"Environment: {environment}");
 
             Configuration = new ConfigurationBuilder()
@@ -224,7 +232,7 @@ namespace PoGo.DiscordBot
             if (!(message.HasCharPrefix(configuration.Prefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos))) return;
             // Create a Command Context
             var context = new SocketCommandContext(client, message);
-            // Execute the command. (result does not indicate a return value, 
+            // Execute the command. (result does not indicate a return value,
             // rather an object stating if the command executed succesfully)
             var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
@@ -234,12 +242,12 @@ namespace PoGo.DiscordBot
                     const string TooFewArgs = "The input text has too few parameters.";
                     const string TooManyArgs = "The input text has too many parameters.";
                     if (result.ErrorReason == TooFewArgs)
-                        await context.Channel.SendMessageAsync("Chybí některý z parametrů.");
+                        await context.Channel.SendMessageAsync(Resources.TooFewArgs);
                     else if (result.ErrorReason == TooManyArgs)
-                        await context.Channel.SendMessageAsync("Hodně parametrů - nechybí ti tam uvozovky?");
+                        await context.Channel.SendMessageAsync(Resources.TooManyArgs);
                 }
                 else if (result.Error == CommandError.ParseFailed)
-                    await context.Channel.SendMessageAsync("Špatné parametry.");
+                    await context.Channel.SendMessageAsync(Resources.BadParameters);
                 else if (result is TeamPreconditionResult teamResult)
                     await context.Channel.SendMessageAsync(teamResult.ErrorReason);
 

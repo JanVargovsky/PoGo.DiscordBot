@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace PoGo.DiscordBot.Modules
         {
             string path = Path.Combine(LogDirectory, filename);
             if (!File.Exists(path))
-            { 
+            {
                 await ReplyAsync("Log does not exists.");
                 return;
             }

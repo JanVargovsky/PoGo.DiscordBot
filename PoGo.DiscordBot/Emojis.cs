@@ -9,7 +9,6 @@ namespace PoGo.DiscordBot
         public const string ThumbsDown = "👎";
         public const string Check = "✅";
         public const string Cross = "❌";
-
         const char Border = '⃣';
         public static readonly string[] KeycapDigits;
 

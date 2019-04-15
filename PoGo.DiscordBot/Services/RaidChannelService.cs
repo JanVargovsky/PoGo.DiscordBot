@@ -59,25 +59,35 @@ namespace PoGo.DiscordBot.Services
 
         public bool IsKnown(ulong guildId) => guilds.ContainsKey(guildId);
 
+
         public bool IsKnown(ulong guildId, ulong textChannelId) =>
             TryGetRaidChannelBinding(guildId, textChannelId) != null;
+
 
         public IEnumerable<ITextChannel> GetRaidChannels(ulong guildId) => guilds[guildId].Select(t => t.To);
 
         /// <summary>
         /// Returns raid channel for the raid poll based on the channel where the command came from.
         /// </summary>
+        /// <param name="guildId">todo: describe guildId parameter on TryGetRaidChannelBinding</param>
+        /// <param name="fromTextChannelId">todo: describe fromTextChannelId parameter on TryGetRaidChannelBinding</param>
         public RaidChannelBindingDto TryGetRaidChannelBinding(ulong guildId, ulong fromTextChannelId)
         {
             if (guilds.TryGetValue(guildId, out var raidChannelBindings))
+            {
                 foreach (var channel in raidChannelBindings)
+                {
                     if (channel.From == null || channel.From.Id == fromTextChannelId)
+                    {
                         return new RaidChannelBindingDto
                         {
                             Channel = channel.To,
                             Mention = channel.Mention,
                             AllowScheduledRaids = channel.ScheduledRaids,
                         };
+                    }
+                }
+            }
 
             return null;
         }

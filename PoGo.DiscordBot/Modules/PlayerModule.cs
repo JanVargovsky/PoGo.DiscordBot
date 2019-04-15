@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Modules.Preconditions;
+using PoGo.DiscordBot.Properties;
 using PoGo.DiscordBot.Services;
 using System.Threading.Tasks;
 
@@ -20,27 +21,26 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("team")]
-        [Summary("Zkontroluje zda má uživatel nastavený team. Jestliže ne, tak mu přijde zpráva s informacemi jak ho nastavit.")]
+        [Summary("CheckTeamSummary")]
         public async Task CheckTeam(
-            [Summary("Kontrolovaný uživatel.")]SocketGuildUser user)
+            [Summary("ControlledUser")]SocketGuildUser user)
         {
             await userService.CheckTeam(user);
         }
 
         [Command("team", RunMode = RunMode.Async)]
-        [Summary("Nastaví team.")]
+        [Summary("SetTeamSummary")]
         public async Task SetTeam(
-            [Summary("Zvolený team (roli).")]PokemonTeam team)
+            [Summary("SelectedTeam")]PokemonTeam team)
         {
             var contextUser = Context.User;
-            var user = contextUser as SocketGuildUser;
-            if (user == null)
+            if (!(contextUser is SocketGuildUser user))
                 return;
 
             var userTeam = userService.GetTeam(user);
             if (userTeam != null)
             {
-                await ReplyAsync("Už jsi v teamu.");
+                await ReplyAsync(Resources.InTeam);
                 return;
             }
 
@@ -51,16 +51,16 @@ namespace PoGo.DiscordBot.Modules
         [Command("level", RunMode = RunMode.Async)]
         [Alias("lvl")]
         [TeamPrecondition]
-        [Summary("Nastaví level.")]
+        [Summary("SetLevelSummary")]
         public async Task SetLevel(
-            [Summary("Aktuální level (1-40)")]int level)
+            [Summary("CurrentLevel")]int level)
         {
             if (!(Context.User is SocketGuildUser user))
                 return;
 
             if (!(level >= 1 && level <= 40))
             {
-                await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-40.");
+                await ReplyAsync(Resources.PlayAnotherGame);
                 return;
             }
 
@@ -82,10 +82,10 @@ namespace PoGo.DiscordBot.Modules
         }
 
         [Command("set")]
-        [Summary("Nastaví team a level.")]
+        [Summary("SetBasicInfoSummary")]
         public async Task SetBasicInfo(
-            [Summary("Zvolený team (roli).")]PokemonTeam team,
-            [Summary("Aktuální level (1-40).")]int level)
+            [Summary("SelectedTeam")]PokemonTeam team,
+            [Summary("CurrentLevel")]int level)
         {
             await SetTeam(team);
             await SetLevel(level);

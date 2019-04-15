@@ -1,0 +1,8 @@
+﻿If you wish to support the PoGo Discord bot in
+your native language, create a pull request.
+The easiest way to add a new .resx file is to
+use the Zeta Resource Editor at
+https://archive.codeplex.com/?p=ZetaResourceEditor and make a pull request.
+
+
+Thank you for wanting to contribute additional languages.
