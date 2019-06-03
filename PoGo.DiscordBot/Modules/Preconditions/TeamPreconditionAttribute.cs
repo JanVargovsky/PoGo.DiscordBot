@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Modules.Preconditions
 {
     public class TeamPreconditionAttribute : PreconditionAttribute
     {
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider services)
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             if (!(context.User is SocketGuildUser guildUser))
                 return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);

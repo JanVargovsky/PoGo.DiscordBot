@@ -44,9 +44,9 @@ namespace PoGo.DiscordBot.Modules
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             foreach (var item in groups)
-                embedBuilder.AddInlineField(item.Key.ToString(), item.Value);
+                embedBuilder.AddField(item.Key.ToString(), item.Value, true);
             if (withoutTeam != 0)
-                embedBuilder.AddInlineField("Bez teamu", withoutTeam);
+                embedBuilder.AddField("Bez teamu", withoutTeam, true);
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());
         }
@@ -73,7 +73,7 @@ namespace PoGo.DiscordBot.Modules
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("Průmerné levely");
             foreach (var team in groupedPlayersPerTeam)
-                embedBuilder.AddInlineField($"{team.Key} ({team.Value.Players.Count})", $"{team.Value.AverageLevel:f2}");
+                embedBuilder.AddField($"{team.Key} ({team.Value.Players.Count})", $"{team.Value.AverageLevel:f2}", true);
             embedBuilder.AddField($"Všichni ({players.Count})", $"{averageLevel:f2}");
 
             await ReplyAsync(string.Empty, embed: embedBuilder.Build());

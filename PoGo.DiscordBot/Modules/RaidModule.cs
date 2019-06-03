@@ -302,8 +302,8 @@ namespace PoGo.DiscordBot.Modules
             var countersField = string.Join(", ", countersWithEmojis);
             EmbedBuilder embedBuilder = new EmbedBuilder()
                 .WithTitle(bossMention)
-                .AddInlineField("Type", string.Join(", ", boss.Type))
-                .AddInlineField("Weakness", string.Join(", ", boss.Weakness))
+                .AddField("Type", string.Join(", ", boss.Type), true)
+                .AddField("Weakness", string.Join(", ", boss.Weakness), true)
                 .AddField("CP", string.Join(Environment.NewLine, boss.CPs.Select(t => $"{t.Key}: {t.Value}")))
                 .AddField($"Charge attack{(boss.ChargeAttacks.Length > 1 ? "s" : string.Empty)}", string.Join(Environment.NewLine, boss.ChargeAttacks));
             if (!string.IsNullOrEmpty(countersField))

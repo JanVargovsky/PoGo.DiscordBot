@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task Invite()
         {
             var invites = await Context.Guild.GetInvitesAsync();
-            var invite = invites.FirstOrDefault(t => !t.IsTemporary);
+            IInvite invite = invites.FirstOrDefault(t => !t.IsTemporary);
 
             if (invite == null)
             {

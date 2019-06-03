@@ -206,7 +206,7 @@ namespace PoGo.DiscordBot
 
         async Task InitCommands()
         {
-            var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            var modules = await commands.AddModulesAsync(Assembly.GetEntryAssembly(), ServiceProvider);
             logger.LogDebug("Loading modules");
             foreach (var module in modules)
                 logger.LogDebug($"{module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");

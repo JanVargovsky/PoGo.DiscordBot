@@ -11,7 +11,7 @@ namespace PoGo.DiscordBot.Services
 {
     public class RaidService
     {
-        const ulong DefaultRaidChannelId = 348844165741936641;
+        const int ReactionUsersLimit = 100;
 
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly ILogger<RaidService> logger;
@@ -74,7 +74,7 @@ namespace PoGo.DiscordBot.Services
 
             raidStorageService.AddRaid(guild.Id, message.Channel.Id, message.Id, raidInfo);
             // Adjust user count
-            var allUsersWithThumbsUp = await message.GetReactionUsersAsync(UnicodeEmojis.ThumbsUp);
+            var allUsersWithThumbsUp = await message.GetReactionUsersAsync(Emojis.ThumbsUp, ReactionUsersLimit).FlattenAsync();
             var usersWithThumbsUp = allUsersWithThumbsUp
                 .Where(t => !t.IsBot)
                 .Select(t => guild.GetUser(t.Id))
@@ -83,10 +83,10 @@ namespace PoGo.DiscordBot.Services
                 raidInfo.Players[user.Id] = userService.GetPlayer(guild.GetUser(user.Id));
 
             // Extra players
-            for (int i = 0; i < UnicodeEmojis.KeycapDigits.Length; i++)
+            for (int i = 0; i < Emojis.KeycapDigits.Length; i++)
             {
-                var emoji = UnicodeEmojis.KeycapDigits[i];
-                var usersWithKeycapReaction = await message.GetReactionUsersAsync(emoji);
+                var emoji = Emojis.KeycapDigits[i];
+                var usersWithKeycapReaction = await message.GetReactionUsersAsync(emoji, ReactionUsersLimit).FlattenAsync();
 
                 foreach (var user in usersWithKeycapReaction.Where(t => !t.IsBot))
                     raidInfo.ExtraPlayers.Add((user.Id, ExtraPlayerKeycapDigitToCount(emoji)));
@@ -99,9 +99,9 @@ namespace PoGo.DiscordBot.Services
             // Remove invalid reactions
             foreach (var react in invalidReactions)
             {
-                var users = await message.GetReactionUsersAsync(react.Key.Name, options: retryOptions);
+                var users = await message.GetReactionUsersAsync(react.Key, ReactionUsersLimit, retryOptions).FlattenAsync();
                 foreach (var user in users)
-                    await message.RemoveReactionAsync(react.Key, user, options: retryOptions);
+                    await message.RemoveReactionAsync(react.Key, user, retryOptions);
             }
 
             return true;
@@ -122,14 +122,13 @@ namespace PoGo.DiscordBot.Services
         public async Task SetDefaultReactions(IUserMessage message)
         {
             await message.AddReactionAsync(Emojis.ThumbsUp, retryOptions);
-            await message.AddReactionAsync(Emojis.ThumbsDown, retryOptions);
         }
 
         bool IsValidReactionEmote(string emote) =>
             emote == UnicodeEmojis.ThumbsUp ||
-            emote == UnicodeEmojis.ThumbsDown ||
             UnicodeEmojis.KeycapDigits.Contains(emote);
 
+        int ExtraPlayerKeycapDigitToCount(Emoji emoji) => Array.IndexOf(Emojis.KeycapDigits, emoji) + 1;
         int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
 
         public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
@@ -141,7 +140,7 @@ namespace PoGo.DiscordBot.Services
                 return;
 
             IUserMessage raidMessage = await message.GetOrDownloadAsync();
-            if (reaction.Emote.Name == UnicodeEmojis.ThumbsUp)
+            if (reaction.Emote.Equals(Emojis.ThumbsUp))
             {
                 if (raidInfo.Players.TryGetValue(reaction.UserId, out var player))
                 {
@@ -176,7 +175,7 @@ namespace PoGo.DiscordBot.Services
                 return;
             }
 
-            if (reaction.Emote.Name == UnicodeEmojis.ThumbsUp)
+            if (reaction.Emote.Equals(Emojis.ThumbsUp))
             {
                 var player = userService.GetPlayer(user);
                 raidInfo.Players[reaction.UserId] = player;

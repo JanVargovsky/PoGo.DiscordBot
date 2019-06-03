@@ -8,7 +8,7 @@ namespace PoGo.DiscordBot.Modules.Preconditions
 {
     public class RaidChannelPreconditionAttribute : PreconditionAttribute
     {
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider services)
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             var raidChannelService = services.GetService<RaidChannelService>();
 
