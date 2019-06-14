@@ -67,7 +67,7 @@ namespace PoGo.DiscordBot.Services
         async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
             var raidInfo = RaidInfoDto.Parse(message);
-            if (raidInfo == null || raidInfo.IsExpired)
+            if (raidInfo == null)
                 return false;
 
             logger.LogInformation($"Updating raid message '{message.Id}'");
