@@ -1,4 +1,6 @@
 # Discord Bot for players of the Pokemon Go
+[![Docker](https://img.shields.io/docker/cloud/build/janvargovsky/pogo-discordbot.svg)](https://hub.docker.com/r/janvargovsky/pogo-discordbot)
+
 Discord BOT focused on internal communication within players of the Pokemon Go
 
 - Set team & level as role
