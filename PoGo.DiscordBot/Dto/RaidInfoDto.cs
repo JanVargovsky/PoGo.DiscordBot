@@ -58,9 +58,9 @@ namespace PoGo.DiscordBot.Dto
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder
                 .WithColor(GetColor())
-                .AddField("Boss", BossName)
-                .AddField("Místo", Location)
-                .AddField(RaidType == RaidType.Normal ? "Čas" : "Datum", DateTimeAsString)
+                .AddField("Boss", BossName, true)
+                .AddField("Místo", Location, true)
+                .AddField(RaidType == RaidType.Normal ? "Čas" : "Datum", DateTimeAsString, true)
                 ;
 
             if (Players.Any())
