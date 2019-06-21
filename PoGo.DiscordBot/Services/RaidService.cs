@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
 using System.Collections.Generic;
@@ -18,13 +19,15 @@ namespace PoGo.DiscordBot.Services
         readonly UserService userService;
         readonly RaidChannelService raidChannelService;
         readonly RaidStorageService raidStorageService;
+        readonly TimeService timeService;
 
-        public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService, RaidStorageService raidStorageService)
+        public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService, RaidStorageService raidStorageService, TimeService timeService)
         {
             this.logger = logger;
             this.userService = userService;
             this.raidChannelService = raidChannelService;
             this.raidStorageService = raidStorageService;
+            this.timeService = timeService;
         }
 
         public async Task OnNewGuild(SocketGuild guild)
@@ -66,7 +69,7 @@ namespace PoGo.DiscordBot.Services
 
         async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
-            var raidInfo = RaidInfoDto.Parse(message);
+            var raidInfo = ParseRaidInfo(message);
             if (raidInfo == null)
                 return false;
 
@@ -92,7 +95,7 @@ namespace PoGo.DiscordBot.Services
                     raidInfo.ExtraPlayers.Add((user.Id, ExtraPlayerKeycapDigitToCount(emoji)));
             }
 
-            await message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+            await message.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
 
             var allReactions = message.Reactions;
             var invalidReactions = allReactions.Where(t => !IsValidReactionEmote(t.Key.Name)).ToList();
@@ -146,14 +149,14 @@ namespace PoGo.DiscordBot.Services
                 {
                     logger.LogInformation($"Player '{player}' removed {nameof(UnicodeEmojis.ThumbsUp)} on raid {raidInfo.Message.Id}");
                     raidInfo.Players.Remove(reaction.UserId);
-                    await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+                    await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
                 }
             }
             else if (Emojis.KeycapDigits.Contains(reaction.Emote))
             {
                 var count = ExtraPlayerKeycapDigitToCount(reaction.Emote.Name);
                 if (raidInfo.ExtraPlayers.Remove((reaction.UserId, count)))
-                    await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+                    await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
             }
         }
 
@@ -180,13 +183,13 @@ namespace PoGo.DiscordBot.Services
                 var player = userService.GetPlayer(user);
                 raidInfo.Players[reaction.UserId] = player;
                 logger.LogInformation($"Player '{player}' added {nameof(UnicodeEmojis.ThumbsUp)} on raid {raidInfo.Message.Id}");
-                await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+                await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
             }
             else if (Emojis.KeycapDigits.Contains(reaction.Emote))
             {
                 var count = ExtraPlayerKeycapDigitToCount(reaction.Emote.Name);
                 raidInfo.ExtraPlayers.Add((reaction.UserId, count));
-                await raidMessage.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+                await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
             }
         }
 
@@ -196,7 +199,7 @@ namespace PoGo.DiscordBot.Services
 
             foreach (var (guildId, channelId, messageId, raidInfo) in raidStorageService.GetAll())
             {
-                await raidInfo.Message.ModifyAsync(t => t.Embed = raidInfo.ToEmbed());
+                await raidInfo.Message.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
 
                 if (raidInfo.IsExpired)
                     toRemove.Add((guildId, channelId, messageId));
@@ -205,5 +208,116 @@ namespace PoGo.DiscordBot.Services
             foreach (var (guildId, channelId, messageId) in toRemove)
                 raidStorageService.TryRemove(guildId, channelId, messageId);
         }
+
+        RaidInfoDto ParseRaidInfo(IUserMessage message)
+        {
+            var embed = message.Embeds.FirstOrDefault();
+            if (embed == null || embed.Fields.Length < 3)
+                return null;
+
+            RaidInfoDto result = null;
+
+            if (embed.Fields[2].Name == "Čas")
+            {
+                var time = timeService.ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
+                if (!time.HasValue)
+                    return null;
+
+                result = new RaidInfoDto(RaidType.Normal)
+                {
+                    Message = message,
+                    CreatedAt = message.CreatedAt.UtcDateTime,
+                    BossName = embed.Fields[0].Value,
+                    Location = embed.Fields[1].Value,
+                    DateTime = time.Value,
+                };
+            }
+            else if (embed.Fields[2].Name == "Datum")
+            {
+                var dateTime = timeService.ParseDateTime(embed.Fields[2].Value);
+                if (!dateTime.HasValue)
+                    return null;
+
+                result = new RaidInfoDto(RaidType.Scheduled)
+                {
+                    Message = message,
+                    CreatedAt = message.CreatedAt.UtcDateTime,
+                    BossName = embed.Fields[0].Value,
+                    Location = embed.Fields[1].Value,
+                    DateTime = dateTime.Value,
+                };
+            }
+
+            return result;
+        }
+
+        public Embed ToEmbed(RaidInfoDto raidInfo)
+        {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder
+                .WithColor(GetColor())
+                .AddField("Boss", raidInfo.BossName, true)
+                .AddField("Místo", raidInfo.Location, true)
+                .AddField(raidInfo.RaidType == RaidType.Normal ? "Čas" : "Datum", RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType), true)
+                ;
+
+            if (raidInfo.Players.Any())
+            {
+                string playerFieldValue = raidInfo.Players.Count >= 10 ?
+                    PlayersToGroupString(raidInfo.Players.Values) :
+                    PlayersToString(raidInfo.Players.Values);
+
+                embedBuilder.AddField($"Hráči ({raidInfo.Players.Count})", playerFieldValue);
+            }
+
+            if (raidInfo.ExtraPlayers.Any())
+            {
+                string extraPlayersFieldValue = string.Join(" + ", raidInfo.ExtraPlayers.Select(t => t.Count));
+                embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({raidInfo.ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
+            }
+
+            return embedBuilder.Build();
+
+            Color GetColor()
+            {
+                if (raidInfo.RaidType == RaidType.Scheduled)
+                {
+                    return !raidInfo.IsExpired ? new Color(191, 155, 48) : Color.Red;
+                }
+
+                var remainingTime = raidInfo.DateTime - DateTime.UtcNow;
+
+                if (remainingTime.TotalMinutes <= 0)
+                    return Color.Red;
+                if (remainingTime.TotalMinutes <= 15)
+                    return Color.Orange;
+                return Color.Green;
+            }
+
+            string PlayersToString(IEnumerable<PlayerDto> players) => string.Join(", ", players);
+
+            string PlayersToGroupString(IEnumerable<PlayerDto> allPlayers)
+            {
+                string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : "Bez teamu";
+
+                List<string> formatterGroupedPlayers = new List<string>();
+
+                var teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
+                foreach (PokemonTeam? team in teams)
+                {
+                    var players = allPlayers.Where(t => t.Team == team).ToList();
+                    if (players.Any())
+                        formatterGroupedPlayers.Add($"{TeamToString(team)} ({players.Count}) - {PlayersToString(players)}");
+                }
+
+                return string.Join(Environment.NewLine, formatterGroupedPlayers);
+            }
+        }
+
+        string RaidDateTimeToString(DateTime dt, RaidType rt) =>
+            timeService.ConvertToLocalString(dt, rt == RaidType.Normal ? TimeService.TimeFormat : TimeService.DateTimeFormat);
+
+        public string ToSimpleString(RaidInfoDto raidInfo) =>
+            $"{raidInfo.BossName} {raidInfo.Location} {RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType)}";
     }
 }

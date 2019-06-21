@@ -84,6 +84,7 @@ namespace PoGo.DiscordBot
             client.LoggedIn += LoggedIn;
             client.LoggedOut += LoggedOut;
 
+            client.JoinedGuild += JoinedGuild;
             client.Connected += Connected;
             client.Disconnected += Disconnected;
             client.GuildAvailable += GuildAvailable;
@@ -155,7 +156,7 @@ namespace PoGo.DiscordBot
         {
             logger.LogInformation("Connected");
             await client.SetGameAsync(Debugger.IsAttached ? "Debugging" : "Pokémon GO");
-            updateRaidsTimer.Change(TimeSpan.FromSeconds(120 - DateTime.Now.Second), TimeSpan.FromMinutes(1));
+            updateRaidsTimer.Change(TimeSpan.FromSeconds(120 - DateTime.UtcNow.Second), TimeSpan.FromMinutes(1));
         }
 
         Task Disconnected(Exception exception)
@@ -185,6 +186,7 @@ namespace PoGo.DiscordBot
             services.AddSingleton<RaidBossInfoService>();
             services.AddSingleton<GymLocationService>();
             services.AddSingleton<RaidStorageService>();
+            services.AddSingleton<TimeService>();
 
             return services.BuildServiceProvider();
         }

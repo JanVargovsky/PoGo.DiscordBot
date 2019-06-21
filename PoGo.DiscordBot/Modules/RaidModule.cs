@@ -27,9 +27,11 @@ namespace PoGo.DiscordBot.Modules
         readonly RaidBossInfoService raidBossInfoService;
         readonly GymLocationService gymLocationService;
         readonly RaidStorageService raidStorageService;
+        readonly TimeService timeService;
 
         public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
-            ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService, RaidStorageService raidStorageService)
+            ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService, RaidStorageService raidStorageService,
+            TimeService timeService)
         {
             this.teamService = teamService;
             this.raidService = raidService;
@@ -39,6 +41,7 @@ namespace PoGo.DiscordBot.Modules
             this.raidBossInfoService = raidBossInfoService;
             this.gymLocationService = gymLocationService;
             this.raidStorageService = raidStorageService;
+            this.timeService = timeService;
         }
 
         [Command("create", RunMode = RunMode.Async)]
@@ -48,16 +51,16 @@ namespace PoGo.DiscordBot.Modules
         public async Task StartRaid(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
-            [Summary("Čas (" + RaidInfoDto.TimeFormat + ").")]string time)
+            [Summary("Čas (" + TimeService.TimeFormat + ").")]string time)
         {
-            var parsedTime = RaidInfoDto.ParseTime(time);
+            var parsedTime = timeService.ParseTime(time);
             if (!parsedTime.HasValue)
             {
-                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat} 24H).");
+                await ReplyAsync($"Čas není ve validním formátu ({TimeService.TimeFormat} 24H).");
                 return;
             }
 
-            if (parsedTime < DateTime.Now)
+            if (parsedTime < DateTime.UtcNow)
             {
                 await ReplyAsync($"Vážně chceš vytvořit raid v minulosti?");
                 return;
@@ -78,8 +81,8 @@ namespace PoGo.DiscordBot.Modules
             if (shouldMention)
                 mention = raidChannelBinding.Mention == null ? string.Join(' ', roles.Select(t => t.Mention)) : raidChannelBinding.Mention.Mention;
 
-            var message = await raidChannelBinding.Channel.SendMessageAsync($"{raidInfo.ToSimpleString()} {mention}", embed: raidInfo.ToEmbed());
-            logger.LogInformation($"New raid has been created '{bossName}' '{location}' '{parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}'");
+            var message = await raidChannelBinding.Channel.SendMessageAsync($"{raidService.ToSimpleString(raidInfo)} {mention}", embed: raidService.ToEmbed(raidInfo));
+            logger.LogInformation($"New raid has been created '{raidService.ToSimpleString(raidInfo)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
@@ -89,7 +92,7 @@ namespace PoGo.DiscordBot.Modules
             await message.ModifyAsync(t =>
             {
                 t.Content = string.Empty;
-                t.Embed = raidInfo.ToEmbed(); // required workaround to set content to empty
+                t.Embed = raidService.ToEmbed(raidInfo); // required workaround to set content to empty
             }, retryOptions);
         }
 
@@ -100,7 +103,7 @@ namespace PoGo.DiscordBot.Modules
         public async Task StartScheduledRaid(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
-            [Remainder][Summary("Datum (" + RaidInfoDto.DateTimeFormat + ").")]string dateTime)
+            [Remainder][Summary("Datum (" + TimeService.DateTimeFormat + ").")]string dateTime)
         {
             var raidChannelBinding = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id);
             if (raidChannelBinding == null || !raidChannelBinding.AllowScheduledRaids)
@@ -109,14 +112,14 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var parsedDateTime = RaidInfoDto.ParseDateTime(dateTime);
+            var parsedDateTime = timeService.ParseDateTime(dateTime);
             if (!parsedDateTime.HasValue)
             {
-                await ReplyAsync($"Datum není ve validním formátu ({RaidInfoDto.DateTimeFormat} 24H).");
+                await ReplyAsync($"Datum není ve validním formátu ({TimeService.DateTimeFormat} 24H).");
                 return;
             }
 
-            if (parsedDateTime < DateTime.Now)
+            if (parsedDateTime < DateTime.UtcNow)
             {
                 await ReplyAsync($"Vážně chceš vytvořit plánovaný raid v minulosti?");
                 return;
@@ -129,8 +132,8 @@ namespace PoGo.DiscordBot.Modules
                 DateTime = parsedDateTime.Value,
             };
 
-            var message = await raidChannelBinding.Channel.SendMessageAsync(string.Empty, embed: raidInfo.ToEmbed());
-            logger.LogInformation($"New scheduled raid has been created '{bossName}' '{location}' '{parsedDateTime.Value.ToString(RaidInfoDto.DateTimeFormat)}'");
+            var message = await raidChannelBinding.Channel.SendMessageAsync(string.Empty, embed: raidService.ToEmbed(raidInfo));
+            logger.LogInformation($"New scheduled raid has been created '{raidService.ToSimpleString(raidInfo)}'");
             raidInfo.Message = message;
             await Context.Message.AddReactionAsync(Emojis.Check);
             await raidService.SetDefaultReactions(message);
@@ -150,7 +153,7 @@ namespace PoGo.DiscordBot.Modules
         [Summary("Přenastaví čas raidu.")]
         [RaidChannelPrecondition]
         public async Task AdjustRaidTime(
-            [Summary("Nový čas raidu (" + RaidInfoDto.TimeFormat + ").")]string time,
+            [Summary("Nový čas raidu (" + TimeService.TimeFormat + ").")]string time,
             [Summary("Počet anket odspodu.")] int skip = 0)
         {
             // TODO scheduled raid
@@ -162,14 +165,14 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var parsedTime = RaidInfoDto.ParseTime(time);
+            var parsedTime = timeService.ParseTime(time);
             if (!parsedTime.HasValue)
             {
-                await ReplyAsync($"Čas není ve validním formátu ({RaidInfoDto.TimeFormat} 24H).");
+                await ReplyAsync($"Čas není ve validním formátu ({TimeService.TimeFormat} 24H).");
                 return;
             }
 
-            if (parsedTime < DateTime.Now)
+            if (parsedTime < DateTime.UtcNow)
             {
                 await ReplyAsync($"Vážně změnit čas do minulosti?");
                 return;
@@ -178,18 +181,18 @@ namespace PoGo.DiscordBot.Modules
             var currentUser = Context.User as SocketGuildUser;
             logger.LogInformation($"User '{currentUser.Nickname ?? Context.User.Username}' with id '{Context.User.Id}'" +
                 $" changed raid with id '{raid.Message.Id}'" +
-                $" time changed from {raid.DateTime.ToString(RaidInfoDto.TimeFormat)} to {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}");
+                $" time changed from {timeService.ConvertToLocalString(raid.DateTime, TimeService.TimeFormat)} to {timeService.ConvertToLocalString(parsedTime.Value, TimeService.TimeFormat)}");
 
             foreach (var player in raid.Players.Values)
             {
                 var user = player.User;
                 await user.SendMessageAsync(
-                    $"Změna raid času z {raid.DateTime.ToString(RaidInfoDto.TimeFormat)} na {parsedTime.Value.ToString(RaidInfoDto.TimeFormat)}!" +
+                    $"Změna raid času z {timeService.ConvertToLocalString(raid.DateTime, TimeService.TimeFormat)} na {timeService.ConvertToLocalString(parsedTime.Value, TimeService.TimeFormat)}!" +
                     $" Jestli ti změna nevyhovuje, tak se odhlaš z raidu nebo se domluv s ostatními na jiném čase.");
             }
 
             raid.DateTime = parsedTime.Value;
-            await raid.Message.ModifyAsync(t => t.Embed = raid.ToEmbed());
+            await raid.Message.ModifyAsync(t => t.Embed = raidService.ToEmbed(raid));
         }
 
         [Command("boss", RunMode = RunMode.Async)]
@@ -220,7 +223,7 @@ namespace PoGo.DiscordBot.Modules
             }
 
             raid.BossName = boss;
-            await raid.Message.ModifyAsync(t => t.Embed = raid.ToEmbed());
+            await raid.Message.ModifyAsync(t => t.Embed = raidService.ToEmbed(raid));
         }
 
         [Command("mention", RunMode = RunMode.Async)]
@@ -267,7 +270,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raid.ToSimpleString()}'? [y]");
+            var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raidService.ToSimpleString(raid)}'? [y]");
             var responseMessage = await NextMessageAsync();
             if (responseMessage == null || responseMessage.Content.ToLower() != "y")
                 return;
@@ -275,7 +278,7 @@ namespace PoGo.DiscordBot.Modules
             foreach (var player in raid.Players.Values)
             {
                 var user = player.User;
-                await user.SendMessageAsync($"Raid {raid.ToSimpleString()} se ruší!");
+                await user.SendMessageAsync($"Raid {raidService.ToSimpleString(raid)} se ruší!");
             }
 
             await raid.Message.DeleteAsync();
@@ -349,7 +352,7 @@ namespace PoGo.DiscordBot.Modules
                 await ReplyAsync("Nejsou aktivní žádné raidy.");
                 return;
             }
-            string message = string.Join(Environment.NewLine, raids.Select(t => $"{t.Index} - {t.Raid.ToSimpleString()}").Reverse());
+            string message = string.Join(Environment.NewLine, raids.Select(t => $"{t.Index} - {raidService.ToSimpleString(t.Raid)}").Reverse());
             await ReplyAsync($"```{message}```");
         }
     }

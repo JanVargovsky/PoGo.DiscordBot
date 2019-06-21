@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "PoGo.DiscordBot": {
+      "commandName": "Project",
+      "workingDirectory": "",
+      "environmentVariables": {
+        "PoGoEnvironment": "Development"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "environmentVariables": {
+        "PoGoEnvironment": "Development"
+      }
+    }
+  }
+}

@@ -1,5 +1,8 @@
+.dockerignore
+Dockerfile
 .git
 .gitignore
+.vs
 README.md
 bin
 obj
