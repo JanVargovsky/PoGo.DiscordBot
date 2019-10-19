@@ -45,7 +45,7 @@ Note: this is minimalistic config, there is a lot more!
 
 ## Host yourself
 ### Prerequisites
-- .NET Core SDK 2.1 ([download here](https://www.microsoft.com/net/download/windows))
+- .NET Core 3.0 ([download here](https://dotnet.microsoft.com/download))
 - created bot with a token and joined in a guild (Discord server)
 
 ### Setup
