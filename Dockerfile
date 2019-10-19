@@ -1,11 +1,11 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
 WORKDIR /app
 COPY . .
-RUN dotnet publish -c Release -o ../out
+RUN dotnet publish -c Release -o /out
 
-FROM mcr.microsoft.com/dotnet/core/runtime:2.1.11-alpine3.9
+FROM mcr.microsoft.com/dotnet/core/runtime:3.0-alpine3.9
 WORKDIR /app
-COPY --from=build /app/out .
+COPY --from=build /out .
 
 ENV PoGoEnvironment=
 
