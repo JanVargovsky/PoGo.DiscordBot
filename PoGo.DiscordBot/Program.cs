@@ -7,11 +7,9 @@ namespace PoGo.DiscordBot
     {
         static async Task Main(string[] args)
         {
-            using (var bot = new PoGoBot())
-            {
-                await bot.RunAsync();
-                await Task.Delay(Timeout.Infinite);
-            }
+            await using var bot = new PoGoBot();
+            await bot.RunAsync();
+            await Task.Delay(Timeout.Infinite);
         }
     }
 }

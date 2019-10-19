@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot
 {
-    public class PoGoBot : IDisposable
+    public class PoGoBot : IAsyncDisposable
     {
         public IServiceProvider ServiceProvider { get; }
         public IConfiguration Configuration { get; }
@@ -193,10 +193,11 @@ namespace PoGo.DiscordBot
             return services.BuildServiceProvider();
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
             client?.Dispose();
-            updateRaidsTimer?.Dispose();
+            if (updateRaidsTimer != null)
+                await updateRaidsTimer.DisposeAsync();
         }
 
         public async Task RunAsync()
