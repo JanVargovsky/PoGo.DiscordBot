@@ -59,11 +59,7 @@ namespace PoGo.DiscordBot
 
             ServiceProvider = ConfigureServices();
 
-            logger = ServiceProvider.GetService<ILoggerFactory>()
-                .AddConsole(Configuration.GetSection("Logging"))
-                .AddDebug()
-                .AddFile(Configuration.GetSection("Logging"))
-                .CreateLogger<PoGoBot>();
+            logger = ServiceProvider.GetService<ILogger<PoGoBot>>();
 
             configuration = ServiceProvider.GetService<IOptions<ConfigurationOptions>>().Value;
 
@@ -173,7 +169,13 @@ namespace PoGo.DiscordBot
             services.AddOptions();
             services.Configure<ConfigurationOptions>(Configuration);
 
-            services.AddLogging();
+            services.AddLogging(builder =>
+            {
+                builder
+                    .AddConsole()
+                    .AddDebug()
+                    .AddFile(Configuration.GetSection("Logging"));
+            });
             services.AddSingleton(client);
             services.AddSingleton<ConfigurationService>();
             services.AddSingleton<InteractiveService>();
@@ -226,7 +228,7 @@ namespace PoGo.DiscordBot
             if (!(message.HasCharPrefix(configuration.Prefix, ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos))) return;
             // Create a Command Context
             var context = new SocketCommandContext(client, message);
-            // Execute the command. (result does not indicate a return value, 
+            // Execute the command. (result does not indicate a return value,
             // rather an object stating if the command executed succesfully)
             var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
