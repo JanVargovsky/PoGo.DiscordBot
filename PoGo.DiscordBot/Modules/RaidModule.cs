@@ -48,21 +48,20 @@ namespace PoGo.DiscordBot.Modules
         [Alias("c")]
         [Summary("Vytvoří raid anketu do speciálního kanálu.")]
         [RaidChannelPrecondition]
-        public async Task StartRaid(
+        public async Task RaidCreate(
             [Summary("Název bosse.")]string bossName,
             [Summary("Místo.")]string location,
-            [Summary("Čas (" + TimeService.TimeFormat + ").")]string time)
+            [Summary("Čas (" + TimeService.TimeFormat + ").")]DateTime time)
         {
-            var parsedTime = timeService.ParseTime(time);
-            if (!parsedTime.HasValue)
-            {
-                await ReplyAsync($"Čas není ve validním formátu ({TimeService.TimeFormat} 24H).");
-                return;
-            }
-
-            if (parsedTime < DateTime.UtcNow)
+            time = timeService.EnsureUtc(time);
+            if (time < DateTime.UtcNow)
             {
                 await ReplyAsync($"Vážně chceš vytvořit raid v minulosti?");
+                return;
+            }
+            if (!timeService.IsToday(time))
+            {
+                await ReplyAsync($"Raid není dnes.");
                 return;
             }
 
@@ -72,7 +71,7 @@ namespace PoGo.DiscordBot.Modules
             {
                 BossName = bossName,
                 Location = location,
-                DateTime = parsedTime.Value,
+                DateTime = time,
             };
 
             var roles = teamService.GuildTeamRoles[Context.Guild.Id].TeamRoles.Values;
@@ -92,11 +91,24 @@ namespace PoGo.DiscordBot.Modules
             await message.ModifyAsync(t =>
             {
                 t.Content = string.Empty;
-                t.Embed = raidService.ToEmbed(raidInfo); // required workaround to set content to empty
+                t.Embed = raidService.ToEmbed(raidInfo);
             }, retryOptions);
         }
 
-        [Command("schedule", RunMode = RunMode.Async)]
+        [Command("create", RunMode = RunMode.Async)]
+        [Alias("c")]
+        [Summary("Vytvoří raid anketu do speciálního kanálu.")]
+        [RaidChannelPrecondition]
+        public Task RaidCreate(
+            [Summary("Název bosse.")]string bossName,
+            [Summary("Místo.")]string location,
+            [Summary("Počet minut za jak dlouho má být anketa.")]int minutes)
+        {
+            var time = DateTime.UtcNow.AddMinutes(minutes);
+            return RaidCreate(bossName, location, time);
+        }
+
+    [Command("schedule", RunMode = RunMode.Async)]
         [Alias("s")]
         [Summary("Vytvoří plánovanou raid anketu do speciálního kanálu.")]
         [RaidChannelPrecondition]

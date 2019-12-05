@@ -52,8 +52,23 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        public DateTime ConvertToLocal(DateTime dt) => TimeZoneInfo.ConvertTimeFromUtc(dt, _timeZoneInfo);
+        public DateTime ConvertToLocal(DateTime dt) => TimeZoneInfo.ConvertTime(dt, _timeZoneInfo);
+
+        public DateTime EnsureUtc(DateTime dt) => dt.Kind switch
+        {
+            DateTimeKind.Unspecified => TimeZoneInfo.ConvertTimeToUtc(dt, _timeZoneInfo),
+            DateTimeKind.Local => TimeZoneInfo.ConvertTimeToUtc(dt),
+            _ => dt
+        };
 
         public string ConvertToLocalString(DateTime dt, string format) => ConvertToLocal(dt).ToString(format);
+
+        public bool IsToday(DateTime dt)
+        {
+            if (dt.Kind == DateTimeKind.Utc)
+                dt = ConvertToLocal(dt);
+            var today = ConvertToLocal(DateTime.UtcNow);
+            return dt.Day == today.Day && dt.Month == today.Month && dt.Year == today.Year;
+        }
     }
 }
