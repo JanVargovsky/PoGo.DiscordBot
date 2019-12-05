@@ -46,7 +46,7 @@ namespace PoGo.DiscordBot.Services
             {
                 var channelBinding = raidChannelService.TryGetRaidChannelBindingTo(guild.Id, channel.Id);
                 var mayContainScheduledRaids = channelBinding != null && channelBinding.AllowScheduledRaids;
-                var dateTimeFrom = !mayContainScheduledRaids ? DateTime.UtcNow.AddHours(-2) : DateTime.UtcNow.AddDays(-14);
+                var dateTimeFrom = !mayContainScheduledRaids ? DateTime.UtcNow.Date : DateTime.UtcNow.AddDays(-14);
 
                 var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
                     .ToList();
@@ -92,10 +92,14 @@ namespace PoGo.DiscordBot.Services
                 var usersWithKeycapReaction = await message.GetReactionUsersAsync(emoji, ReactionUsersLimit).FlattenAsync();
 
                 foreach (var user in usersWithKeycapReaction.Where(t => !t.IsBot))
-                    raidInfo.ExtraPlayers.Add((user.Id, ExtraPlayerKeycapDigitToCount(emoji)));
+                    raidInfo.ExtraPlayers.Add((user.Id, ExtraPlayerKeycapDigitToCount(emoji.Name)));
             }
 
-            await message.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
+            await message.ModifyAsync(t =>
+            {
+                t.Content = string.Empty;
+                t.Embed = ToEmbed(raidInfo);
+            });
 
             var allReactions = message.Reactions;
             var invalidReactions = allReactions.Where(t => !IsValidReactionEmote(t.Key.Name)).ToList();
@@ -131,8 +135,7 @@ namespace PoGo.DiscordBot.Services
             emote == UnicodeEmojis.ThumbsUp ||
             UnicodeEmojis.KeycapDigits.Contains(emote);
 
-        int ExtraPlayerKeycapDigitToCount(Emoji emoji) => Array.IndexOf(Emojis.KeycapDigits, emoji) + 1;
-        int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
+        int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name);
 
         public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
