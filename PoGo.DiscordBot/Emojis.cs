@@ -10,14 +10,14 @@ namespace PoGo.DiscordBot
         public const string Check = "✅";
         public const string Cross = "❌";
 
-        const char Border = '⃣';
         public static readonly string[] KeycapDigits;
 
         static UnicodeEmojis()
         {
-            KeycapDigits = Enumerable.Range(1, 9)
-                .Select(t => new string(new char[] { (char)(t + '0'), Border }))
-                .ToArray();
+            KeycapDigits = new[]
+            {
+                "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"
+            };
         }
     }
 
