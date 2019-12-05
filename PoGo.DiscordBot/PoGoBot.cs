@@ -38,14 +38,14 @@ namespace PoGo.DiscordBot
             Console.WriteLine($"Environment: {environment}");
 
             Configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("configuration.json", false)
-                .AddJsonFile($"configuration.{environment}.json", false)
-                .AddJsonFile("appsettings.json", false)
-                .AddJsonFile($"appsettings.{environment}.json", false)
+                .SetBasePath(Environment.GetEnvironmentVariable("ConfigurationPath") ?? Directory.GetCurrentDirectory())
+                .AddJsonFile("configuration.json")
+                .AddJsonFile($"configuration.{environment}.json")
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{environment}.json")
                 .Build();
 
-            var logSeverity = Enum.Parse<LogSeverity>(Configuration["Logging:LogLevel:Discord"]);
+            var logSeverity = Configuration.GetValue<LogSeverity>("Logging:LogLevel:Discord");
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = logSeverity,
@@ -234,19 +234,23 @@ namespace PoGo.DiscordBot
             var result = await commands.ExecuteAsync(context, argPos, ServiceProvider);
             if (!result.IsSuccess)
             {
+                string reply = null;
                 if (result.Error == CommandError.BadArgCount)
                 {
                     const string TooFewArgs = "The input text has too few parameters.";
                     const string TooManyArgs = "The input text has too many parameters.";
                     if (result.ErrorReason == TooFewArgs)
-                        await context.Channel.SendMessageAsync("Chybí některý z parametrů.");
+                        reply = "Chybí některý z parametrů.";
                     else if (result.ErrorReason == TooManyArgs)
-                        await context.Channel.SendMessageAsync("Hodně parametrů - nechybí ti tam uvozovky?");
+                        reply = "Hodně parametrů - nechybí ti tam uvozovky?";
                 }
                 else if (result.Error == CommandError.ParseFailed)
-                    await context.Channel.SendMessageAsync("Špatné parametry.");
+                    reply = "Špatné parametry.";
                 else if (result is TeamPreconditionResult teamResult)
-                    await context.Channel.SendMessageAsync(teamResult.ErrorReason);
+                    reply = teamResult.ErrorReason;
+
+                if (reply != null)
+                    await context.Channel.SendMessageAsync($"{message.Author.Mention} {reply}");
 
                 logger.LogDebug(result.ErrorReason);
             }
