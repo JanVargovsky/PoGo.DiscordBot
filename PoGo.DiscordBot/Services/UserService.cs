@@ -68,6 +68,7 @@ namespace PoGo.DiscordBot.Services
                     "<team> nahraď tvým týmem (mystic, instinct nebo valor)" + Environment.NewLine +
                     "<level> nahraď tvým levelem (1 - 40)" + Environment.NewLine +
                     "Takže například: !set mystic 30" + Environment.NewLine +
+                    "Tenhle příkaz nepiš mi, ale někde do kanálu na serveru." + Environment.NewLine +
                     "Díky!```";
                 await user.SendMessageAsync(userMessage);
             }

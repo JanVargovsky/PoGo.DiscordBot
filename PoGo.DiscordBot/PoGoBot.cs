@@ -248,6 +248,8 @@ namespace PoGo.DiscordBot
                     reply = "Špatné parametry.";
                 else if (result is TeamPreconditionResult teamResult)
                     reply = teamResult.ErrorReason;
+                else if (result.Error == CommandError.UnmetPrecondition && result.ErrorReason == "Invalid context for command; accepted contexts: Guild.")
+                    reply = "Tenhle příkaz tady není dostupný.";
 
                 if (reply != null)
                     await context.Channel.SendMessageAsync($"{message.Author.Mention} {reply}");
