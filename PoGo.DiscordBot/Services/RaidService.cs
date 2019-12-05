@@ -128,7 +128,7 @@ namespace PoGo.DiscordBot.Services
 
         public async Task SetDefaultReactions(IUserMessage message)
         {
-            await message.AddReactionAsync(Emojis.ThumbsUp, retryOptions);
+            await message.AddReactionsAsync(new[] { Emojis.ThumbsUp, Emojis.KeycapDigits[0], Emojis.KeycapDigits[1] }, retryOptions);
         }
 
         bool IsValidReactionEmote(string emote) =>
