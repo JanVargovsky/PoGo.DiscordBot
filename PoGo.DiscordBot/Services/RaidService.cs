@@ -135,7 +135,7 @@ namespace PoGo.DiscordBot.Services
             emote == UnicodeEmojis.ThumbsUp ||
             UnicodeEmojis.KeycapDigits.Contains(emote);
 
-        int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name);
+        int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
 
         public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
@@ -264,7 +264,7 @@ namespace PoGo.DiscordBot.Services
                 .AddField(raidInfo.RaidType == RaidType.Normal ? "Čas" : "Datum", RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType), true)
                 ;
 
-            if (raidInfo.Players.Any())
+            if (raidInfo.Players.Count > 0)
             {
                 string playerFieldValue = raidInfo.Players.Count >= 10 ?
                     PlayersToGroupString(raidInfo.Players.Values) :
@@ -273,7 +273,7 @@ namespace PoGo.DiscordBot.Services
                 embedBuilder.AddField($"Hráči ({raidInfo.Players.Count})", playerFieldValue);
             }
 
-            if (raidInfo.ExtraPlayers.Any())
+            if (raidInfo.ExtraPlayers.Count > 0)
             {
                 string extraPlayersFieldValue = string.Join(" + ", raidInfo.ExtraPlayers.Select(t => t.Count));
                 embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({raidInfo.ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
