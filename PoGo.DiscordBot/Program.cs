@@ -2,6 +2,8 @@
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using DryIoc;
+using DryIoc.Microsoft.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,35 +46,37 @@ namespace PoGo.DiscordBot
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    var configuration = hostContext.Configuration;
-                    services.Configure<ConfigurationOptions>(configuration);
-
-                    var logSeverity = configuration.GetValue<LogSeverity>("Logging:LogLevel:Discord");
-                    services.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
+                    services.Configure<ConfigurationOptions>(hostContext.Configuration);
+                })
+                .UseServiceProviderFactory(new DryIocServiceProviderFactory(new Container(rules => rules.WithDefaultReuse(Reuse.Singleton))))
+                .ConfigureContainer<IContainer>((hostContext, container) =>
+                {
+                    var logSeverity = hostContext.Configuration.GetValue<LogSeverity>("Logging:LogLevel:Discord");
+                    container.RegisterInstance(new DiscordSocketClient(new DiscordSocketConfig
                     {
                         LogLevel = logSeverity,
                         MessageCacheSize = 100,
                     }));
-                    services.AddSingleton(new CommandService(new CommandServiceConfig
+                    container.RegisterInstance(new CommandService(new CommandServiceConfig
                     {
                         LogLevel = logSeverity,
                         DefaultRunMode = RunMode.Async,
                     }));
-                    services.AddSingleton<InteractiveService>();
+                    container.Register<InteractiveService>();
 
-                    services.AddSingleton<ConfigurationService>();
-                    services.AddSingleton<RaidService>();
-                    services.AddSingleton<TeamService>();
-                    services.AddSingleton<UserService>();
-                    services.AddSingleton<RaidChannelService>();
-                    services.AddSingleton<RoleService>();
-                    services.AddSingleton<RaidBossInfoService>();
-                    services.AddSingleton<GymLocationService>();
-                    services.AddSingleton<RaidStorageService>();
-                    services.AddSingleton<TimeService>();
+                    container.Register<ConfigurationService>();
+                    container.Register<RaidService>();
+                    container.Register<TeamService>();
+                    container.Register<UserService>();
+                    container.Register<RaidChannelService>();
+                    container.Register<RoleService>();
+                    container.Register<RaidBossInfoService>();
+                    container.Register<GymLocationService>();
+                    container.Register<RaidStorageService>();
+                    container.Register<TimeService>();
 
-                    services.AddSingleton<PoGoBot>();
-                    services.AddHostedService<PoGoBotHostedService>();
+                    container.Register<PoGoBot>();
+                    container.RegisterMany<PoGoBotHostedService>();
                 })
                 .Build()
                 .RunAsync();
