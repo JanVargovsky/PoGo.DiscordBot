@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Callbacks;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Services
 {
-    public class UserService
+    public class UserService : IUserJoined
     {
         readonly ILogger<UserService> logger;
         readonly TeamService teamService;

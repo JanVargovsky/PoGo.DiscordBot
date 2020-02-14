@@ -1,16 +1,18 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Callbacks;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Services
 {
-    public class RaidService
+    public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IMessageDeleted, IConnected, IDisconnected, IAsyncDisposable
     {
         const int ReactionUsersLimit = 100;
 
@@ -20,6 +22,7 @@ namespace PoGo.DiscordBot.Services
         readonly RaidChannelService raidChannelService;
         readonly RaidStorageService raidStorageService;
         readonly TimeService timeService;
+        readonly Timer _updateRaidsTimer;
 
         public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService, RaidStorageService raidStorageService, TimeService timeService)
         {
@@ -28,11 +31,16 @@ namespace PoGo.DiscordBot.Services
             this.raidChannelService = raidChannelService;
             this.raidStorageService = raidStorageService;
             this.timeService = timeService;
+
+            _updateRaidsTimer = new Timer(async _ =>
+            {
+                await UpdateRaidMessages();
+            }, null, Timeout.Infinite, Timeout.Infinite);
         }
 
-        public async Task OnNewGuild(SocketGuild guild)
+        public async Task OnGuildAvailable(SocketGuild guild)
         {
-            if (!raidChannelService.IsKnown(guild.Id))
+            if (!raidChannelService.AddIfKnown(guild))
                 // ignore unknown guilds for now
                 return;
 
@@ -201,7 +209,7 @@ namespace PoGo.DiscordBot.Services
             }
         }
 
-        public async Task UpdateRaidMessages()
+        async Task UpdateRaidMessages()
         {
             var toRemove = new List<(ulong guildId, ulong channelId, ulong messageId)>();
 
@@ -327,5 +335,23 @@ namespace PoGo.DiscordBot.Services
 
         public string ToSimpleString(RaidInfoDto raidInfo) =>
             $"{raidInfo.BossName} {raidInfo.Location} {RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType)}";
+
+        public Task OnConnected()
+        {
+            _updateRaidsTimer.Change(TimeSpan.FromSeconds(120 - DateTime.UtcNow.Second), TimeSpan.FromMinutes(1));
+            return Task.CompletedTask;
+        }
+
+        public Task OnDisconnected(Exception exception)
+        {
+            _updateRaidsTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            return Task.CompletedTask;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_updateRaidsTimer != null)
+                await _updateRaidsTimer.DisposeAsync();
+        }
     }
 }

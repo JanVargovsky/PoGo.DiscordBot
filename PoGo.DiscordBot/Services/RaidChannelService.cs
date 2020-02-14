@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Dto;
 using System.Collections.Generic;
@@ -14,8 +15,8 @@ namespace PoGo.DiscordBot.Services
         {
             public ITextChannel From { get; }
             public ITextChannel To { get; }
-            public IMentionable Mention { get; set; }
-            public bool ScheduledRaids { get; set; }
+            public IMentionable Mention { get; }
+            public bool ScheduledRaids { get; }
 
             public RaidChannelBinding(ITextChannel from, ITextChannel to, IMentionable mention, bool scheduledRaids)
             {
@@ -28,26 +29,28 @@ namespace PoGo.DiscordBot.Services
 
         readonly Dictionary<ulong, List<RaidChannelBinding>> guilds; // <guildId, channels[]>
         readonly ILogger<RaidChannelService> logger;
+        readonly IOptions<ConfigurationOptions> _configuration;
 
-        public RaidChannelService(ILogger<RaidChannelService> logger)
+        public RaidChannelService(ILogger<RaidChannelService> logger, IOptions<ConfigurationOptions> configuration)
         {
             this.logger = logger;
+            _configuration = configuration;
             guilds = new Dictionary<ulong, List<RaidChannelBinding>>();
         }
 
-        public void OnNewGuild(SocketGuild guild, GuildOptions[] guildOptions)
+        public bool AddIfKnown(SocketGuild guild)
         {
-            var guildConfig = guildOptions.FirstOrDefault(t => t.Id == guild.Id);
+            var guildConfig = _configuration.Value.Guilds.FirstOrDefault(t => t.Id == guild.Id);
             if (guildConfig == null)
             {
                 logger.LogWarning($"Unknown guild with id '{guild.Id}', name '{guild.Name}'");
-                return;
+                return false;
             }
 
-            if (guildConfig.Channels == null)
+            if (guildConfig.Channels?.Length == 0)
             {
                 logger.LogError($"Guild with custom name '{guildConfig.Name}' does not have configured channels");
-                return;
+                return false;
             }
 
             var channelBindings = guilds[guild.Id] = new List<RaidChannelBinding>();
@@ -55,9 +58,9 @@ namespace PoGo.DiscordBot.Services
             // go through configured channels and register them
             foreach (var channel in guildConfig.Channels)
                 AddBindingIfValid(channelBindings, guild, channel);
-        }
 
-        public bool IsKnown(ulong guildId) => guilds.ContainsKey(guildId);
+            return true;
+        }
 
         public bool IsKnown(ulong guildId, ulong textChannelId) =>
             TryGetRaidChannelBinding(guildId, textChannelId) != null;

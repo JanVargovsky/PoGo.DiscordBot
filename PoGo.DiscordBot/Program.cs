@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration.Options;
+using PoGo.DiscordBot.Core;
 using PoGo.DiscordBot.Services;
 using System;
 using System.Threading.Tasks;
@@ -65,17 +66,18 @@ namespace PoGo.DiscordBot
                     container.Register<InteractiveService>();
 
                     container.Register<ConfigurationService>();
-                    container.Register<RaidService>();
-                    container.Register<TeamService>();
-                    container.Register<UserService>();
-                    container.Register<RaidChannelService>();
+                    container.RegisterMany<RaidService>();
+                    container.RegisterMany<TeamService>();
+                    container.RegisterMany<UserService>();
+                    container.RegisterMany<RaidChannelService>();
                     container.Register<RoleService>();
                     container.Register<RaidBossInfoService>();
                     container.Register<GymLocationService>();
                     container.Register<RaidStorageService>();
                     container.Register<TimeService>();
+                    container.RegisterMany<CommandHandler>();
 
-                    container.Register<PoGoBot>();
+                    container.RegisterMany<PoGoBot>();
                     container.RegisterMany<PoGoBotHostedService>();
                 })
                 .Build()

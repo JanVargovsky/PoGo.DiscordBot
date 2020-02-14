@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PoGo.DiscordBot.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot
 {
-    public class PoGoBotHostedService : IHostedService, IAsyncDisposable
+    public class PoGoBotHostedService : IHostedService
     {
         readonly PoGoBot _bot;
         readonly IServiceProvider _services;
@@ -19,6 +20,9 @@ namespace PoGo.DiscordBot
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            foreach (var item in _services.GetServices<IInitializer>())
+                await item.InitializeAsync();
+
             await _bot.RunAsync();
         }
 
@@ -28,11 +32,6 @@ namespace PoGo.DiscordBot
 
             foreach (var disposable in _services.GetServices<IAsyncDisposable>())
                 await disposable.DisposeAsync();
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await _bot.DisposeAsync();
         }
     }
 }

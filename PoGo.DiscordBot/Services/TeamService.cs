@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
+using PoGo.DiscordBot.Callbacks;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Services
 {
-    public class TeamService
+    public class TeamService : IGuildAvailable
     {
         readonly ILogger<TeamService> logger;
 
@@ -23,7 +24,7 @@ namespace PoGo.DiscordBot.Services
             this.logger = logger;
         }
 
-        public async Task OnNewGuild(SocketGuild socketGuild)
+        public async Task OnGuildAvailable(SocketGuild socketGuild)
         {
             GuildTeamRoles[socketGuild.Id] = await GetTeamRoles(socketGuild);
         }

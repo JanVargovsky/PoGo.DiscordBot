@@ -108,7 +108,7 @@ namespace PoGo.DiscordBot.Modules
             return RaidCreate(bossName, location, time);
         }
 
-    [Command("schedule", RunMode = RunMode.Async)]
+        [Command("schedule", RunMode = RunMode.Async)]
         [Alias("s")]
         [Summary("Vytvoří plánovanou raid anketu do speciálního kanálu.")]
         [RaidChannelPrecondition]
