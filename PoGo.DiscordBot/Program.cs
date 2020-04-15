@@ -66,8 +66,8 @@ namespace PoGo.DiscordBot
                     container.Register<InteractiveService>();
 
                     container.Register<ConfigurationService>();
-                    container.RegisterMany<RaidService>();
                     container.RegisterMany<TeamService>();
+                    container.RegisterMany<RaidService>();
                     container.RegisterMany<UserService>();
                     container.RegisterMany<RaidChannelService>();
                     container.Register<RoleService>();

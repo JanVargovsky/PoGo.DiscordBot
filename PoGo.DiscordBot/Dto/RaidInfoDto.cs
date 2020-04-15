@@ -1,6 +1,7 @@
 ﻿using Discord;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PoGo.DiscordBot.Dto
 {
@@ -18,6 +19,7 @@ namespace PoGo.DiscordBot.Dto
         public string Location { get; set; }
         public DateTime DateTime { get; set; }
         public IDictionary<ulong, PlayerDto> Players { get; set; } // <userId, PlayerDto>
+        public IDictionary<ulong, PlayerDto> RemotePlayers { get; set; } // <userId, PlayerDto>
         public List<(ulong UserId, int Count)> ExtraPlayers { get; set; }
         public bool IsExpired => DateTime < DateTime.UtcNow;
         public RaidType RaidType { get; set; }
@@ -27,7 +29,14 @@ namespace PoGo.DiscordBot.Dto
             RaidType = raidType;
             CreatedAt = DateTime.UtcNow;
             Players = new Dictionary<ulong, PlayerDto>();
+            RemotePlayers = new Dictionary<ulong, PlayerDto>();
             ExtraPlayers = new List<(ulong UserId, int Count)>();
         }
+    }
+
+    public static class RaidInfoDtoExtensions
+    {
+        public static HashSet<PlayerDto> GetAllPlayers(this RaidInfoDto raid)
+            => raid.Players.Values.Concat(raid.RemotePlayers.Values).ToHashSet();
     }
 }

@@ -195,7 +195,7 @@ namespace PoGo.DiscordBot.Modules
                 $" changed raid with id '{raid.Message.Id}'" +
                 $" time changed from {timeService.ConvertToLocalString(raid.DateTime, TimeService.TimeFormat)} to {timeService.ConvertToLocalString(parsedTime.Value, TimeService.TimeFormat)}");
 
-            foreach (var player in raid.Players.Values)
+            foreach (var player in raid.GetAllPlayers())
             {
                 var user = player.User;
                 await user.SendMessageAsync(
@@ -228,7 +228,7 @@ namespace PoGo.DiscordBot.Modules
                 $" changed raid with id '{raid.Message.Id}'" +
                 $" boss changed from {raid.BossName} to {boss}");
 
-            foreach (var player in raid.Players.Values)
+            foreach (var player in raid.GetAllPlayers())
             {
                 var user = player.User;
                 await user.SendMessageAsync($"Změna raid bosse z '{raid.BossName}' na '{boss}'!");
@@ -254,7 +254,7 @@ namespace PoGo.DiscordBot.Modules
                 return;
             }
 
-            var users = raid.Players.Values.ToHashSet();
+            var users = raid.GetAllPlayers();
 
             if (users.Any())
             {
@@ -287,7 +287,7 @@ namespace PoGo.DiscordBot.Modules
             if (responseMessage == null || responseMessage.Content.ToLower() != "y")
                 return;
 
-            foreach (var player in raid.Players.Values)
+            foreach (var player in raid.GetAllPlayers())
             {
                 var user = player.User;
                 await user.SendMessageAsync($"Raid {raidService.ToSimpleString(raid)} se ruší!");
