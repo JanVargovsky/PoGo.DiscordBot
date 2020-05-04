@@ -1,12 +1,12 @@
-﻿using Discord.Commands;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Services;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {

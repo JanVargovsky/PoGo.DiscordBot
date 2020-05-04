@@ -1,13 +1,13 @@
-﻿using Discord;
-using Discord.Addons.Interactive;
-using Discord.Commands;
-using Microsoft.Extensions.Options;
-using PoGo.DiscordBot.Configuration.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Addons.Interactive;
+using Discord.Commands;
+using Microsoft.Extensions.Options;
+using PoGo.DiscordBot.Configuration.Options;
 
 namespace PoGo.DiscordBot.Modules
 {

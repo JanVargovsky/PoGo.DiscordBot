@@ -1,6 +1,6 @@
-﻿using Discord;
+﻿using System.Collections.Generic;
+using Discord;
 using PoGo.DiscordBot.Configuration;
-using System.Collections.Generic;
 
 namespace PoGo.DiscordBot.Dto
 {

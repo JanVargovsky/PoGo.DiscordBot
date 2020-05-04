@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Common;
 using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Dto;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PoGo.DiscordBot.Services
 {

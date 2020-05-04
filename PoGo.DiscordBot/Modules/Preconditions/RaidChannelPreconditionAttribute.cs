@@ -1,8 +1,8 @@
-﻿using Discord.Commands;
+﻿using System;
+using System.Threading.Tasks;
+using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using PoGo.DiscordBot.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules.Preconditions
 {

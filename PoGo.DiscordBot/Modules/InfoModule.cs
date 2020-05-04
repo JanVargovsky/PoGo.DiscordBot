@@ -1,9 +1,9 @@
-﻿using Discord;
+﻿using System;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
-using System;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {

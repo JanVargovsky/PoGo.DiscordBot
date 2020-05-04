@@ -1,4 +1,6 @@
-﻿using Discord;
+﻿using System;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -11,8 +13,6 @@ using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Configuration.Options;
 using PoGo.DiscordBot.Core;
 using PoGo.DiscordBot.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot
 {

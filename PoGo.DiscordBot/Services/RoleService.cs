@@ -1,5 +1,5 @@
-﻿using Discord.WebSocket;
-using System.Linq;
+﻿using System.Linq;
+using Discord.WebSocket;
 
 namespace PoGo.DiscordBot.Services
 {

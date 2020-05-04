@@ -1,6 +1,6 @@
-﻿using Discord.Commands;
+﻿using System.Threading.Tasks;
+using Discord.Commands;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Linq;
+using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
-using System.Linq;
 
 namespace PoGo.DiscordBot.Services
 {

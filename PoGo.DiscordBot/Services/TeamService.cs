@@ -1,14 +1,14 @@
-﻿using Discord;
-using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
-using PoGo.DiscordBot.Configuration;
-using PoGo.DiscordBot.Dto;
-using PoGo.DiscordBot.Callbacks;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
+using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using PoGo.DiscordBot.Callbacks;
+using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Dto;
 
 namespace PoGo.DiscordBot.Services
 {

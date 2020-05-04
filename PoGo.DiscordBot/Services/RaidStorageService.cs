@@ -1,7 +1,7 @@
-﻿using PoGo.DiscordBot.Dto;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using PoGo.DiscordBot.Dto;
 
 namespace PoGo.DiscordBot.Services
 {

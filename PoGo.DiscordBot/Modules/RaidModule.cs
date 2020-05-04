@@ -1,4 +1,8 @@
-﻿using Discord;
+﻿using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -6,10 +10,6 @@ using Microsoft.Extensions.Logging;
 using PoGo.DiscordBot.Dto;
 using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {

@@ -1,11 +1,11 @@
-﻿using Discord;
-using Discord.Commands;
-using PoGo.DiscordBot.Configuration;
-using PoGo.DiscordBot.Services;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using PoGo.DiscordBot.Configuration;
+using PoGo.DiscordBot.Services;
 
 namespace PoGo.DiscordBot.Modules
 {

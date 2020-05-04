@@ -1,9 +1,9 @@
-﻿using Discord.Commands;
+﻿using System.Threading.Tasks;
+using Discord.Commands;
 using Discord.WebSocket;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Modules.Preconditions;
 using PoGo.DiscordBot.Services;
-using System.Threading.Tasks;
 
 namespace PoGo.DiscordBot.Modules
 {
