@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -42,6 +41,7 @@ namespace PoGo.DiscordBot
                     var configuration = host.Configuration;
                     builder
                         .SetMinimumLevel(configuration.GetValue<LogLevel>("Logging:LogLevel:Default"))
+                        .AddFilter("Discord", configuration.GetValue<LogLevel>("Logging:LogLevel:Discord"))
                         .AddConsole()
                         .AddFile(configuration.GetSection("Logging"));
                 })
@@ -52,7 +52,7 @@ namespace PoGo.DiscordBot
                 .UseServiceProviderFactory(new DryIocServiceProviderFactory(new Container(rules => rules.WithDefaultReuse(Reuse.Singleton))))
                 .ConfigureContainer<IContainer>((hostContext, container) =>
                 {
-                    var logSeverity = hostContext.Configuration.GetValue<LogSeverity>("Logging:LogLevel:Discord");
+                    var logSeverity = hostContext.Configuration.GetValue<LogLevel>("Logging:LogLevel:Discord").ToLogLevel();
                     container.RegisterInstance(new DiscordSocketClient(new DiscordSocketConfig
                     {
                         LogLevel = logSeverity,

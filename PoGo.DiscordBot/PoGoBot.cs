@@ -18,6 +18,7 @@ namespace PoGo.DiscordBot
         readonly DiscordSocketClient _client;
         readonly CommandService _commands;
         readonly ILogger<PoGoBot> _logger;
+        readonly ILogger _discordLogger;
         readonly IOptions<ConfigurationOptions> _configuration;
 
         public PoGoBot(
@@ -25,12 +26,14 @@ namespace PoGo.DiscordBot
             DiscordSocketClient client,
             CommandService commands,
             ILogger<PoGoBot> logger,
+            ILoggerFactory loggerFactory,
             IOptions<ConfigurationOptions> configuration)
         {
             _serviceProvider = serviceProvider;
             _client = client;
             _commands = commands;
             _logger = logger;
+            _discordLogger = loggerFactory.CreateLogger("Discord");
             _configuration = configuration;
 
             InitializeCallbacks();
@@ -114,7 +117,7 @@ namespace PoGo.DiscordBot
         Task OnLog(LogMessage message)
         {
             var logLevel = message.Severity.ToLogLevel();
-            _logger.Log(logLevel, message.Exception, message.Message);
+            _discordLogger.Log(logLevel, message.Exception, message.Message);
             return Task.CompletedTask;
         }
     }
