@@ -350,7 +350,7 @@ namespace PoGo.DiscordBot.Modules
             foreach (var gymInfo in searchResult)
                 sb.AppendLine($"{gymInfo.Name}: {gymLocationService.GetMapUrl(gymInfo)}");
 
-            await ReplyAsync(sb.ToString());
+            await ReplyAsync(sb.Length > 0 ? sb.ToString() : "Nic nenalezeno.");
         }
 
         [Command("list", RunMode = RunMode.Async)]
