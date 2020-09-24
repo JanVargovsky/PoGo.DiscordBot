@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -15,6 +16,10 @@ namespace PoGo.DiscordBot.Services
     public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IMessageDeleted, IConnected, IDisconnected, IAsyncDisposable
     {
         const int ReactionUsersLimit = 100;
+        const string Boss = "**Boss**";
+        const string Location = "**Místo**";
+        const string Time = "**Čas**";
+        const string Date = "**Datum**";
 
         static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
         readonly ILogger<RaidService> logger;
@@ -202,7 +207,7 @@ namespace PoGo.DiscordBot.Services
             if (raidInfo == null || raidInfo.IsExpired)
                 return;
 
-            IUserMessage raidMessage = await message.GetOrDownloadAsync();
+            var raidMessage = await message.GetOrDownloadAsync();
             var user = socketGuildChannel.GetUser(reaction.UserId);
             if (user.IsBot)
                 return;
@@ -253,54 +258,122 @@ namespace PoGo.DiscordBot.Services
         RaidInfoDto ParseRaidInfo(IUserMessage message)
         {
             var embed = message.Embeds.FirstOrDefault();
-            if (embed == null || embed.Fields.Length < 3)
+            if (embed == null)
                 return null;
 
-            RaidInfoDto result = null;
+            if (TryParseEmbedWithDescription(out var result) ||
+                TryParseEmbedWithFields(out result))
+                return result;
 
-            if (embed.Fields[2].Name == "Čas")
+            return null;
+
+            // This is workaround format till Discord fix zero-width Embeds on Android
+            bool TryParseEmbedWithDescription(out RaidInfoDto dto)
             {
-                var time = timeService.ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
-                if (!time.HasValue)
-                    return null;
+                dto = null;
+                if (string.IsNullOrEmpty(embed.Description) ||
+                    !embed.Description.StartsWith(Boss))
+                    return false;
 
-                result = new RaidInfoDto(RaidType.Normal)
+                var rows = embed.Description.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                if (rows.Length < 3 ||
+                    !rows[0].StartsWith(Boss) ||
+                    !rows[1].StartsWith(Location))
+                    return false;
+
+                RaidType? raidType = null;
+                if (rows[2].StartsWith(Time))
+                    raidType = RaidType.Normal;
+                else if (rows[2].StartsWith(Date))
+                    raidType = RaidType.Scheduled;
+
+                if (!raidType.HasValue)
+                    return false;
+
+                const int SpaceLength = 1;
+                var bossName = rows[0].Substring(Boss.Length + SpaceLength);
+                var location = rows[1].Substring(Location.Length + SpaceLength);
+                var dateTime = raidType switch
                 {
-                    Message = message,
-                    CreatedAt = message.CreatedAt.UtcDateTime,
-                    BossName = embed.Fields[0].Value,
-                    Location = embed.Fields[1].Value,
-                    DateTime = time.Value,
+                    RaidType.Normal => timeService.ParseTime(rows[2].Substring(Time.Length + SpaceLength), message.CreatedAt.Date),
+                    RaidType.Scheduled => timeService.ParseDateTime(rows[2].Substring(Date.Length + SpaceLength)),
+                    _ => null,
                 };
-            }
-            else if (embed.Fields[2].Name == "Datum")
-            {
-                var dateTime = timeService.ParseDateTime(embed.Fields[2].Value);
-                if (!dateTime.HasValue)
-                    return null;
 
-                result = new RaidInfoDto(RaidType.Scheduled)
+                if (!dateTime.HasValue)
+                    return false;
+
+                dto = new RaidInfoDto(raidType.Value)
                 {
                     Message = message,
                     CreatedAt = message.CreatedAt.UtcDateTime,
-                    BossName = embed.Fields[0].Value,
-                    Location = embed.Fields[1].Value,
+                    BossName = bossName,
+                    Location = location,
                     DateTime = dateTime.Value,
                 };
+
+                return true;
             }
 
-            return result;
+            bool TryParseEmbedWithFields(out RaidInfoDto dto)
+            {
+                dto = null;
+                if (embed.Fields.Length < 3)
+                {
+                    return false;
+                }
+
+                if (embed.Fields[2].Name == "Čas")
+                {
+                    var time = timeService.ParseTime(embed.Fields[2].Value, message.CreatedAt.Date);
+                    if (!time.HasValue)
+                        return false;
+
+                    dto = new RaidInfoDto(RaidType.Normal)
+                    {
+                        Message = message,
+                        CreatedAt = message.CreatedAt.UtcDateTime,
+                        BossName = embed.Fields[0].Value,
+                        Location = embed.Fields[1].Value,
+                        DateTime = time.Value,
+                    };
+                    return true;
+                }
+                else if (embed.Fields[2].Name == "Datum")
+                {
+                    var dateTime = timeService.ParseDateTime(embed.Fields[2].Value);
+                    if (!dateTime.HasValue)
+                        return false;
+
+                    result = new RaidInfoDto(RaidType.Scheduled)
+                    {
+                        Message = message,
+                        CreatedAt = message.CreatedAt.UtcDateTime,
+                        BossName = embed.Fields[0].Value,
+                        Location = embed.Fields[1].Value,
+                        DateTime = dateTime.Value,
+                    };
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         public Embed ToEmbed(RaidInfoDto raidInfo)
         {
-            EmbedBuilder embedBuilder = new EmbedBuilder();
+            var embedBuilder = new EmbedBuilder();
             embedBuilder
                 .WithColor(GetColor())
-                .AddField("Boss", raidInfo.BossName, true)
-                .AddField("Místo", raidInfo.Location, true)
-                .AddField(raidInfo.RaidType == RaidType.Normal ? "Čas" : "Datum", RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType), true)
+                //.AddField("Boss", raidInfo.BossName, true)
+                //.AddField("Místo", raidInfo.Location, true)
+                //.AddField(raidInfo.RaidType == RaidType.Normal ? "Čas" : "Datum", RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType), true)
                 ;
+
+            var description = new StringBuilder()
+                .AppendLine(Boss + " " + raidInfo.BossName)
+                .AppendLine(Location + " " + raidInfo.Location)
+                .AppendLine((raidInfo.RaidType == RaidType.Normal ? Time : Date) + " " + RaidDateTimeToString(raidInfo.DateTime, raidInfo.RaidType));
 
             if (raidInfo.Players.Count > 0)
             {
@@ -308,20 +381,31 @@ namespace PoGo.DiscordBot.Services
                     PlayersToGroupString(raidInfo.Players.Values) :
                     PlayersToString(raidInfo.Players.Values);
 
-                embedBuilder.AddField($"Hráči ({raidInfo.Players.Count})", playerFieldValue);
+                //embedBuilder.AddField($"Hráči ({raidInfo.Players.Count})", playerFieldValue);
+                description
+                    .AppendLine($"**Hráči ({raidInfo.Players.Count})**")
+                    .AppendLine(playerFieldValue);
             }
 
             if (raidInfo.RemotePlayers.Count > 0)
             {
                 string remotePlayerFieldValue = PlayersToString(raidInfo.RemotePlayers.Values);
-                embedBuilder.AddField($"Vzdálení hráči ({raidInfo.RemotePlayers.Count})", remotePlayerFieldValue);
+                //embedBuilder.AddField($"Vzdálení hráči ({raidInfo.RemotePlayers.Count})", remotePlayerFieldValue);
+                description
+                    .AppendLine($"**Vzdálení hráči ({raidInfo.RemotePlayers.Count})**")
+                    .AppendLine(remotePlayerFieldValue);
             }
 
             if (raidInfo.ExtraPlayers.Count > 0)
             {
                 string extraPlayersFieldValue = string.Join(" + ", raidInfo.ExtraPlayers.Select(t => t.Count));
-                embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({raidInfo.ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
+                //embedBuilder.AddField($"Další hráči (bez Discordu, 2. mobil atd.) ({raidInfo.ExtraPlayers.Sum(t => t.Count)})", extraPlayersFieldValue);
+                description
+                    .AppendLine($"**Další hráči (bez Discordu, 2. mobil atd.) ({raidInfo.ExtraPlayers.Sum(t => t.Count)})**")
+                    .AppendLine(extraPlayersFieldValue);
             }
+
+            embedBuilder.WithDescription(description.ToString());
 
             return embedBuilder.Build();
 
@@ -347,7 +431,7 @@ namespace PoGo.DiscordBot.Services
             {
                 string TeamToString(PokemonTeam? team) => team != null ? team.ToString() : "Bez teamu";
 
-                List<string> formatterGroupedPlayers = new List<string>();
+                var formatterGroupedPlayers = new List<string>();
 
                 var teams = new PokemonTeam?[] { PokemonTeam.Mystic, PokemonTeam.Instinct, PokemonTeam.Valor, null };
                 foreach (PokemonTeam? team in teams)
