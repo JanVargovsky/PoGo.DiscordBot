@@ -57,7 +57,7 @@ namespace PoGo.DiscordBot.Services
                 var dateTimeFrom = !mayContainScheduledRaids ? DateTime.UtcNow.Date : DateTime.UtcNow.AddDays(-14);
 
                 var batchMessages = await channel.GetMessagesAsync(count, options: retryOptions)
-                    .ToList();
+                    .ToListAsync();
                 var latestMessages = batchMessages.SelectMany(t => t.Where(m => m.CreatedAt.UtcDateTime > dateTimeFrom))
                     .ToList();
                 if (!latestMessages.Any())
@@ -178,7 +178,7 @@ namespace PoGo.DiscordBot.Services
                     await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
                 }
             }
-            if (reaction.Emote.Equals(Emojis.NoPedestrians))
+            else if (reaction.Emote.Equals(Emojis.NoPedestrians))
             {
                 if (raidInfo.RemotePlayers.Remove(reaction.UserId, out var player))
                 {

@@ -35,7 +35,7 @@ namespace PoGo.DiscordBot.Services
             if (role == null)
             {
                 logger.LogInformation($"Creating new role for team {pokemonTeam}");
-                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), color: TeamRoleColors.GetColor(pokemonTeam), isHoisted: true);
+                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), null, TeamRoleColors.GetColor(pokemonTeam), true, null);
                 await role.ModifyAsync(t =>
                 {
                     t.Mentionable = true;
