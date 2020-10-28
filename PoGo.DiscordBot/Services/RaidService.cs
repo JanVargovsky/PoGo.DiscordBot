@@ -96,7 +96,7 @@ namespace PoGo.DiscordBot.Services
                 .Select(t => guild.GetUser(t.Id))
                 .Where(t => t != null);
             foreach (var user in players)
-                raidInfo.Players[user.Id] = userService.GetPlayer(guild.GetUser(user.Id));
+                raidInfo.Players[user.Id] = userService.GetPlayer(user);
 
             // Adjust remote player count
             var allRemotePlayers = await message.GetReactionUsersAsync(Emojis.NoPedestrians, ReactionUsersLimit).FlattenAsync();
@@ -105,7 +105,7 @@ namespace PoGo.DiscordBot.Services
                 .Select(t => guild.GetUser(t.Id))
                 .Where(t => t != null);
             foreach (var user in remotePlayers)
-                raidInfo.RemotePlayers[user.Id] = userService.GetPlayer(guild.GetUser(user.Id));
+                raidInfo.RemotePlayers[user.Id] = userService.GetPlayer(user);
 
             // Extra players
             for (int i = 0; i < Emojis.KeycapDigits.Length; i++)
