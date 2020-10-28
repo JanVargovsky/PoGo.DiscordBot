@@ -86,7 +86,7 @@ namespace PoGo.DiscordBot.Services
             if (raidInfo == null)
                 return false;
 
-            logger.LogInformation($"Updating raid message '{message.Id}'");
+            logger.LogDebug($"Updating raid message '{message.Id}'");
 
             raidStorageService.AddRaid(guild.Id, message.Channel.Id, message.Id, raidInfo);
             // Adjust player count
