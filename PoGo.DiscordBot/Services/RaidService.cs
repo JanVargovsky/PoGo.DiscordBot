@@ -443,6 +443,10 @@ namespace PoGo.DiscordBot.Services
                     .AppendLine(extraPlayersFieldValue);
             }
 
+            // TODO: Do it configurable if Niantic changes the limit
+            if (raidInfo.RemotePlayers.Count + raidInfo.InvitedPlayers.Count > 10)
+                embedBuilder.WithTitle("❗❗❗ Všichni se do raidu nevlezou ❗❗❗");
+
             embedBuilder.WithDescription(description.ToString());
 
             return embedBuilder.Build();
