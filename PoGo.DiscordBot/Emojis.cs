@@ -3,13 +3,14 @@ using Discord;
 
 namespace PoGo.DiscordBot
 {
-    internal class UnicodeEmojis
+    internal static class UnicodeEmojis
     {
         public const string ThumbsUp = "👍";
         public const string ThumbsDown = "👎";
         public const string Check = "✅";
         public const string Cross = "❌";
         public const string NoPedestrians = "🚷";
+        public const string Handshake = "🤝";
 
         public static readonly string[] KeycapDigits;
 
@@ -22,13 +23,14 @@ namespace PoGo.DiscordBot
         }
     }
 
-    internal class Emojis
+    internal static class Emojis
     {
         public static readonly Emoji ThumbsUp = new Emoji(UnicodeEmojis.ThumbsUp);
         public static readonly Emoji ThumbsDown = new Emoji(UnicodeEmojis.ThumbsDown);
         public static readonly Emoji Check = new Emoji(UnicodeEmojis.Check);
         public static readonly Emoji Cross = new Emoji(UnicodeEmojis.Cross);
         public static readonly Emoji NoPedestrians = new Emoji(UnicodeEmojis.NoPedestrians);
+        public static readonly Emoji Handshake = new Emoji(UnicodeEmojis.Handshake);
 
         public static readonly Emoji[] KeycapDigits;
 

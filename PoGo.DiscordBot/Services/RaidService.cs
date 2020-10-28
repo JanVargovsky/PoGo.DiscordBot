@@ -89,23 +89,15 @@ namespace PoGo.DiscordBot.Services
             logger.LogDebug($"Updating raid message '{message.Id}'");
 
             raidStorageService.AddRaid(guild.Id, message.Channel.Id, message.Id, raidInfo);
+
             // Adjust player count
-            var allPlayers = await message.GetReactionUsersAsync(Emojis.ThumbsUp, ReactionUsersLimit).FlattenAsync();
-            var players = allPlayers
-                .Where(t => !t.IsBot)
-                .Select(t => guild.GetUser(t.Id))
-                .Where(t => t != null);
-            foreach (var user in players)
-                raidInfo.Players[user.Id] = userService.GetPlayer(user);
+            await AddPlayersAsync(raidInfo.Players, Emojis.ThumbsUp);
 
             // Adjust remote player count
-            var allRemotePlayers = await message.GetReactionUsersAsync(Emojis.NoPedestrians, ReactionUsersLimit).FlattenAsync();
-            var remotePlayers = allRemotePlayers
-                .Where(t => !t.IsBot)
-                .Select(t => guild.GetUser(t.Id))
-                .Where(t => t != null);
-            foreach (var user in remotePlayers)
-                raidInfo.RemotePlayers[user.Id] = userService.GetPlayer(user);
+            await AddPlayersAsync(raidInfo.RemotePlayers, Emojis.NoPedestrians);
+
+            // Adjust invited player count
+            await AddPlayersAsync(raidInfo.InvitedPlayers, Emojis.Handshake);
 
             // Extra players
             for (int i = 0; i < Emojis.KeycapDigits.Length; i++)
@@ -134,6 +126,27 @@ namespace PoGo.DiscordBot.Services
             }
 
             return true;
+
+            async Task AddPlayersAsync(IDictionary<ulong, PlayerDto> storage, Emoji emoji)
+            {
+                var users = await message.GetReactionUsersAsync(emoji, ReactionUsersLimit).FlattenAsync();
+                foreach (var user in users)
+                {
+                    // ignore myself
+                    if (user.IsBot)
+                        continue;
+
+                    var guildUser = guild.GetUser(user.Id);
+                    if (guildUser is null)
+                    {
+                        // Bot may not have intent enabled
+                        logger.LogWarning($"Did not find user '{user.Id}' on guild '{guild.Name}'");
+                        continue;
+                    }
+
+                    storage[user.Id] = userService.GetPlayer(guildUser);
+                }
+            }
         }
 
         public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
@@ -153,6 +166,7 @@ namespace PoGo.DiscordBot.Services
             await message.AddReactionsAsync(new[] {
                 Emojis.ThumbsUp,
                 Emojis.NoPedestrians,
+                Emojis.Handshake,
                 Emojis.KeycapDigits[0],
                 Emojis.KeycapDigits[1],
                 Emojis.KeycapDigits[2]
@@ -162,6 +176,7 @@ namespace PoGo.DiscordBot.Services
         bool IsValidReactionEmote(string emote) =>
             emote == UnicodeEmojis.ThumbsUp ||
             emote == UnicodeEmojis.NoPedestrians ||
+            emote == UnicodeEmojis.Handshake ||
             UnicodeEmojis.KeycapDigits.Contains(emote);
 
         int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
@@ -188,6 +203,14 @@ namespace PoGo.DiscordBot.Services
                 if (raidInfo.RemotePlayers.Remove(reaction.UserId, out var player))
                 {
                     logger.LogInformation($"Remote player '{player}' removed {nameof(UnicodeEmojis.NoPedestrians)} on raid {raidInfo.Message.Id}");
+                    await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
+                }
+            }
+            else if (reaction.Emote.Equals(Emojis.Handshake))
+            {
+                if (raidInfo.InvitedPlayers.Remove(reaction.UserId, out var player))
+                {
+                    logger.LogInformation($"Invited player '{player}' removed {nameof(UnicodeEmojis.Handshake)} on raid {raidInfo.Message.Id}");
                     await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
                 }
             }
@@ -229,6 +252,13 @@ namespace PoGo.DiscordBot.Services
                 var player = userService.GetPlayer(user);
                 raidInfo.RemotePlayers[reaction.UserId] = player;
                 logger.LogInformation($"Remote player '{player}' added {nameof(UnicodeEmojis.NoPedestrians)} on raid {raidInfo.Message.Id}");
+                await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
+            }
+            else if (reaction.Emote.Equals(Emojis.Handshake))
+            {
+                var player = userService.GetPlayer(user);
+                raidInfo.InvitedPlayers[reaction.UserId] = player;
+                logger.LogInformation($"Invited player '{player}' added {nameof(UnicodeEmojis.Handshake)} on raid {raidInfo.Message.Id}");
                 await raidMessage.ModifyAsync(t => t.Embed = ToEmbed(raidInfo));
             }
             else if (Emojis.KeycapDigits.Contains(reaction.Emote))
@@ -393,6 +423,14 @@ namespace PoGo.DiscordBot.Services
                 //embedBuilder.AddField($"Vzdálení hráči ({raidInfo.RemotePlayers.Count})", remotePlayerFieldValue);
                 description
                     .AppendLine($"**Vzdálení hráči ({raidInfo.RemotePlayers.Count})**")
+                    .AppendLine(remotePlayerFieldValue);
+            }
+
+            if (raidInfo.InvitedPlayers.Count > 0)
+            {
+                string remotePlayerFieldValue = PlayersToString(raidInfo.InvitedPlayers.Values);
+                description
+                    .AppendLine($"**Pozvaní hráči ({raidInfo.InvitedPlayers.Count})**")
                     .AppendLine(remotePlayerFieldValue);
             }
 
