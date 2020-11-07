@@ -64,7 +64,17 @@ namespace PoGo.DiscordBot.Core
                         reply = "Hodně parametrů - nechybí ti tam uvozovky?";
                 }
                 else if (result.Error == CommandError.ParseFailed)
-                    reply = "Špatné parametry.";
+                {
+                    if (result is ParseResult parseResult && parseResult.ErrorParameter != null)
+                    {
+                        reply = string.IsNullOrEmpty(parseResult.ErrorParameter.Summary) ?
+                            $"Špatný parametr {parseResult.ErrorParameter.Name}." :
+                            $"Špatný parametr {parseResult.ErrorParameter.Name} - {parseResult.ErrorParameter.Summary}";
+                    }
+                    else
+                        reply = "Špatné parametry.";
+
+                }
                 else if (result is TeamPreconditionResult teamResult)
                     reply = teamResult.ErrorReason;
                 else if (result.Error == CommandError.UnmetPrecondition && result.ErrorReason == "Invalid context for command; accepted contexts: Guild.")
