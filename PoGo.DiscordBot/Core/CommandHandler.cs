@@ -83,7 +83,7 @@ namespace PoGo.DiscordBot.Core
                 if (reply != null)
                     await context.Channel.SendMessageAsync($"{message.Author.Mention} {reply}");
 
-                _logger.LogDebug(result.ErrorReason);
+                _logger.LogDebug($"Command: '{message.Content}', ErrorReason: '{result.ErrorReason}', User: '{message.Author.Username}' ({message.Author.Id}), Reply: '{reply ?? "null"}'");
             }
         }
     }
