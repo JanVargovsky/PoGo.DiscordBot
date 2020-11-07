@@ -100,12 +100,6 @@ namespace PoGo.DiscordBot.Modules
                 await ReplyAsync($"```{pages.First()}```");
         }
 
-        private enum CommandInfoSignature
-        {
-            Basic,
-            Full
-        }
-
         [Command("help")]
         [Summary("Vypíše nápovědu pro konkrétní příkaz.")]
         public async Task Help([Remainder] string command)
@@ -189,6 +183,12 @@ namespace PoGo.DiscordBot.Modules
             }
 
             await ReplyAsync(string.Empty, false, builder.Build());
+        }
+
+        private enum CommandInfoSignature
+        {
+            Basic,
+            Full
         }
     }
 }
