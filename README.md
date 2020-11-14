@@ -5,7 +5,7 @@ Discord BOT focused on internal communication within players of the Pokemon Go
 
 - Set team & level as role
 - Plan a raid or ex-raid
-  - Set raid boss, location and scheduled time. React with 👍 that you will attend and raid poll message will refresh itself
+  - Set raid boss, location and scheduled time. React with 👍/🚷/🤝 that you will attend and raid poll message will refresh itself
   - In case that amount of players is too high, it will split up players per team so you can create multiple raid lobbies for extra balls.
   - Do you have two devices or somebody is not on the Discord yet? You can add 1️⃣, 2️⃣ etc.
   ![raid poll preview](https://i.imgur.com/ML4WbgT.png)
@@ -45,7 +45,7 @@ Note: this is minimalistic config, there is a lot more!
 
 ## Host yourself
 ### Prerequisites
-- .NET Core 3.1 ([download here](https://dotnet.microsoft.com/download))
+- .NET 5.0 ([download here](https://dotnet.microsoft.com/download))
 - created bot with a token and joined in a guild (Discord server)
 
 ### Setup
