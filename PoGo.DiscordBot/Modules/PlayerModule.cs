@@ -53,14 +53,14 @@ namespace PoGo.DiscordBot.Modules
         [TeamPrecondition]
         [Summary("Nastaví level.")]
         public async Task SetLevel(
-            [Summary("Aktuální level (1-40)")]int level)
+            [Summary("Aktuální level (1-50)")]int level)
         {
             if (!(Context.User is SocketGuildUser user))
                 return;
 
-            if (!(level >= 1 && level <= 40))
+            if (!(level >= 1 && level <= 50))
             {
-                await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-40.");
+                await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-50.");
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace PoGo.DiscordBot.Modules
         [Summary("Nastaví team a level.")]
         public async Task SetBasicInfo(
             [Summary("Zvolený team (roli).")]PokemonTeam team,
-            [Summary("Aktuální level (1-40).")]int level)
+            [Summary("Aktuální level (1-50).")]int level)
         {
             await SetTeam(team);
             await SetLevel(level);
