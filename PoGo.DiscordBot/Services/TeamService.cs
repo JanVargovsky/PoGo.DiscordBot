@@ -35,7 +35,7 @@ namespace PoGo.DiscordBot.Services
             if (role == null)
             {
                 logger.LogInformation($"Creating new role for team {pokemonTeam}");
-                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), null, TeamRoleColors.GetColor(pokemonTeam), true, null);
+                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), null, pokemonTeam.ToColor(), true, null);
                 await role.ModifyAsync(t =>
                 {
                     t.Mentionable = true;
@@ -50,7 +50,7 @@ namespace PoGo.DiscordBot.Services
             var roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
             var teamToRole = new Dictionary<PokemonTeam, IRole>();
 
-            foreach (PokemonTeam team in Enum.GetValues(typeof(PokemonTeam)))
+            foreach (var team in Enum.GetValues<PokemonTeam>())
             {
                 var role = await GetOrCreateRole(guild, team);
 

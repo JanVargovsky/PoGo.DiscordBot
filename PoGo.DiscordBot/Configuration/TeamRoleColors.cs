@@ -1,23 +1,15 @@
-﻿using System;
-using Discord;
+﻿using Discord;
 
 namespace PoGo.DiscordBot.Configuration
 {
-    public class TeamRoleColors
+    public static class TeamRoleColors
     {
-        public static Color GetColor(PokemonTeam team)
+        public static Color ToColor(this PokemonTeam team) => team switch
         {
-            switch (team)
-            {
-                case PokemonTeam.Mystic:
-                    return new Color(0x00, 0xb8, 0xff);
-                case PokemonTeam.Instinct:
-                    return new Color(0xff, 0xf5, 0x00);
-                case PokemonTeam.Valor:
-                    return new Color(0xff, 0x19, 0x05);
-                default:
-                    throw new Exception("Unknown team");
-            }
-        }
+            PokemonTeam.Mystic => new(0x00, 0xb8, 0xff),
+            PokemonTeam.Instinct => new(0xff, 0xf5, 0x00),
+            PokemonTeam.Valor => new(0xff, 0x19, 0x05),
+            _ => throw new("Unknown team"),
+        };
     }
 }

@@ -25,12 +25,12 @@ namespace PoGo.DiscordBot
 
     internal static class Emojis
     {
-        public static readonly Emoji ThumbsUp = new Emoji(UnicodeEmojis.ThumbsUp);
-        public static readonly Emoji ThumbsDown = new Emoji(UnicodeEmojis.ThumbsDown);
-        public static readonly Emoji Check = new Emoji(UnicodeEmojis.Check);
-        public static readonly Emoji Cross = new Emoji(UnicodeEmojis.Cross);
-        public static readonly Emoji NoPedestrians = new Emoji(UnicodeEmojis.NoPedestrians);
-        public static readonly Emoji Handshake = new Emoji(UnicodeEmojis.Handshake);
+        public static readonly Emoji ThumbsUp = new(UnicodeEmojis.ThumbsUp);
+        public static readonly Emoji ThumbsDown = new(UnicodeEmojis.ThumbsDown);
+        public static readonly Emoji Check = new(UnicodeEmojis.Check);
+        public static readonly Emoji Cross = new(UnicodeEmojis.Cross);
+        public static readonly Emoji NoPedestrians = new(UnicodeEmojis.NoPedestrians);
+        public static readonly Emoji Handshake = new(UnicodeEmojis.Handshake);
 
         public static readonly Emoji[] KeycapDigits;
 
