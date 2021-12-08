@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace PoGo.DiscordBot.Callbacks
+namespace PoGo.DiscordBot.Callbacks;
+
+public interface IDisconnected
 {
-    public interface IDisconnected
-    {
-        Task OnDisconnected(Exception exception);
-    }
+    Task OnDisconnected(Exception exception);
 }

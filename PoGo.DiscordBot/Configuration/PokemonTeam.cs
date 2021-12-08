@@ -1,9 +1,8 @@
-﻿namespace PoGo.DiscordBot.Configuration
+﻿namespace PoGo.DiscordBot.Configuration;
+
+public enum PokemonTeam
 {
-    public enum PokemonTeam
-    {
-        Mystic,
-        Instinct,
-        Valor
-    }
+    Mystic,
+    Instinct,
+    Valor
 }

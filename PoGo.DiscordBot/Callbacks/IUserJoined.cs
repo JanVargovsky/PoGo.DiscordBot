@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Discord.WebSocket;
 
-namespace PoGo.DiscordBot.Callbacks
+namespace PoGo.DiscordBot.Callbacks;
+
+public interface IUserJoined
 {
-    public interface IUserJoined
-    {
-        Task OnUserJoined(SocketGuildUser user);
-    }
+    Task OnUserJoined(SocketGuildUser user);
 }

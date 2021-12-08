@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace PoGo.DiscordBot.Core
+namespace PoGo.DiscordBot.Core;
+
+public interface IInitializer
 {
-    public interface IInitializer
-    {
-        ValueTask InitializeAsync();
-    }
+    ValueTask InitializeAsync();
 }

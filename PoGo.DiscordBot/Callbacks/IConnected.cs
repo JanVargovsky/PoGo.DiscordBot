@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace PoGo.DiscordBot.Callbacks
+namespace PoGo.DiscordBot.Callbacks;
+
+public interface IConnected
 {
-    public interface IConnected
-    {
-        Task OnConnected();
-    }
+    Task OnConnected();
 }

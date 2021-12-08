@@ -2,24 +2,23 @@
 using Discord.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace PoGo.DiscordBot.Modules
+namespace PoGo.DiscordBot.Modules;
+
+[RequireOwner]
+public class TestModule : ModuleBase<SocketCommandContext>
 {
-    [RequireOwner]
-    public class TestModule : ModuleBase<SocketCommandContext>
+    readonly ILogger<TestModule> logger;
+
+    public TestModule(ILogger<TestModule> logger)
     {
-        readonly ILogger<TestModule> logger;
+        this.logger = logger;
+    }
 
-        public TestModule(ILogger<TestModule> logger)
-        {
-            this.logger = logger;
-        }
-
-        [Command("test")]
-        [Alias("t")]
-        [Summary("Test.")]
-        public async Task Test(string a, string b)
-        {
-            await Task.CompletedTask;
-        }
+    [Command("test")]
+    [Alias("t")]
+    [Summary("Test.")]
+    public async Task Test(string a, string b)
+    {
+        await Task.CompletedTask;
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Discord.WebSocket;
 
-namespace PoGo.DiscordBot.Callbacks
+namespace PoGo.DiscordBot.Callbacks;
+
+public interface IMessageReceived
 {
-    public interface IMessageReceived
-    {
-        Task OnMessageReceived(SocketMessage message);
-    }
+    Task OnMessageReceived(SocketMessage message);
 }

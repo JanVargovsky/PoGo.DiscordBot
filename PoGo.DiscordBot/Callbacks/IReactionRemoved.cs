@@ -2,10 +2,9 @@
 using Discord;
 using Discord.WebSocket;
 
-namespace PoGo.DiscordBot.Callbacks
+namespace PoGo.DiscordBot.Callbacks;
+
+public interface IReactionRemoved
 {
-    public interface IReactionRemoved
-    {
-        Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction);
-    }
+    Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction);
 }

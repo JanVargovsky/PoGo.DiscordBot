@@ -5,33 +5,32 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PoGo.DiscordBot.Core;
 
-namespace PoGo.DiscordBot
+namespace PoGo.DiscordBot;
+
+public class PoGoBotHostedService : IHostedService
 {
-    public class PoGoBotHostedService : IHostedService
+    readonly PoGoBot _bot;
+    readonly IServiceProvider _services;
+
+    public PoGoBotHostedService(PoGoBot bot, IServiceProvider services)
     {
-        readonly PoGoBot _bot;
-        readonly IServiceProvider _services;
+        _bot = bot;
+        _services = services;
+    }
 
-        public PoGoBotHostedService(PoGoBot bot, IServiceProvider services)
-        {
-            _bot = bot;
-            _services = services;
-        }
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        foreach (var item in _services.GetServices<IInitializer>())
+            await item.InitializeAsync();
 
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            foreach (var item in _services.GetServices<IInitializer>())
-                await item.InitializeAsync();
+        await _bot.RunAsync();
+    }
 
-            await _bot.RunAsync();
-        }
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await _bot.StopAsync();
 
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            await _bot.StopAsync();
-
-            foreach (var disposable in _services.GetServices<IAsyncDisposable>())
-                await disposable.DisposeAsync();
-        }
+        foreach (var disposable in _services.GetServices<IAsyncDisposable>())
+            await disposable.DisposeAsync();
     }
 }

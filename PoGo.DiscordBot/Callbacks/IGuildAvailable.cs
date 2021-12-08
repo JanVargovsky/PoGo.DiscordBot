@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Discord.WebSocket;
 
-namespace PoGo.DiscordBot.Callbacks
+namespace PoGo.DiscordBot.Callbacks;
+
+public interface IGuildAvailable
 {
-    public interface IGuildAvailable
-    {
-        Task OnGuildAvailable(SocketGuild guild);
-    }
+    Task OnGuildAvailable(SocketGuild guild);
 }

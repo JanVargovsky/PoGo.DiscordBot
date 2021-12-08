@@ -1,9 +1,8 @@
-﻿namespace PoGo.DiscordBot.Dto
+﻿namespace PoGo.DiscordBot.Dto;
+
+public class GymInfoDto
 {
-    public class GymInfoDto
-    {
-        public string Name { get; set; }
-        public string Latitude { get; set; }
-        public string Longitude { get; set; }
-    }
+    public string Name { get; set; }
+    public string Latitude { get; set; }
+    public string Longitude { get; set; }
 }

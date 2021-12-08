@@ -10,59 +10,58 @@ using PoGo.DiscordBot.Callbacks;
 using PoGo.DiscordBot.Configuration;
 using PoGo.DiscordBot.Dto;
 
-namespace PoGo.DiscordBot.Services
+namespace PoGo.DiscordBot.Services;
+
+public class TeamService : IGuildAvailable
 {
-    public class TeamService : IGuildAvailable
+    readonly ILogger<TeamService> logger;
+
+    public ConcurrentDictionary<ulong, TeamRolesDto> GuildTeamRoles { get; } // <guildId, roles>
+
+    public TeamService(ILogger<TeamService> logger)
     {
-        readonly ILogger<TeamService> logger;
+        GuildTeamRoles = new ConcurrentDictionary<ulong, TeamRolesDto>();
+        this.logger = logger;
+    }
 
-        public ConcurrentDictionary<ulong, TeamRolesDto> GuildTeamRoles { get; } // <guildId, roles>
+    public async Task OnGuildAvailable(SocketGuild socketGuild)
+    {
+        GuildTeamRoles[socketGuild.Id] = await GetTeamRoles(socketGuild);
+    }
 
-        public TeamService(ILogger<TeamService> logger)
+    async Task<IRole> GetOrCreateRole(IGuild guild, PokemonTeam pokemonTeam)
+    {
+        var role = guild.Roles.FirstOrDefault(t => Enum.TryParse<PokemonTeam>(t.Name, out var team) && pokemonTeam == team);
+        if (role == null)
         {
-            GuildTeamRoles = new ConcurrentDictionary<ulong, TeamRolesDto>();
-            this.logger = logger;
-        }
-
-        public async Task OnGuildAvailable(SocketGuild socketGuild)
-        {
-            GuildTeamRoles[socketGuild.Id] = await GetTeamRoles(socketGuild);
-        }
-
-        async Task<IRole> GetOrCreateRole(IGuild guild, PokemonTeam pokemonTeam)
-        {
-            var role = guild.Roles.FirstOrDefault(t => Enum.TryParse<PokemonTeam>(t.Name, out var team) && pokemonTeam == team);
-            if (role == null)
+            logger.LogInformation($"Creating new role for team {pokemonTeam}");
+            role = await guild.CreateRoleAsync(pokemonTeam.ToString(), null, pokemonTeam.ToColor(), true, null);
+            await role.ModifyAsync(t =>
             {
-                logger.LogInformation($"Creating new role for team {pokemonTeam}");
-                role = await guild.CreateRoleAsync(pokemonTeam.ToString(), null, pokemonTeam.ToColor(), true, null);
-                await role.ModifyAsync(t =>
-                {
-                    t.Mentionable = true;
-                });
-            }
-
-            return role;
+                t.Mentionable = true;
+            });
         }
 
-        async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
+        return role;
+    }
+
+    async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
+    {
+        var roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
+        var teamToRole = new Dictionary<PokemonTeam, IRole>();
+
+        foreach (var team in Enum.GetValues<PokemonTeam>())
         {
-            var roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
-            var teamToRole = new Dictionary<PokemonTeam, IRole>();
+            var role = await GetOrCreateRole(guild, team);
 
-            foreach (var team in Enum.GetValues<PokemonTeam>())
-            {
-                var role = await GetOrCreateRole(guild, team);
-
-                roleIdtoTeam[role.Id] = team;
-                teamToRole[team] = role;
-            }
-
-            return new TeamRolesDto
-            {
-                RoleTeams = roleIdtoTeam,
-                TeamRoles = teamToRole,
-            };
+            roleIdtoTeam[role.Id] = team;
+            teamToRole[team] = role;
         }
+
+        return new TeamRolesDto
+        {
+            RoleTeams = roleIdtoTeam,
+            TeamRoles = teamToRole,
+        };
     }
 }
