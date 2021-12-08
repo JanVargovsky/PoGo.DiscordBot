@@ -49,8 +49,10 @@ namespace PoGo.DiscordBot.Services
                 // ignore unknown guilds for now
                 return;
 
+            logger.LogInformation($"Updating raid messages started for guild {guild.Name}");
             foreach (var channel in raidChannelService.GetRaidChannels(guild.Id))
                 await UpdateRaidMessages(guild, channel);
+            logger.LogInformation($"Updating raid messages ended for guild {guild.Name}");
         }
 
         public async Task UpdateRaidMessages(SocketGuild guild, IMessageChannel channel, int count = 10)
@@ -83,7 +85,7 @@ namespace PoGo.DiscordBot.Services
         async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
         {
             var raidInfo = ParseRaidInfo(message);
-            if (raidInfo == null)
+            if (raidInfo == null || raidInfo.IsExpired)
                 return false;
 
             logger.LogDebug($"Updating raid message '{message.Id}'");
