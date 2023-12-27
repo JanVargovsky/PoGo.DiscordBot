@@ -45,7 +45,7 @@ Note: this is minimalistic config, there is a lot more!
 
 ## Host yourself
 ### Prerequisites
-- .NET 5.0 ([download here](https://dotnet.microsoft.com/download))
+- .NET 8.0 ([download here](https://dotnet.microsoft.com/download))
 - created bot with a token and joined in a guild (Discord server)
 
 ### Setup
