@@ -14,12 +14,12 @@ namespace PoGo.DiscordBot;
 
 public class PoGoBot : IDisposable
 {
-    readonly IServiceProvider _serviceProvider;
-    readonly DiscordSocketClient _client;
-    readonly CommandService _commands;
-    readonly ILogger<PoGoBot> _logger;
-    readonly ILogger _discordLogger;
-    readonly IOptions<ConfigurationOptions> _configuration;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly DiscordSocketClient _client;
+    private readonly CommandService _commands;
+    private readonly ILogger<PoGoBot> _logger;
+    private readonly ILogger _discordLogger;
+    private readonly IOptions<ConfigurationOptions> _configuration;
 
     public PoGoBot(
         IServiceProvider serviceProvider,
@@ -55,7 +55,7 @@ public class PoGoBot : IDisposable
         _client.Dispose();
     }
 
-    void InitializeCallbacks()
+    private void InitializeCallbacks()
     {
         _client.Log += OnLog;
         _commands.Log += OnLog;
@@ -90,31 +90,31 @@ public class PoGoBot : IDisposable
             _client.UserJoined += service.OnUserJoined;
     }
 
-    Task OnLoggedIn()
+    private Task OnLoggedIn()
     {
         _logger.LogInformation("Logged in");
         return Task.CompletedTask;
     }
 
-    Task OnLoggedOut()
+    private Task OnLoggedOut()
     {
         _logger.LogInformation("Logged out");
         return Task.CompletedTask;
     }
 
-    async Task OnConnected()
+    private async Task OnConnected()
     {
         _logger.LogInformation("Connected");
         await _client.SetGameAsync(Debugger.IsAttached ? "Debugging" : "Pokémon GO");
     }
 
-    Task OnDisconnected(Exception exception)
+    private Task OnDisconnected(Exception exception)
     {
         _logger.LogInformation(exception, "Disconnected");
         return Task.CompletedTask;
     }
 
-    Task OnLog(LogMessage message)
+    private Task OnLog(LogMessage message)
     {
         var logLevel = message.Severity.ToLogLevel();
         _discordLogger.Log(logLevel, message.Exception, message.Message);

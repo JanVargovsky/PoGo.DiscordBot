@@ -18,16 +18,16 @@ namespace PoGo.DiscordBot.Modules;
 [Alias("r")]
 public class RaidModule : InteractiveBase<SocketCommandContext>
 {
-    static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
-    readonly TeamService teamService;
-    readonly RaidService raidService;
-    readonly ILogger<RaidModule> logger;
-    readonly RaidChannelService raidChannelService;
-    readonly ConfigurationService configuration;
-    readonly RaidBossInfoService raidBossInfoService;
-    readonly GymLocationService gymLocationService;
-    readonly RaidStorageService raidStorageService;
-    readonly TimeService timeService;
+    private static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
+    private readonly TeamService teamService;
+    private readonly RaidService raidService;
+    private readonly ILogger<RaidModule> logger;
+    private readonly RaidChannelService raidChannelService;
+    private readonly ConfigurationService configuration;
+    private readonly RaidBossInfoService raidBossInfoService;
+    private readonly GymLocationService gymLocationService;
+    private readonly RaidStorageService raidStorageService;
+    private readonly TimeService timeService;
 
     public RaidModule(TeamService teamService, RaidService raidService, ILogger<RaidModule> logger, RaidChannelService raidChannelService,
         ConfigurationService configuration, RaidBossInfoService raidBossInfoService, GymLocationService gymLocationService, RaidStorageService raidStorageService,
@@ -153,7 +153,7 @@ public class RaidModule : InteractiveBase<SocketCommandContext>
         raidStorageService.AddRaid(Context.Guild.Id, raidChannelBinding.Channel.Id, message.Id, raidInfo);
     }
 
-    RaidInfoDto GetRaid(int skip)
+    private RaidInfoDto GetRaid(int skip)
     {
         var raidChannelId = raidChannelService.TryGetRaidChannelBinding(Context.Guild.Id, Context.Channel.Id).Channel.Id;
         var raid = raidStorageService.GetRaid(Context.Guild.Id, raidChannelId, skip);

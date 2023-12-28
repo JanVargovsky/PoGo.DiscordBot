@@ -9,8 +9,8 @@ namespace PoGo.DiscordBot;
 
 public class PoGoBotHostedService : IHostedService
 {
-    readonly PoGoBot _bot;
-    readonly IServiceProvider _services;
+    private readonly PoGoBot _bot;
+    private readonly IServiceProvider _services;
 
     public PoGoBotHostedService(PoGoBot bot, IServiceProvider services)
     {

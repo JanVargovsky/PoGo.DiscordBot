@@ -12,8 +12,8 @@ namespace PoGo.DiscordBot.Modules;
 [Group("blame")]
 public class BlameModule : ModuleBase<SocketCommandContext>
 {
-    readonly UserService userService;
-    readonly ILogger<BlameModule> logger;
+    private readonly UserService userService;
+    private readonly ILogger<BlameModule> logger;
 
     public BlameModule(UserService userService, ILogger<BlameModule> logger)
     {

@@ -14,7 +14,7 @@ namespace PoGo.DiscordBot.Services;
 
 public class TeamService : IGuildAvailable
 {
-    readonly ILogger<TeamService> logger;
+    private readonly ILogger<TeamService> logger;
 
     public ConcurrentDictionary<ulong, TeamRolesDto> GuildTeamRoles { get; } // <guildId, roles>
 
@@ -29,7 +29,7 @@ public class TeamService : IGuildAvailable
         GuildTeamRoles[socketGuild.Id] = await GetTeamRoles(socketGuild);
     }
 
-    async Task<IRole> GetOrCreateRole(IGuild guild, PokemonTeam pokemonTeam)
+    private async Task<IRole> GetOrCreateRole(IGuild guild, PokemonTeam pokemonTeam)
     {
         var role = guild.Roles.FirstOrDefault(t => Enum.TryParse<PokemonTeam>(t.Name, out var team) && pokemonTeam == team);
         if (role == null)
@@ -45,7 +45,7 @@ public class TeamService : IGuildAvailable
         return role;
     }
 
-    async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
+    private async Task<TeamRolesDto> GetTeamRoles(IGuild guild)
     {
         var roleIdtoTeam = new Dictionary<ulong, PokemonTeam>();
         var teamToRole = new Dictionary<PokemonTeam, IRole>();

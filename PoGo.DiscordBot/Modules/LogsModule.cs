@@ -10,7 +10,7 @@ namespace PoGo.DiscordBot.Modules;
 [RequireOwner]
 public class LogsModule : ModuleBase
 {
-    const string LogDirectory = "Logs";
+    private const string LogDirectory = "Logs";
 
     [Command("logs", RunMode = RunMode.Async)]
     public async Task GetLogsFiles()

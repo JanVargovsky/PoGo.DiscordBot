@@ -15,19 +15,18 @@ namespace PoGo.DiscordBot.Services;
 
 public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IMessageDeleted, IConnected, IDisconnected, IAsyncDisposable
 {
-    const int ReactionUsersLimit = 100;
-    const string Boss = "**Boss**";
-    const string Location = "**Místo**";
-    const string Time = "**Čas**";
-    const string Date = "**Datum**";
-
-    static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
-    readonly ILogger<RaidService> logger;
-    readonly UserService userService;
-    readonly RaidChannelService raidChannelService;
-    readonly RaidStorageService raidStorageService;
-    readonly TimeService timeService;
-    readonly Timer _updateRaidsTimer;
+    private const int ReactionUsersLimit = 100;
+    private const string Boss = "**Boss**";
+    private const string Location = "**Místo**";
+    private const string Time = "**Čas**";
+    private const string Date = "**Datum**";
+    private static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
+    private readonly ILogger<RaidService> logger;
+    private readonly UserService userService;
+    private readonly RaidChannelService raidChannelService;
+    private readonly RaidStorageService raidStorageService;
+    private readonly TimeService timeService;
+    private readonly Timer _updateRaidsTimer;
 
     public RaidService(ILogger<RaidService> logger, UserService userService, RaidChannelService raidChannelService, RaidStorageService raidStorageService, TimeService timeService)
     {
@@ -82,7 +81,7 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
         }
     }
 
-    async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
+    private async Task<bool> FixRaidMessageAfterLoad(SocketGuild guild, IUserMessage message)
     {
         var raidInfo = ParseRaidInfo(message);
         if (raidInfo == null || raidInfo.IsExpired)
@@ -175,13 +174,13 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
             }, retryOptions);
     }
 
-    bool IsValidReactionEmote(string emote) =>
+    private bool IsValidReactionEmote(string emote) =>
         emote == UnicodeEmojis.ThumbsUp ||
         emote == UnicodeEmojis.NoPedestrians ||
         emote == UnicodeEmojis.Handshake ||
         UnicodeEmojis.KeycapDigits.Contains(emote);
 
-    int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
+    private int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
 
     public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
     {
@@ -271,7 +270,7 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
         }
     }
 
-    async Task UpdateRaidMessages()
+    private async Task UpdateRaidMessages()
     {
         var toRemove = new List<(ulong guildId, ulong channelId, ulong messageId)>();
 
@@ -287,7 +286,7 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
             raidStorageService.TryRemove(guildId, channelId, messageId);
     }
 
-    RaidInfoDto ParseRaidInfo(IUserMessage message)
+    private RaidInfoDto ParseRaidInfo(IUserMessage message)
     {
         var embed = message.Embeds.FirstOrDefault();
         if (embed == null)
@@ -489,7 +488,7 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
         }
     }
 
-    string RaidDateTimeToString(DateTime dt, RaidType rt) =>
+    private string RaidDateTimeToString(DateTime dt, RaidType rt) =>
         timeService.ConvertToLocalString(dt, rt == RaidType.Normal ? TimeService.TimeFormat : TimeService.DateTimeFormat);
 
     public string ToSimpleString(RaidInfoDto raidInfo) =>

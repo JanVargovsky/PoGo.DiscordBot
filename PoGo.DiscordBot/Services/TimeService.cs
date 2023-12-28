@@ -8,8 +8,7 @@ public class TimeService
 {
     public const string TimeFormat = "H:mm";
     public const string DateTimeFormat = "d.M.yyyy H:mm";
-
-    readonly TimeZoneInfo _timeZoneInfo;
+    private readonly TimeZoneInfo _timeZoneInfo;
 
     public TimeService()
     {

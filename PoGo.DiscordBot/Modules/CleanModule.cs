@@ -34,7 +34,7 @@ public class CleanModule : ModuleBase
         await DeleteMessagesAsync(userId, count);
     }
 
-    async Task DeleteMessagesAsync(ulong userId, int count)
+    private async Task DeleteMessagesAsync(ulong userId, int count)
     {
         var messages = (await Context.Channel
             .GetMessagesAsync()

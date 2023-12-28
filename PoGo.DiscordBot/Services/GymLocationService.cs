@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Services;
 
 public class GymLocationService
 {
-    readonly Dictionary<ulong, (string NormalizedName, GymInfoDto GymInfo)[]> gymsInfos; // <guildId, gymInfo[]>
+    private readonly Dictionary<ulong, (string NormalizedName, GymInfoDto GymInfo)[]> gymsInfos; // <guildId, gymInfo[]>
 
     public GymLocationService(IOptions<ConfigurationOptions> options)
     {

@@ -15,9 +15,9 @@ using PoGo.DiscordBot.Services;
 
 namespace PoGo.DiscordBot;
 
-class Program
+internal class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         await new HostBuilder()
             .ConfigureHostConfiguration(builder =>

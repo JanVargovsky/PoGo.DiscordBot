@@ -13,9 +13,9 @@ namespace PoGo.DiscordBot.Modules;
 
 public class HelpModule : InteractiveBase<SocketCommandContext>
 {
-    readonly CommandService commandService;
-    readonly IServiceProvider serviceProvider;
-    readonly char prefix;
+    private readonly CommandService commandService;
+    private readonly IServiceProvider serviceProvider;
+    private readonly char prefix;
 
     public HelpModule(CommandService commandService, IServiceProvider serviceProvider, IOptions<ConfigurationOptions> config)
     {
@@ -43,7 +43,7 @@ public class HelpModule : InteractiveBase<SocketCommandContext>
                 {
                     string s = $"{prefix}{cmd.Aliases.First()}";
                     if (!string.IsNullOrEmpty(cmd.Summary))
-                        s += $" ({ cmd.Summary})";
+                        s += $" ({cmd.Summary})";
 
                     commands.Add(s);
                 }

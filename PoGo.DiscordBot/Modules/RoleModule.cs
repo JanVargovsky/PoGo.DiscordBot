@@ -14,9 +14,9 @@ namespace PoGo.DiscordBot.Modules;
 [Group("role")]
 public class RoleModule : ModuleBase<SocketCommandContext>
 {
-    readonly ILogger<RoleModule> logger;
-    readonly RoleService roleService;
-    readonly Dictionary<ulong, string[]> availableRoles; // <guildId, roles[]>
+    private readonly ILogger<RoleModule> logger;
+    private readonly RoleService roleService;
+    private readonly Dictionary<ulong, string[]> availableRoles; // <guildId, roles[]>
 
     public RoleModule(ILogger<RoleModule> logger, IOptions<ConfigurationOptions> options, RoleService roleService)
     {

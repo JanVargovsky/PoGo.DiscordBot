@@ -14,8 +14,8 @@ namespace PoGo.DiscordBot.Services;
 
 public class UserService : IUserJoined
 {
-    readonly ILogger<UserService> logger;
-    readonly TeamService teamService;
+    private readonly ILogger<UserService> logger;
+    private readonly TeamService teamService;
 
     public UserService(ILogger<UserService> logger, TeamService teamService)
     {

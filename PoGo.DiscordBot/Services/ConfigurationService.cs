@@ -6,7 +6,7 @@ namespace PoGo.DiscordBot.Services;
 
 public class ConfigurationService
 {
-    readonly ConfigurationOptions configurationOptions;
+    private readonly ConfigurationOptions configurationOptions;
 
     public ConfigurationService(IOptions<ConfigurationOptions> configurationOptions)
     {

@@ -11,7 +11,7 @@ namespace PoGo.DiscordBot.Services;
 
 public class RaidChannelService
 {
-    class RaidChannelBinding
+    private class RaidChannelBinding
     {
         public ITextChannel From { get; }
         public ITextChannel To { get; }
@@ -27,9 +27,9 @@ public class RaidChannelService
         }
     }
 
-    readonly Dictionary<ulong, List<RaidChannelBinding>> guilds; // <guildId, channels[]>
-    readonly ILogger<RaidChannelService> logger;
-    readonly IOptions<ConfigurationOptions> _configuration;
+    private readonly Dictionary<ulong, List<RaidChannelBinding>> guilds; // <guildId, channels[]>
+    private readonly ILogger<RaidChannelService> logger;
+    private readonly IOptions<ConfigurationOptions> _configuration;
 
     public RaidChannelService(ILogger<RaidChannelService> logger, IOptions<ConfigurationOptions> configuration)
     {
@@ -100,7 +100,7 @@ public class RaidChannelService
         return null;
     }
 
-    void AddBindingIfValid(List<RaidChannelBinding> channelBindings, SocketGuild guild, ChannelOptions channelOptions)
+    private void AddBindingIfValid(List<RaidChannelBinding> channelBindings, SocketGuild guild, ChannelOptions channelOptions)
     {
         var channelFrom = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.From);
         var channelTo = guild.TextChannels.FirstOrDefault(t => t.Name == channelOptions.To);

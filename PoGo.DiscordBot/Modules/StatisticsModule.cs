@@ -13,7 +13,7 @@ namespace PoGo.DiscordBot.Modules;
 [Group("stats")]
 public class StatisticsModule : ModuleBase<SocketCommandContext>
 {
-    readonly UserService userService;
+    private readonly UserService userService;
 
     public StatisticsModule(UserService userService)
     {

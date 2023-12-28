@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Services;
 
 public class RaidBossInfoService
 {
-    readonly Dictionary<string, RaidBossDto> raidBosses; // <bossName, dto>
+    private readonly Dictionary<string, RaidBossDto> raidBosses; // <bossName, dto>
 
     public RaidBossInfoService(IOptions<ConfigurationOptions> options)
     {

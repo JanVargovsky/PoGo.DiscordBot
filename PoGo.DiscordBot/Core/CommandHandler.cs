@@ -14,11 +14,11 @@ namespace PoGo.DiscordBot.Core;
 
 public class CommandHandler : IMessageReceived, IInitializer
 {
-    readonly ILogger<CommandHandler> _logger;
-    readonly IServiceProvider _serviceProvider;
-    readonly DiscordSocketClient _client;
-    readonly CommandService _commands;
-    readonly IOptions<ConfigurationOptions> _configuration;
+    private readonly ILogger<CommandHandler> _logger;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly DiscordSocketClient _client;
+    private readonly CommandService _commands;
+    private readonly IOptions<ConfigurationOptions> _configuration;
 
     public CommandHandler(
         ILogger<CommandHandler> logger,

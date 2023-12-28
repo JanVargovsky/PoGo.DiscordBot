@@ -10,8 +10,8 @@ namespace PoGo.DiscordBot.Modules;
 [RequireContext(ContextType.Guild)]
 public class PlayerModule : ModuleBase<SocketCommandContext>
 {
-    readonly UserService userService;
-    readonly TeamService teamService;
+    private readonly UserService userService;
+    private readonly TeamService teamService;
 
     public PlayerModule(UserService userService, TeamService teamService)
     {
@@ -68,8 +68,8 @@ public class PlayerModule : ModuleBase<SocketCommandContext>
         {
             string name = user.Nickname ?? user.Username;
 
-                // remove previous level
-                if (name.EndsWith(')'))
+            // remove previous level
+            if (name.EndsWith(')'))
             {
                 int index = name.IndexOf('(');
                 if (index != -1)

@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Modules;
 [RequireContext(ContextType.Guild)]
 public class InviteModule : ModuleBase<SocketCommandContext>
 {
-    readonly ILogger<InviteModule> logger;
+    private readonly ILogger<InviteModule> logger;
 
     public InviteModule(ILogger<InviteModule> logger)
     {

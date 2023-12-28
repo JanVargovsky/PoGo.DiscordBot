@@ -9,7 +9,7 @@ public class RaidStorageService
 {
     // <guildId, <channelId, <messageId, RaidInfo>>>
     //readonly ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, ConcurrentDictionary<ulong, RaidInfoDto>>> raids;
-    readonly RaidGuildMapping raidGuilds;
+    private readonly RaidGuildMapping raidGuilds;
 
     public RaidStorageService()
     {
@@ -70,7 +70,7 @@ public class RaidStorageService
                     yield return (guild.Key, channel.Key, raidMessage.Key, raidMessage.Value);
     }
 
-    class RaidGuildMapping
+    private class RaidGuildMapping
     {
         // <guildId, RaidChannels>
         public ConcurrentDictionary<ulong, RaidChannelMapping> GuildRaids { get; }
@@ -81,7 +81,7 @@ public class RaidStorageService
         }
     }
 
-    class RaidChannelMapping
+    private class RaidChannelMapping
     {
         // <channelId, RaidMessages>
         public ConcurrentDictionary<ulong, RaidMessageMapping> RaidChannels { get; }
@@ -92,7 +92,7 @@ public class RaidStorageService
         }
     }
 
-    class RaidMessageMapping
+    private class RaidMessageMapping
     {
         // <messageId, RaidInfo>
         public ConcurrentDictionary<ulong, RaidInfoDto> RaidMessages { get; }

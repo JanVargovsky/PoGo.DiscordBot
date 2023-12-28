@@ -9,7 +9,7 @@ namespace PoGo.DiscordBot.Modules;
 
 public class InfoModule : ModuleBase
 {
-    readonly ConfigurationOptions configuration;
+    private readonly ConfigurationOptions configuration;
 
     public InfoModule(IOptions<ConfigurationOptions> configurationOptionsAccessor)
     {
