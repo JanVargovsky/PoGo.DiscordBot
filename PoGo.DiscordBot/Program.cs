@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord.Addons.Interactive;
+using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
@@ -57,13 +58,22 @@ internal class Program
                 {
                     LogLevel = logSeverity,
                     MessageCacheSize = 100,
+                    GatewayIntents = GatewayIntents.All & ~GatewayIntents.GuildPresences & ~GatewayIntents.GuildScheduledEvents & ~GatewayIntents.GuildInvites
                 }));
-                container.RegisterInstance(new CommandService(new CommandServiceConfig
+
+                container.Register<CommandService>();
+                container.RegisterInstance(new CommandServiceConfig
                 {
                     LogLevel = logSeverity,
-                    DefaultRunMode = RunMode.Async,
-                }));
-                container.Register<InteractiveService>();
+                    DefaultRunMode = Discord.Commands.RunMode.Async,
+                });
+
+                container.Register<InteractionService>();
+                container.RegisterInstance(new InteractionServiceConfig
+                {
+                    LogLevel = logSeverity,
+                    DefaultRunMode = Discord.Interactions.RunMode.Async,
+                });
 
                 container.Register<ConfigurationService>();
                 container.RegisterMany<TeamService>();
@@ -76,6 +86,7 @@ internal class Program
                 container.Register<RaidStorageService>();
                 container.Register<TimeService>();
                 container.RegisterMany<CommandHandler>();
+                container.RegisterMany<InteractionHandler>();
 
                 container.RegisterMany<PoGoBot>();
                 container.RegisterMany<PoGoBotHostedService>();

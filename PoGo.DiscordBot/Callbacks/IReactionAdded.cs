@@ -6,5 +6,5 @@ namespace PoGo.DiscordBot.Callbacks;
 
 public interface IReactionAdded
 {
-    Task OnReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction);
+    Task OnReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction);
 }

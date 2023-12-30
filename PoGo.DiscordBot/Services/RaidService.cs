@@ -150,16 +150,14 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
         }
     }
 
-    public Task OnMessageDeleted(Cacheable<IMessage, ulong> cacheableMessage, ISocketMessageChannel channel)
+    public async Task OnMessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel)
     {
-        if (!(channel is SocketTextChannel socketChannel))
-            return Task.CompletedTask;
+        if (await channel.GetOrDownloadAsync() is not SocketTextChannel socketChannel)
+            return;
 
-        var messageId = cacheableMessage.Id;
-        if (raidStorageService.TryRemove(socketChannel.Guild.Id, socketChannel.Id, messageId))
+        var messageId = message.Id;
+        if (raidStorageService.TryRemove(socketChannel.Guild.Id, channel.Id, messageId))
             logger.LogInformation($"Raid message '{messageId}' was removed.");
-
-        return Task.CompletedTask;
     }
 
     public async Task SetDefaultReactions(IUserMessage message)
@@ -182,10 +180,11 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
 
     private int ExtraPlayerKeycapDigitToCount(string name) => Array.IndexOf(UnicodeEmojis.KeycapDigits, name) + 1;
 
-    public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+    public async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
     {
-        if (!(channel is SocketGuildChannel socketGuildChannel))
+        if (await channel.GetOrDownloadAsync() is not SocketGuildChannel socketGuildChannel)
             return;
+
         var raidInfo = raidStorageService.GetRaid(socketGuildChannel.Guild.Id, channel.Id, message.Id);
         if (raidInfo == null || raidInfo.IsExpired)
             return;
@@ -223,10 +222,11 @@ public class RaidService : IReactionAdded, IReactionRemoved, IGuildAvailable, IM
         }
     }
 
-    public async Task OnReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+    public async Task OnReactionAdded(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
     {
-        if (!(channel is SocketGuildChannel socketGuildChannel))
+        if (await channel.GetOrDownloadAsync() is not SocketGuildChannel socketGuildChannel)
             return;
+
         var raidInfo = raidStorageService.GetRaid(socketGuildChannel.Guild.Id, channel.Id, message.Id);
         if (raidInfo == null || raidInfo.IsExpired)
             return;

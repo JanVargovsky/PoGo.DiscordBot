@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -16,7 +15,7 @@ namespace PoGo.DiscordBot.Modules;
 [RequireContext(ContextType.Guild)]
 [Group("raid")]
 [Alias("r")]
-public class RaidModule : InteractiveBase<SocketCommandContext>
+public class RaidModule : ModuleBase<SocketCommandContext>
 {
     private static readonly RequestOptions retryOptions = new RequestOptions { RetryMode = RetryMode.AlwaysRetry, Timeout = 10000 };
     private readonly TeamService teamService;
@@ -274,27 +273,31 @@ public class RaidModule : InteractiveBase<SocketCommandContext>
     public async Task DeleteRaid(
         [Summary("Počet anket odspodu.")] int skip = 0)
     {
-        var raid = GetRaid(skip);
+        // TODO:
+        await ReplyAsync("Tenhle prikaz je docasne nepristupny.");
+        return;
 
-        if (raid == null)
-        {
-            await ReplyAsync("Raid nenalezen.");
-            return;
-        }
+        //var raid = GetRaid(skip);
 
-        var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raidService.ToSimpleString(raid)}'? [y]");
-        var responseMessage = await NextMessageAsync();
-        if (responseMessage == null || responseMessage.Content.ToLower() != "y")
-            return;
+        //if (raid == null)
+        //{
+        //    await ReplyAsync("Raid nenalezen.");
+        //    return;
+        //}
 
-        foreach (var player in raid.GetAllPlayers())
-        {
-            var user = player.User;
-            await user.SendMessageAsync($"Raid {raidService.ToSimpleString(raid)} se ruší!");
-        }
+        //var questionMessage = await ReplyAsync($"Vážně chceš smazat tenhle raid: '{raidService.ToSimpleString(raid)}'? [y]");
+        //var responseMessage = await NextMessageAsync();
+        //if (responseMessage == null || responseMessage.Content.ToLower() != "y")
+        //    return;
 
-        await raid.Message.DeleteAsync();
-        await questionMessage.AddReactionAsync(Emojis.Check);
+        //foreach (var player in raid.GetAllPlayers())
+        //{
+        //    var user = player.User;
+        //    await user.SendMessageAsync($"Raid {raidService.ToSimpleString(raid)} se ruší!");
+        //}
+
+        //await raid.Message.DeleteAsync();
+        //await questionMessage.AddReactionAsync(Emojis.Check);
     }
 
     [Command("info", RunMode = RunMode.Async)]

@@ -17,40 +17,43 @@ public class CommandHandler : IMessageReceived, IInitializer
     private readonly ILogger<CommandHandler> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordSocketClient _client;
-    private readonly CommandService _commands;
+    private readonly CommandService _commandService;
     private readonly IOptions<ConfigurationOptions> _configuration;
 
     public CommandHandler(
         ILogger<CommandHandler> logger,
         IServiceProvider serviceProvider,
         DiscordSocketClient client,
-        CommandService commands,
+        CommandService commandService,
         IOptions<ConfigurationOptions> configuration)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
         _client = client;
-        _commands = commands;
+        _commandService = commandService;
         _configuration = configuration;
     }
 
     public async ValueTask InitializeAsync()
     {
-        var modules = await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
+        var modules = await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
         foreach (var module in modules)
-            _logger.LogDebug($"Loaded module {module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
+            _logger.LogDebug($"Loaded command module {module.Name}: {string.Join(", ", module.Commands.Select(t => t.Name))}");
     }
 
     public async Task OnMessageReceived(SocketMessage socketMessage)
     {
-        if (!(socketMessage is SocketUserMessage message))
+        if (socketMessage is not SocketUserMessage message)
             return;
 
         int argPos = 0;
-        if (!(message.HasCharPrefix(_configuration.Value.Prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))) return;
+        if (!(message.HasCharPrefix(_configuration.Value.Prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+            return;
+
 
         var context = new SocketCommandContext(_client, message);
-        var result = await _commands.ExecuteAsync(context, argPos, _serviceProvider);
+        _logger.LogDebug($"Executing command '{(message.Content.Length < 100 ? message.Content : message.Content[..100])}'");
+        var result = await _commandService.ExecuteAsync(context, argPos, _serviceProvider);
         if (!result.IsSuccess)
         {
             string reply = null;

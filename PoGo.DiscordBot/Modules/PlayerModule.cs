@@ -55,7 +55,7 @@ public class PlayerModule : ModuleBase<SocketCommandContext>
     public async Task SetLevel(
         [Summary("Aktuální level (1-50)")] int level)
     {
-        if (!(Context.User is SocketGuildUser user))
+        if (Context.User is not SocketGuildUser user)
             return;
 
         if (!(level >= 1 && level <= 50))

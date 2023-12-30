@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using PoGo.DiscordBot.Configuration.Options;
 
 namespace PoGo.DiscordBot.Modules;
 
-public class HelpModule : InteractiveBase<SocketCommandContext>
+public class HelpModule : ModuleBase
 {
     private readonly CommandService commandService;
     private readonly IServiceProvider serviceProvider;
@@ -59,7 +58,8 @@ public class HelpModule : InteractiveBase<SocketCommandContext>
         if (groupCommands.TryGetValue(string.Empty, out var globalCommands))
             commandPages.Add(globalCommands);
 
-        const int MaxCommandsPerPage = 15;
+        //const int MaxCommandsPerPage = 15;
+        const int MaxCommandsPerPage = 150;
         List<string> currentPageCommands = new List<string>();
 
         foreach (var c in groupCommands.OrderBy(t => t.Key))
@@ -81,23 +81,24 @@ public class HelpModule : InteractiveBase<SocketCommandContext>
         }
         if (currentPageCommands.Any())
             commandPages.Add(currentPageCommands);
-        var pages = commandPages.Select(CommandsToString).ToList();
+        var page = CommandsToString(commandPages.SelectMany(t => t));
 
-        if (pages.Count > 1)
-            await PagedReplyAsync(new PaginatedMessage
-            {
-                Color = Color.Blue,
-                Options = new PaginatedAppearanceOptions
-                {
-                    JumpDisplayOptions = JumpDisplayOptions.Never,
-                    DisplayInformationIcon = false,
-                    Timeout = TimeSpan.FromMinutes(1),
-                },
-                Title = "Dostupné příkazy",
-                Pages = pages,
-            });
-        else if (pages.Any())
-            await ReplyAsync($"```{pages.First()}```");
+        //if (pages.Count > 1)
+        //    throw new InvalidOperationException("Too many pages");
+        //await PagedReplyAsync(new PaginatedMessage
+        //{
+        //    Color = Color.Blue,
+        //    Options = new PaginatedAppearanceOptions
+        //    {
+        //        JumpDisplayOptions = JumpDisplayOptions.Never,
+        //        DisplayInformationIcon = false,
+        //        Timeout = TimeSpan.FromMinutes(1),
+        //    },
+        //    Title = "Dostupné příkazy",
+        //    Pages = pages,
+        //});
+        //else if (pages.Any())
+        await ReplyAsync($"```{page}```");
     }
 
     [Command("help")]

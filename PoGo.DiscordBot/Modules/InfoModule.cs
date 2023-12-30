@@ -50,6 +50,6 @@ Pozn. Jestliže má jakýkoliv parametr mezery, je nutné ho obalit uvozovkami (
     [Command("donate", RunMode = RunMode.Async)]
     public async Task Donate()
     {
-        await ReplyAsync("V případě, že byste chtěli podpořit vývoj, tak se ozvěte Pako#3904");
+        await ReplyAsync("V případě, že byste chtěli podpořit vývoj, tak se ozvěte Pako.o");
     }
 }

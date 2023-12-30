@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,8 @@ public class PoGoBot : IDisposable
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordSocketClient _client;
-    private readonly CommandService _commands;
+    private readonly CommandService _commandService;
+    private readonly InteractionService _interactionService;
     private readonly ILogger<PoGoBot> _logger;
     private readonly ILogger _discordLogger;
     private readonly IOptions<ConfigurationOptions> _configuration;
@@ -24,14 +26,16 @@ public class PoGoBot : IDisposable
     public PoGoBot(
         IServiceProvider serviceProvider,
         DiscordSocketClient client,
-        CommandService commands,
+        CommandService commandService,
+        InteractionService interactionService,
         ILogger<PoGoBot> logger,
         ILoggerFactory loggerFactory,
         IOptions<ConfigurationOptions> configuration)
     {
         _serviceProvider = serviceProvider;
         _client = client;
-        _commands = commands;
+        _commandService = commandService;
+        _interactionService = interactionService;
         _logger = logger;
         _discordLogger = loggerFactory.CreateLogger("Discord");
         _configuration = configuration;
@@ -58,7 +62,7 @@ public class PoGoBot : IDisposable
     private void InitializeCallbacks()
     {
         _client.Log += OnLog;
-        _commands.Log += OnLog;
+        _commandService.Log += OnLog;
 
         _client.LoggedIn += OnLoggedIn;
         _client.LoggedOut += OnLoggedOut;
@@ -88,6 +92,12 @@ public class PoGoBot : IDisposable
 
         foreach (var service in _serviceProvider.GetServices<IUserJoined>())
             _client.UserJoined += service.OnUserJoined;
+
+        foreach (var service in _serviceProvider.GetServices<IInteractionCreated>())
+            _client.InteractionCreated += service.OnInteractionCreated;
+
+        foreach (var service in _serviceProvider.GetServices<IReady>())
+            _client.Ready += service.OnReady;
     }
 
     private Task OnLoggedIn()

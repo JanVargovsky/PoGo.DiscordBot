@@ -11,7 +11,7 @@ public class TeamPreconditionAttribute : PreconditionAttribute
 {
     public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
     {
-        if (!(context.User is SocketGuildUser guildUser))
+        if (context.User is not SocketGuildUser guildUser)
             return Task.FromResult<PreconditionResult>(TeamPreconditionResult.Fail);
 
         var userService = services.GetService<UserService>();

@@ -32,7 +32,7 @@ public class RoleModule : ModuleBase<SocketCommandContext>
     [Summary("Přidá uživateli roli.")]
     public async Task AddRole([Summary("Název role")] string roleName)
     {
-        if (!(Context.User is SocketGuildUser user))
+        if (Context.User is not SocketGuildUser user)
             return;
 
         if (!availableRoles.TryGetValue(Context.Guild.Id, out var roles) || !roles.Contains(roleName))
@@ -54,7 +54,7 @@ public class RoleModule : ModuleBase<SocketCommandContext>
     [Summary("Smaže uživateli roli.")]
     public async Task RemoveRole([Summary("Název role")] string roleName)
     {
-        if (!(Context.User is SocketGuildUser user))
+        if (Context.User is not SocketGuildUser user)
             return;
 
         if (!availableRoles.TryGetValue(Context.Guild.Id, out var roles) || !roles.Contains(roleName))
