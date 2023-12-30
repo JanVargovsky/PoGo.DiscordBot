@@ -35,7 +35,8 @@ internal class Program
                     .AddJsonFile("configuration.json")
                     .AddJsonFile($"configuration.{environment}.json")
                     .AddJsonFile("appsettings.json")
-                    .AddJsonFile($"appsettings.{environment}.json");
+                    .AddJsonFile($"appsettings.{environment}.json")
+                    .AddUserSecrets<Program>();
             })
             .ConfigureLogging((host, builder) =>
             {
@@ -49,6 +50,8 @@ internal class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services.Configure<ConfigurationOptions>(hostContext.Configuration);
+                // overwrite with environment specific values from secrets.json (especially the Development:Token and Production:Token)
+                services.Configure<ConfigurationOptions>(hostContext.Configuration.GetSection(hostContext.HostingEnvironment.EnvironmentName));
             })
             .UseServiceProviderFactory(new DryIocServiceProviderFactory(new Container(rules => rules.WithDefaultReuse(Reuse.Singleton))))
             .ConfigureContainer<IContainer>((hostContext, container) =>

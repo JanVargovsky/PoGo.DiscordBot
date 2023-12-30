@@ -5,6 +5,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<LangVersion>Latest</LangVersion>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<UserSecretsId>PoGo.DiscordBot</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
