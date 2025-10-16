@@ -30,7 +30,7 @@ public class UserService : IUserJoined
         var stringLevel = result.Captures.LastOrDefault()?.Value;
         if (stringLevel != null &&
             int.TryParse(stringLevel.Substring(1, stringLevel.Length - 2), out var level) &&
-            level >= 1 && level <= 40)
+            level >= 1 && level <= 80)
             return level;
         return null;
     }

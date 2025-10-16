@@ -53,14 +53,14 @@ public class PlayerModule : ModuleBase<SocketCommandContext>
     [TeamPrecondition]
     [Summary("Nastaví level.")]
     public async Task SetLevel(
-        [Summary("Aktuální level (1-50)")] int level)
+        [Summary("Aktuální level (1-80)")] int level)
     {
         if (Context.User is not SocketGuildUser user)
             return;
 
-        if (!(level >= 1 && level <= 50))
+        if (!(level >= 1 && level <= 80))
         {
-            await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-50.");
+            await ReplyAsync("Asi hraješ jinou hru ... povolený level je 1-80.");
             return;
         }
 
@@ -85,7 +85,7 @@ public class PlayerModule : ModuleBase<SocketCommandContext>
     [Summary("Nastaví team a level.")]
     public async Task SetBasicInfo(
         [Summary("Zvolený team (roli).")] PokemonTeam team,
-        [Summary("Aktuální level (1-50).")] int level)
+        [Summary("Aktuální level (1-80).")] int level)
     {
         await SetTeam(team);
         await SetLevel(level);
