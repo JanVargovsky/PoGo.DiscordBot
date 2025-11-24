@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
+using Discord.Rest;
 using Discord.WebSocket;
 using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
@@ -61,8 +62,9 @@ internal class Program
                 {
                     LogLevel = logSeverity,
                     MessageCacheSize = 100,
-                    GatewayIntents = GatewayIntents.All & ~GatewayIntents.GuildPresences & ~GatewayIntents.GuildScheduledEvents & ~GatewayIntents.GuildInvites
+                    GatewayIntents = GatewayIntents.All & ~GatewayIntents.GuildScheduledEvents & ~GatewayIntents.GuildInvites
                 }));
+                container.RegisterDelegate<IRestClientProvider>(r => r.Resolve<DiscordSocketClient>(), Reuse.Singleton);
 
                 container.Register<CommandService>();
                 container.RegisterInstance(new CommandServiceConfig

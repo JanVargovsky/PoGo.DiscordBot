@@ -9,5 +9,5 @@ public class PlayerDto
     public PokemonTeam? Team { get; set; }
     public int? Level { get; set; }
 
-    public override string ToString() => User.Nickname ?? User.Username;
+    public override string ToString() => User.DisplayName;
 }
